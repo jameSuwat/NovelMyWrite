@@ -99,7 +99,6 @@ label.f:first-child{margin-top:0}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
 .filters button{font-family:inherit;font-size:.79rem;padding:.42em .95em;border-radius:99px;border:1px solid var(--bd);background:none;color:var(--tx2);cursor:pointer}
 .filters button.on{background:var(--grad);color:#fff;border-color:transparent}
-/* ---- timeline ---- */
 .tl{position:relative;margin-left:10px;padding-left:28px;border-left:2px solid var(--bd2);max-width:760px}
 .tl-item{position:relative;margin-bottom:18px}
 .tl-item::before{content:'';position:absolute;left:-36px;top:5px;width:13px;height:13px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 3px rgba(124,108,255,.22)}
@@ -107,7 +106,6 @@ label.f:first-child{margin-top:0}
 .tl-item .tt{font-weight:600;font-size:.93rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .tl-item .dt{font-size:.83rem;color:var(--tx2);margin-top:3px;line-height:1.55;white-space:pre-wrap}
 .whenchip{font-size:.66rem;padding:.18em .6em;border-radius:99px;background:rgba(255,143,94,.14);color:#ff9d70;border:1px solid rgba(255,143,94,.35)}
-/* ---- relationship map ---- */
 .ov-layout{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
 #rel-svg{flex:1;min-width:340px;background:var(--panel);border:1px solid var(--bd);border-radius:16px}
 #rel-svg text{font-family:'Prompt',sans-serif}
@@ -165,7 +163,6 @@ details.sum textarea{margin-top:10px;min-height:90px}
 .keywrap .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tx2)}
 input[type=range]{accent-color:var(--ac);width:100%}
 hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
-/* consistency */
 #m-consist .modal{width:min(680px,94vw)}
 .score-line{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .score-big{font-size:2.5rem;font-weight:700;line-height:1}
@@ -403,7 +400,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <b style="font-size:.9rem">💾 ข้อมูลทั้งหมด (สำรอง/กู้คืน)</b>
     <div class="row" style="margin-top:10px">
       <button class="btn ghost sm" onclick="exportBackup()">ส่งออกไฟล์สำรอง</button>
-      <button class="btn ghost sm" onclick="$('file-imp').click()">นำเข้าไฟล์สำรอง</button>
+      <button class="btn ghost sm" onclick="$('#file-imp').click()">นำเข้าไฟล์สำรอง</button>
       <input type="file" id="file-imp" accept=".json" hidden onchange="importBackup(this)">
       <button class="btn ghost sm danger" onclick="wipeAll()">ล้างข้อมูลทั้งหมด</button>
     </div>
@@ -438,10 +435,10 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <textarea class="in" id="ns-desc" rows="3" placeholder="เกริ่นนำเรื่องแบบท้ายสำคัญ..."></textarea>
     <label class="f">หน้าปกนิยาย (อัปโหลด = บีบอัดอัตโนมัติ หรือให้ AI วาดให้)</label>
     <div style="display:flex;gap:14px;align-items:flex-start">
-      <div class="prev-box" id="ns-prev" onclick="$('ns-cover').click()">🖼️</div>
+      <div class="prev-box" id="ns-prev" onclick="$('#ns-cover').click()">🖼️</div>
       <div style="flex:1">
         <div class="row">
-          <button class="btn ghost sm" onclick="$('ns-cover').click()">เลือกรูป...</button>
+          <button class="btn ghost sm" onclick="$('#ns-cover').click()">เลือกรูป...</button>
           <button class="btn ghost sm" id="btn-aicover" onclick="openAiCover(event)">🤖 สร้างปกด้วย AI</button>
         </div>
         <input type="file" id="ns-cover" accept="image/*" hidden>
@@ -672,7 +669,7 @@ function saveSettings(){settings.apiKey=$('#set-key').value.trim();settings.mode
 async function testKey(){const k=$('#set-key').value.trim();if(!k)return toast('ใส่ key ก่อนนะ','warn');
   const b=$('#test-key');b.disabled=true;b.textContent='กำลังทดสอบ...';
   try{await aiStream({prompt:'ตอบว่า OK',temp:0,maxTokens:200,quiet:true,keyOverride:k});toast('คีย์ใช้งานได้ ✅ ('+$('#set-model').value+')');}
-  catch(e){toast('คีย์ใช้ไม่ได้: '+e.message,'err');}
+  catch(e){toast('ทดสอบ: '+e.message,'err');}
   b.disabled=false;b.textContent='🔌 ทดสอบคีย์';}
 
 /* ================= GEMINI TEXT CORE ================= */
@@ -680,7 +677,7 @@ const MODEL_MAX={'gemini-3.6-flash':32768,'gemini-3.5-flash':32768,'gemini-3.5-f
 let abortCtl=null,generating=false,batching=false,batchStop=false;
 function needKey(){if(!settings.apiKey){toast('กรุณาใส่ Gemini API Key ก่อน (⚙️ ตั้งค่า)','warn');openSettings();return false}return true}
 function stopGen(){if(abortCtl)abortCtl.abort();if(batching)batchStop=true;}
-function setGenLabel(t){$('#ed-gentext').textContent=t}
+function setGenLabel(t){const el=$('#ed-gentext');if(el)el.textContent=t}
 async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxTokens=null,quiet=false,keyOverride=null}={}){
   const key=keyOverride||settings.apiKey;
   abortCtl=new AbortController();
@@ -692,9 +689,19 @@ async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxToke
   if(json)gc.responseMimeType='application/json';
   const body={contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gc};
   if(sys)body.systemInstruction={parts:[{text:sys}]};
-  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key)}`,{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtl.signal});
-  if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}throw new Error(msg);}
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key)}`;
+  let res=null;
+  for(let att=0;att<3;att++){
+    res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtl.signal});
+    if((res.status===429||res.status===503)&&att<2&&!quiet){
+      const wait=att===0?15000:30000;
+      setGenLabel(`⏳ API ถึงขีดจำกัด (429) — รอ ${wait/1000} วินาทีแล้วลองใหม่อัตโนมัติ (${att+1}/2)…`);
+      await new Promise(r=>setTimeout(r,wait));
+      continue;}
+    break;}
+  if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
+    if(res.status===429)msg='ถึงขีดจำกัดฟรีเทียร์ชั่วคราว (429) — รอ ~1 นาทีแล้วลองใหม่ (โควตารายวันรีเซ็ตตอนเที่ยงคืนตามเวลา LA)';
+    throw new Error(msg);}
   const rd=res.body.getReader(),dec=new TextDecoder();let buf='',full='';
   while(true){const{done,value}=await rd.read();if(done)break;
     buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();
@@ -727,6 +734,7 @@ async function generateImage(prompt){
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gcv})});
         if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
+          if(res.status===429)throw new Error('ถึงขีดจำกัดฟรีเทียร์ (429) — รอสักครู่แล้วลองใหม่');
           if(res.status===404||/not found|not supported|unsupported/i.test(msg)){lastErr=new Error(msg);skipModel=true;break;}
           lastErr=new Error(msg);continue;}
         const j=await res.json();
@@ -775,7 +783,7 @@ async function renderLibrary(){
   const g=$('#lib-grid');g.innerHTML='';
   const add=document.createElement('div');add.className='add-card';
   add.innerHTML='<div class="plus">+</div><b>สร้างนิยายใหม่</b><span style="font-size:.78rem">ตั้งชื่อ เลือกแนว ใส่ปก</span>';
-  add.onclick=openNewStoryModal;g.appendChild(add);
+  add.onclick=()=>openNewStoryModal();g.appendChild(add);
   const allChaps=await dbAll('chapters');
   for(const s of list){
     const chaps=allChaps.filter(c=>c.storyId===s.id);
@@ -791,18 +799,19 @@ async function renderLibrary(){
 
 /* ---------- NEW / EDIT STORY ---------- */
 function openNewStoryModal(edit=null){
+  edit=(edit&&edit.id)?edit:null;
   pendingCover=null;tmpAICover=null;
-  $('#ns-id').value='';$('#ns-title').value='';$('#ns-genre').value='';$('#ns-tone').value='';
-  $('#ns-desc').value='';$('#ns-lang').value='th';$('#ns-cover').value='';
+  $('#ns-id').value=edit?edit.id:'';
+  $('#ns-title').value=edit?(edit.title||''):'';$('#ns-genre').value=edit?(edit.genre||''):'';
+  $('#ns-tone').value=edit?(edit.tone||''):'';
+  $('#ns-desc').value=edit?(edit.desc||''):'';$('#ns-lang').value=edit?(edit.lang||'th'):'th';$('#ns-cover').value='';
   $('#ns-cinfo').textContent='ยังไม่ได้เลือกรูป — ถ้าไม่ใส่ ระบบจะทำปกตัวอักษรสวยๆ ให้เอง';
-  $('#ns-prev').innerHTML='🖼️';$('#ns-h').firstChild.textContent='✨ สร้างนิยายใหม่ ';$('#ns-go').textContent='สร้างเรื่อง →';
-  if(edit){$('#ns-id').value=edit.id;$('#ns-title').value=edit.title;$('#ns-genre').value=edit.genre||'';$('#ns-tone').value=edit.tone||'';
-    $('#ns-desc').value=edit.desc||'';$('#ns-lang').value=edit.lang||'th';
-    $('#ns-h').firstChild.textContent='✏️ แก้ไขข้อมูลเรื่อง ';$('#ns-go').textContent='บันทึก';
-    if(edit.cover){$('#ns-prev').innerHTML=`<img src="${edit.cover}">`;pendingCover={data:edit.cover,keep:true};}}
+  $('#ns-prev').innerHTML='🖼️';$('#ns-h').firstChild.textContent=edit?'✏️ แก้ไขข้อมูลเรื่อง ':'✨ สร้างนิยายใหม่ ';
+  $('#ns-go').textContent=edit?'บันทึก':'สร้างเรื่อง →';
+  if(edit&&edit.cover){$('#ns-prev').innerHTML=`<img src="${edit.cover}">`;pendingCover={data:edit.cover,keep:true};}
   openM('m-newstory');
 }
-function editStoryInfo(){openNewStoryModal(state.story)}
+function editStoryInfo(){if(state.story)openNewStoryModal(state.story)}
 async function onCoverPick(inp){
   const f=inp.files[0];if(!f)return;
   try{const r=await compressImageFile(f);
@@ -816,15 +825,14 @@ async function createStory(){
   const title=$('#ns-title').value.trim();
   if(!title)return toast('กรุณาตั้งชื่อเรื่อง','warn');
   const id=$('#ns-id').value;
-  let st;
-  if(id){st=await dbGet('stories',id);Object.assign(st,{title,genre:$('#ns-genre').value.trim(),tone:$('#ns-tone').value.trim(),
+  let st=id?await dbGet('stories',id):null;
+  const isNew=!st;
+  if(!st)st={id:uid(),cover:null,outline:'',arc:{beginning:'',middle:'',end:''},createdAt:Date.now()};
+  Object.assign(st,{title,genre:$('#ns-genre').value.trim(),tone:$('#ns-tone').value.trim(),
     desc:$('#ns-desc').value.trim(),lang:$('#ns-lang').value,updatedAt:Date.now()});
-    if(pendingCover&&!pendingCover.keep)st.cover=pendingCover.data;}
-  else{st={id:uid(),title,genre:$('#ns-genre').value.trim(),tone:$('#ns-tone').value.trim(),
-    desc:$('#ns-desc').value.trim(),lang:$('#ns-lang').value,
-    cover:pendingCover?pendingCover.data:null,outline:'',arc:{beginning:'',middle:'',end:''},createdAt:Date.now(),updatedAt:Date.now()};}
+  if(pendingCover&&!pendingCover.keep)st.cover=pendingCover.data;
   await dbPut('stories',st);closeM('m-newstory');
-  toast(id?'บันทึกข้อมูลเรื่องแล้ว ✅':'สร้างเรื่องใหม่แล้ว 🎉 ลองให้ AI วางโครงเรื่องก่อน!');
+  toast(isNew?'สร้างเรื่องใหม่แล้ว 🎉 ลองให้ AI วางโครงเรื่องก่อน!':'บันทึกข้อมูลเรื่องแล้ว ✅');
   openStory(st.id);
 }
 
@@ -1094,8 +1102,7 @@ async function renderRelMap(){
   if(chars.length<2){svg.innerHTML='<text x="320" y="320" text-anchor="middle" fill="#8a93a8" font-size="15">ต้องมีตัวละครอย่างน้อย 2 คน ถึงจะวาดเส้นความสัมพันธ์ได้</text>';return}
   const cx=320,cy=320,R=235,n=chars.length;
   const pos=chars.map((c,i)=>{const ang=-Math.PI/2+i*2*Math.PI/n;return{x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang)}});
-  // edges
-  const edges=[];const seen=new Set();
+  const edges=[];
   for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
     const a=chars[i],b=chars[j];
     const ta=(a.relations||'').includes(b.name)?a.relations:'';
@@ -1124,7 +1131,6 @@ async function renderRelMap(){
     const ti=document.createElementNS(NS,'title');ti.textContent=`${c.name} — ${c.role||''}`;g.appendChild(ti);
     g.addEventListener('click',()=>selectChar(i));
     svg.appendChild(g);});
-  window._relData={chars,pos,edges};
   function selectChar(i){
     selChar=i===selChar?null:i;
     svg.querySelectorAll('.node').forEach(g=>{const gi=+g.dataset.i;
@@ -1141,7 +1147,6 @@ async function renderRelMap(){
       .filter(f=>f[1]).map(f=>`<div class="fld"><b>${f[0]}:</b> ${esc(f[1])}</div>`).join('')
       +(rel?`<hr class="sep" style="margin:10px 0">${rel}`:'<p class="hint">ยังไม่มีเส้นความสัมพันธ์ — เพิ่มชื่อตัวละครอื่นในช่อง "ความสัมพันธ์"</p>');
   }
-  if(selChar!==null&&selChar<chars.length)selectChar(selChar);
 }
 async function renderTimeline(){
   const sid=state.story.id;
@@ -1451,7 +1456,7 @@ Requirements: striking main character(s) matching the story as focal point, dram
     $('#aics-status').textContent='✅ เสร็จแล้ว! กด "ใช้ปกนี้" เพื่อนำไปใช้ (ถูกบีบอัดเป็น JPEG ~150KB แล้ว)';
   }catch(e){
     $('#aics-status').textContent='';
-    toast('สร้างปกไม่สำเร็จ: '+e.message+' — ลองเปลี่ยนสไตล์/คำสั่ง หรือโมเดลอาจยังไม่เปิดให้ key นี้ใช้ภาพ','err');
+    toast('สร้างปกไม่สำเร็จ: '+e.message,'err');
   }
   b.disabled=false;b.innerHTML='✨ สร้างภาพ';
 }
