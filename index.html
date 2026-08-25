@@ -158,9 +158,6 @@ details.sum textarea{margin-top:10px;min-height:90px}
 .toast{background:var(--panel);border:1px solid var(--bd2);border-left:4px solid var(--ok);border-radius:12px;padding:12px 17px;font-size:.87rem;box-shadow:var(--sh);animation:tin .25s ease;max-width:340px}
 .toast.warn{border-left-color:var(--warn)}.toast.err{border-left-color:var(--err)}
 @keyframes tin{from{transform:translateX(30px);opacity:0}}
-.keywrap{position:relative}
-.keywrap input{padding-right:44px}
-.keywrap .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tx2)}
 input[type=range]{accent-color:var(--ac);width:100%}
 hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 #m-consist .modal{width:min(680px,94vw)}
@@ -353,6 +350,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <button class="btn ghost sm" id="ed-cont-btn" onclick="edContinue()">▶️ ให้ AI เขียนต่อ</button>
     <button class="btn ghost sm" id="ed-check-btn" onclick="checkConsistency()">🔍 ตรวจความสอดคล้อง</button>
     <button class="btn ghost sm" id="ed-sum-btn" onclick="sumBtnWrap()">🧾 สรุปตอนนี้เป็นความจำ</button>
+    <button class="btn ghost sm" id="ed-speak-btn" onclick="toggleSpeak()">🔊 อ่านออกเสียง</button>
     <button class="btn ghost sm" onclick="downloadChapter()">📄 .txt</button>
     <button class="btn ghost sm danger" onclick="edDelete()">🗑</button>
   </div>
@@ -372,21 +370,21 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 <div class="overlay" id="m-settings">
   <div class="modal">
     <h2>⚙️ ตั้งค่า <button class="x" onclick="closeM('m-settings')">✕</button></h2>
-    <label class="f">Gemini API Key <span class="hint">(ดูในเครื่องคุณเท่านั้น — รับฟรีที่ aistudio.google.com/apikey)</span></label>
-    <div class="keywrap"><input class="in" id="set-key" type="password" placeholder="AIza...">
-      <button class="eye" onclick="eyeKey()">👁</button></div>
-    <label class="f">โมเดล (ตัวเขียนเรื่อง)</label>
+    <label class="f">Gemini API Keys — ใส่ได้หลายคีย์ (บรรทัดละ 1 คีย์) <span class="hint">รับฟรีที่ aistudio.google.com/apikey — ระบบจะหมุนสลับใช้ และสลับทันทีเมื่อคีย์ใดโดน 429</span></label>
+    <textarea class="in" id="set-keys" rows="3" placeholder="AIza... (คีย์หลัก)&#10;AIza... (คีย์สำรอง ถ้ามี)&#10;AIza... (เพิ่มได้เรื่อยๆ)" oninput="updateKeysCount()"></textarea>
+    <p class="hint" id="keys-count"></p>
+    <label class="f">โมเดล (ตัวเขียนเรื่อง) <span class="hint">💡 เร็วสุด = Flash-Lite + ปิด "คิดก่อนเขียน"</span></label>
     <select class="in" id="set-model">
       <option value="gemini-3.6-flash">Gemini 3.6 Flash — แนะนำ เสถียร เร็ว คุ้ม</option>
       <option value="gemini-3.5-flash">Gemini 3.5 Flash — ฉลาดขึ้น งานซับซ้อน</option>
-      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — เร็ว/ประหยัดสุด</option>
-      <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite — ประหยัดสุด</option>
-      <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro — ฉลาดสุด (Preview ช้า/แพงกว่า)</option>
+      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — เร็ว/ประหยัดสุด ⚡</option>
+      <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite — เร็ว/ประหยัด ⚡</option>
+      <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro — ฉลาดสุด (ช้า/แพงกว่า)</option>
       <option value="gemini-2.5-flash">Gemini 2.5 Flash (เก่า — ปิด 16 ต.ค. 2026)</option>
     </select>
     <label class="f">ความครีเอทีฟ (temperature): <b id="temp-val">0.95</b> <span class="hint">(มีผลเฉพาะโมเดล 2.5 — Gemini 3 จัดการเอง)</span></label>
     <input type="range" id="set-temp" min="0" max="1" step="0.05" value="0.95" oninput="$('#temp-val').textContent=this.value">
-    <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (คุณภาพดีขึ้น แต่ช้ากว่า)</label>
+    <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (คุณภาพดีขึ้น แต่ช้ากว่ามาก)</label>
     <hr class="sep">
     <b style="font-size:.9rem">☁️ Supabase — เก็บข้อมูลบนคลาวด์ (เขียนข้ามเครื่อง)</b>
     <p class="hint" style="margin:6px 0">สมัครฟรีที่ supabase.com → สร้าง Project → เอา Project URL + anon public key มาวาง แล้วรัน SQL ที่ปุ่ม 👤 คลาวด์ แสดงให้ 1 ครั้ง</p>
@@ -533,8 +531,8 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
         </select>
       </div>
     </div>
-    <p class="hint" style="margin-top:8px">⏩ แบตช์ &gt; 1 ตอน: AI จะเขียนต่อเนื่อง เก็บสรุปความจำระหว่างทางให้เอง จนครบจำนวน (กด ⏹ เพื่อหยุดหลังตอนปัจจุบัน)</p>
-    <label class="checkline"><input type="checkbox" id="nc-autosum" checked> สรุปตอนอัตโนมัติเก็บเป็นความจำเมื่อเขียนเสร็จ (แนะนำ)</label>
+    <p class="hint" style="margin-top:8px">⏩ แบตช์ &gt; 1 ตอน: AI เขียนต่อเนื่อง เก็บความจำขนานไปด้วย (เร็วขึ้น) — กด ⏹ เพื่อหยุดหลังตอนปัจจุบัน · ถ้าตอนไหนสั้นกว่าเป้า ระบบสั่งเขียนต่อให้อัตโนมัติ</p>
+    <label class="checkline"><input type="checkbox" id="nc-autosum" checked> สรุปตอนอัตโนมัติเก็บเป็นความจำเมื่อเขียนเสร็จ (ทำเบื้องหลัง ไม่หน่วง)</label>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeM('m-newchap')">ยกเลิก</button>
       <button class="btn primary" onclick="startWriting()">🚀 เริ่มเขียน!</button>
@@ -557,7 +555,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     </select>
     <label class="f">คำสั่งเพิ่มเติม (ฉาก/ตัวละคร/สีที่อยากได้)</label>
     <input class="in" id="aics-extra" placeholder="เช่น หญิงสาวผมดำถือดาบเรืองแสงยืนบนหน้าผา พื้นหลังพระจันทร์สีแดง">
-    <label class="checkline"><input type="checkbox" id="aics-textchk"> พยายามใส่ชื่อเรื่องบนปกด้วย <span class="hint">(AI สะกดไทยอาจเพี้ยน — แนะนำเว้นไว้แล้วไปใส่ชื่อเองทีหลัง)</span></label>
+    <label class="checkline"><input type="checkbox" id="aics-textchk"> พยายามใส่ชื่อเรื่องบนปกด้วย <span class="hint">(AI สะกดไทยอาจเพี้ยน)</span></label>
     <div class="row" style="margin-top:14px;gap:14px;align-items:flex-start">
       <div class="prev-box" id="aics-prev" style="width:150px;height:210px">🖼️</div>
       <div style="flex:1">
@@ -649,37 +647,46 @@ const dbAll=s=>new Promise((res,rej)=>{const r=txo(s,'readonly').getAll();r.onsu
 const dbClear=s=>new Promise((res,rej)=>{const r=txo(s,'readwrite').clear();r.onsuccess=res;r.onerror=()=>rej(r.error)});
 
 /* ================= SETTINGS ================= */
-let settings={apiKey:'',model:'gemini-3.6-flash',temperature:.95,thinking:false,theme:'dark',sbUrl:'',sbKey:''};
+let settings={apiKey:'',keys:'',model:'gemini-3.6-flash',temperature:.95,thinking:false,theme:'dark',sbUrl:'',sbKey:''};
 const MODEL_MIGRATE={'gemini-2.5-flash':'gemini-3.6-flash','gemini-2.5-pro':'gemini-3.1-pro-preview','gemini-2.5-flash-lite':'gemini-3.5-flash-lite','gemini-2.0-flash':'gemini-3.6-flash'};
 function loadSettings(){try{Object.assign(settings,JSON.parse(localStorage.getItem('nf_settings')||'{}'))}catch{}
+  if(!settings.keys&&settings.apiKey)settings.keys=settings.apiKey;
   if(MODEL_MIGRATE[settings.model]){settings.model=MODEL_MIGRATE[settings.model];persistSettings();}}
 function persistSettings(){localStorage.setItem('nf_settings',JSON.stringify(settings))}
 function toggleTheme(){settings.theme=settings.theme==='dark'?'light':'dark';persistSettings();applyTheme();}
 function applyTheme(){document.documentElement.dataset.theme=settings.theme;$('#btn-theme').textContent=settings.theme==='dark'?'🌙':'☀️';}
-function eyeKey(){const i=$('#set-key');i.type=i.type==='password'?'text':'password'}
-function openSettings(){$('#set-key').value=settings.apiKey;$('#set-model').value=settings.model;
+function openSettings(){$('#set-keys').value=settings.keys||settings.apiKey||'';
+  $('#set-model').value=settings.model;
   $('#set-temp').value=settings.temperature;$('#temp-val').textContent=settings.temperature;
   $('#set-think').checked=settings.thinking;$('#set-sburl').value=settings.sbUrl;$('#set-sbkey').value=settings.sbKey;
-  openM('m-settings');}
-function saveSettings(){settings.apiKey=$('#set-key').value.trim();settings.model=$('#set-model').value;
+  updateKeysCount();openM('m-settings');}
+function saveSettings(){settings.keys=$('#set-keys').value.trim();
+  settings.apiKey=(settings.keys.split(/\r?\n/)[0]||'').trim();
+  settings.model=$('#set-model').value;
   settings.temperature=parseFloat($('#set-temp').value);settings.thinking=$('#set-think').checked;
   const nu=$('#set-sburl').value.trim(),nk=$('#set-sbkey').value.trim();
   if(nu!==settings.sbUrl||nk!==settings.sbKey){settings.sbUrl=nu;settings.sbKey=nk;sbClient=null;}
   persistSettings();closeM('m-settings');renderKeyBanner();toast('บันทึกการตั้งค่าแล้ว ✅');}
-async function testKey(){const k=$('#set-key').value.trim();if(!k)return toast('ใส่ key ก่อนนะ','warn');
+function updateKeysCount(){const n=getKeyPool();const el=$('#keys-count');
+  if(el)el.textContent=n.length?`ตรวจพบ ${n.length} คีย์ — ระบบจะหมุนสลับใช้และกระโดดสลับทันทีเมื่อโดน 429`:'ยังไม่มีคีย์';}
+async function testKey(){const pool=getKeyPool();const k=pool[0]||$('#set-keys').value.trim();
+  if(!k)return toast('ใส่ key ก่อนนะ','warn');
   const b=$('#test-key');b.disabled=true;b.textContent='กำลังทดสอบ...';
-  try{await aiStream({prompt:'ตอบว่า OK',temp:0,maxTokens:200,quiet:true,keyOverride:k});toast('คีย์ใช้งานได้ ✅ ('+$('#set-model').value+')');}
+  try{await aiStream({prompt:'ตอบว่า OK',temp:0,maxTokens:200,keyOverride:k});
+    toast(pool.length>1?`คีย์ใช้ได้ ✅ (มี ${pool.length} คีย์ในระบบ ใช้โมเดล ${$('#set-model').value})`:'คีย์ใช้งานได้ ✅ ('+$('#set-model').value+')');}
   catch(e){toast('ทดสอบ: '+e.message,'err');}
   b.disabled=false;b.textContent='🔌 ทดสอบคีย์';}
 
-/* ================= GEMINI TEXT CORE ================= */
+/* ================= GEMINI TEXT CORE (multi-key pool) ================= */
 const MODEL_MAX={'gemini-3.6-flash':32768,'gemini-3.5-flash':32768,'gemini-3.5-flash-lite':32768,'gemini-3.1-flash-lite':32768,'gemini-3.1-pro-preview':32768,'gemini-2.5-flash':16384,'gemini-2.5-pro':16384,'gemini-2.5-flash-lite':16384};
-let abortCtl=null,generating=false,batching=false,batchStop=false;
-function needKey(){if(!settings.apiKey){toast('กรุณาใส่ Gemini API Key ก่อน (⚙️ ตั้งค่า)','warn');openSettings();return false}return true}
+let abortCtl=null,generating=false,batching=false,batchStop=false,keyIdx=0,genTarget=0;
+function getKeyPool(){return(settings.keys||settings.apiKey||'').split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>20)}
+function needKey(){if(!getKeyPool().length){toast('กรุณาใส่ Gemini API Key ก่อน (⚙️ ตั้งค่า)','warn');openSettings();return false}return true}
 function stopGen(){if(abortCtl)abortCtl.abort();if(batching)batchStop=true;}
 function setGenLabel(t){const el=$('#ed-gentext');if(el)el.textContent=t}
-async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxTokens=null,quiet=false,keyOverride=null}={}){
-  const key=keyOverride||settings.apiKey;
+async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxTokens=null,keyOverride=null}={}){
+  const pool=keyOverride?[keyOverride]:getKeyPool();
+  if(!pool.length)throw new Error('ยังไม่ได้ใส่ API Key');
   abortCtl=new AbortController();
   const model=settings.model;
   const gc={maxOutputTokens:maxTokens||MODEL_MAX[model]||32768};
@@ -689,18 +696,22 @@ async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxToke
   if(json)gc.responseMimeType='application/json';
   const body={contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gc};
   if(sys)body.systemInstruction={parts:[{text:sys}]};
-  const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key)}`;
+  const maxAtt=Math.min(8,pool.length*2+1);
   let res=null;
-  for(let att=0;att<3;att++){
-    res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtl.signal});
-    if((res.status===429||res.status===503)&&att<2&&!quiet){
-      const wait=att===0?15000:30000;
-      setGenLabel(`⏳ API ถึงขีดจำกัด (429) — รอ ${wait/1000} วินาทีแล้วลองใหม่อัตโนมัติ (${att+1}/2)…`);
-      await new Promise(r=>setTimeout(r,wait));
+  for(let att=0;att<maxAtt;att++){
+    const useKey=keyOverride||pool[Math.abs(keyIdx)%pool.length];
+    res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(useKey)}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtl.signal});
+    if((res.status===429||res.status===503)&&att<maxAtt-1&&!keyOverride){
+      keyIdx++;
+      if(pool.length>1)setGenLabel(`🔄 คีย์เต็มโควตา — สลับไป Key #${(Math.abs(keyIdx)%pool.length)+1} ทันที…`);
+      if(res.status===503||att>=pool.length-1){
+        setGenLabel(`⏳ API ถึงขีดจำกัด — รอ 15 วินาทีแล้วลองใหม่ (${att+1}/${maxAtt})…`);
+        await new Promise(r=>setTimeout(r,15000));}
       continue;}
     break;}
   if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
-    if(res.status===429)msg='ถึงขีดจำกัดฟรีเทียร์ชั่วคราว (429) — รอ ~1 นาทีแล้วลองใหม่ (โควตารายวันรีเซ็ตตอนเที่ยงคืนตามเวลา LA)';
+    if(res.status===429)msg='คีย์ทุกตัวถึงขีดจำกัดชั่วคราว (429) — รอ ~1 นาทีแล้วลองใหม่ (โควตารายวันรีเซ็ต ~14:00 น. เวลาไทย)';
     throw new Error(msg);}
   const rd=res.body.getReader(),dec=new TextDecoder();let buf='',full='';
   while(true){const{done,value}=await rd.read();if(done)break;
@@ -724,13 +735,13 @@ const IMG_CFG_VARIANTS=[
   {}
 ];
 async function generateImage(prompt){
-  if(!settings.apiKey)throw new Error('ยังไม่ได้ใส่ API Key');
+  if(!getKeyPool().length)throw new Error('ยังไม่ได้ใส่ API Key');
   let lastErr;
   for(const model of IMG_MODELS){
     let skipModel=false;
     for(const gcv of IMG_CFG_VARIANTS){
       try{
-        const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(settings.apiKey)}`,{
+        const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(getKeyPool()[0])}`,{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gcv})});
         if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
@@ -772,8 +783,8 @@ function compressImageFile(file,maxDim=900,q=.82){return new Promise(async(res,r
 function show(id){for(const v of['view-library','view-story','view-editor'])$('#'+v).hidden=v!==id;window.scrollTo(0,0);}
 function goHome(){if(generating&&!confirm('AI กำลังเขียนอยู่ ออกไปเลย? (จะหยุดการเขียน)'))return;stopGen();renderLibrary();show('view-library');}
 function phColor(name){const h=hue(name);return`linear-gradient(135deg,hsl(${h},55%,42%),hsl(${(h+60)%360},60%,30%))`}
-function renderKeyBanner(){$('#key-banner').innerHTML=settings.apiKey?'':`
-  <div class="banner"><div>🔑 <b>ยังไม่ได้ใส่ Gemini API Key</b> — ใส่ก่อนถึงจะให้ AI เขียนได้ (รับฟรีที่ aistudio.google.com/apikey)</div>
+function renderKeyBanner(){const n=getKeyPool().length;$('#key-banner').innerHTML=n?'':`
+  <div class="banner"><div>🔑 <b>ยังไม่ได้ใส่ Gemini API Key</b> — ใส่ก่อนถึงจะให้ AI เขียนได้ (ใส่ได้หลายคีย์เพื่อไม่ให้โดน 429 · รับฟรีที่ aistudio.google.com/apikey)</div>
   <button class="btn primary sm" onclick="openSettings()">ใส่ Key เลย</button></div>`;}
 
 /* ---------- LIBRARY ---------- */
@@ -1271,6 +1282,7 @@ async function generateOne({plan='',notes='',target=2500,autoSum=true,titleOverr
   const ch={id:uid(),storyId:sid,num,title:titleOverride,content:'',summary:'',status:'generating',createdAt:Date.now(),updatedAt:Date.now()};
   await dbPut('chapters',ch);
   state.chapter=ch;
+  genTarget=target;
   enterEditor(ch,{lock:true});
   if(label)setGenLabel(label);else setGenLabel('AI กำลังเขียน… (เห็นตัวอักษรไหลสดๆ ด้านล่าง)');
   const mem=await gatherContext(sid,chaps);
@@ -1305,7 +1317,18 @@ async function generateOne({plan='',notes='',target=2500,autoSum=true,titleOverr
   $('#ed-title').value=ch.title;
   updateStats();
   if(ch.content.length>200)toast(`ตอนที่ ${num} เสร็จ ✅ (≈${ch.words.toLocaleString()} คำ)`);
-  if(autoSum&&ch.content.length>400)await summarizeChapter(ch,true);
+  // เติมความยาวอัตโนมัติถ้าสั้นกว่าเป้ามาก
+  const minW=Math.round(target*0.55);
+  if(!error&&ch.content.length>200&&ch.words<minW){
+    toast(`ตอนยังสั้น (≈${ch.words.toLocaleString()}/${target.toLocaleString()} คำ) — AI กำลังเขียนต่อให้เต็มอัตโนมัติ…`,'warn');
+    await aiExtend(ch,{minAdd:1000,maxAdd:1800});
+    ch.title=titleOverride||extractTitle(ch.content)||ch.title;
+    $('#ed-title').value=ch.title;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
+    await dbPut('chapters',ch);
+  }
+  // สรุปความจำแบบเบื้องหลัง (ไม่หน่วงตอนถัดไป)
+  if(autoSum&&ch.content.length>400)summarizeChapter(ch,true).catch(()=>{});
+  genTarget=0;updateStats();
   return{ch,error};
 }
 
@@ -1324,7 +1347,8 @@ function enterEditor(ch,{lock=false}={}){
 async function openEditor(cid){enterEditor(await dbGet('chapters',cid));}
 function unlockEditor(){$('#ed-content').readOnly=false;$('#ed-genbar').hidden=true;$('#ed-cont-btn').disabled=false;}
 async function closeEditor(){if(generating&&!confirm('AI กำลังเขียนอยู่ แน่ใจ? (จะหยุดการเขียน)'))return;
-  stopGen();await edSaveSilent();state.chapter=null;
+  stopGen();try{speechSynthesis.cancel()}catch{}
+  await edSaveSilent();state.chapter=null;
   renderChaps();show('view-story');renderStoryHead();}
 async function edSaveSilent(){if(!state.chapter)return;const ch=state.chapter;
   ch.num=Math.max(1,parseInt($('#ed-num').value)||ch.num);ch.title=$('#ed-title').value.trim();
@@ -1332,32 +1356,45 @@ async function edSaveSilent(){if(!state.chapter)return;const ch=state.chapter;
   await dbPut('chapters',ch);}
 async function edSave(sumOnly=false){await edSaveSilent();toast(sumOnly?'บันทึกสรุปแล้ว 🧾':'บันทึกตอนแล้ว 💾');}
 $('#ed-content')?.addEventListener('input',()=>{updateStats();clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(!generating)edSaveSilent()},900);});
-function updateStats(){const t=$('#ed-content').value;
-  $('#ed-stat').textContent=`≈ ${estWords(t).toLocaleString()} คำ · ${t.length.toLocaleString()} ตัวอักษร`;}
-async function edContinue(){
-  if(generating||!state.chapter)return;if(!needKey())return;
-  const ch=state.chapter;const base=$('#ed-content').value;
-  if(base.trim().length<50)return toast('ต้องมีเนื้อหาก่อนถึงจะเขียนต่อได้','warn');
-  const mem=await gatherContext(ch.storyId,(await dbAll('chapters')).filter(c=>c.storyId===ch.storyId));
-  const prompt=`${mem.block}\n\n# เนื้อหาตอนที่ ${ch.num} ที่กำลังเขียนค้างอยู่ (ท้ายสุดคือจุดต่อ)\n"""\n${base.slice(-1200)}\n"""
+function updateStats(){const t=$('#ed-content').value;const w=estWords(t);
+  $('#ed-stat').textContent=genTarget>0
+    ?`≈ ${w.toLocaleString()} / ~${genTarget.toLocaleString()} คำ`
+    :`≈ ${w.toLocaleString()} คำ · ${t.length.toLocaleString()} ตัวอักษร`;}
+
+/* ---------- EXTEND (เขียนต่อ — ใช้ทั้งปุ่มมือและอัตโนมัติ) ---------- */
+async function aiExtend(ch,{minAdd=800,maxAdd=1500}={}){
+  if(generating)return false;
+  const base=$('#ed-content').value;
+  if(base.trim().length<50)return false;
+  const mem=await gatherContext(ch.storyId,(await dbAll('chapters')).filter(c=>c.storyId===ch.storyId&&c.id!==ch.id));
+  const prompt=`${mem.block}\n\n# เนื้อหาตอนที่ ${ch.num} ที่กำลังเขียนอยู่ (ท้ายสุดคือจุดต่อ)\n"""\n${base.slice(-1400)}\n"""
 
 # ภารกิจ
-เขียนต่อจากท้ายข้อความข้างบน "ทันที" โดยเนียนที่สุด ห้ามทวนความเดิม ห้ามมีหัวตอน
-ยาวเพิ่มอีก 800-1,500 คำ พัฒนาฉากปัจจุบันให้ถึงจุดจบของฉาก/ตอน มีบทสนทนาและอารมณ์`;
-  generating=true;$('#ed-genbar').hidden=false;$('#ed-content').readOnly=true;setGenLabel('AI กำลังเขียนต่อ…');
-  const genBase=base+'\n\n';
+เขียนต่อจากท้ายข้อความข้างบน "ทันที" โดยเนียนที่สุด ห้ามทวนความเดิม ห้ามมีหัวตอน ห้ามซ้ำเนื้อหาเดิม
+ยาวเพิ่มอีก ${minAdd.toLocaleString()}-${maxAdd.toLocaleString()} คำ พัฒนาฉากปัจจุบันให้ถึงจุดจบของฉาก/ตอน ปิดตอนให้สมบูรณ์พร้อม hook ท้ายตอน มีบทสนทนาและอารมณ์`;
+  generating=true;$('#ed-genbar').hidden=false;$('#ed-content').readOnly=true;
+  setGenLabel('AI กำลังเขียนส่วนที่เหลือ…');
+  const genBase=base.replace(/\s+$/,'')+'\n\n';
+  let ok=false;
   try{
     await aiStream({sys:SYS_WRITER(state.story.lang),prompt,onDelta:(d,full)=>{
       $('#ed-content').value=genBase+full;updateStats();}});
+    ok=true;
   }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
   generating=false;unlockEditor();
-  ch.content=$('#ed-content').value;ch.updatedAt=Date.now();await dbPut('chapters',ch);
-  toast('เขียนต่อเสร็จ ✅ อย่าลืมกด 🧾 สรุปใหม่');
+  ch.content=$('#ed-content').value;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
+  await dbPut('chapters',ch);
+  return ok;
+}
+async function edContinue(){
+  if(generating||!state.chapter)return;if(!needKey())return;
+  const ok=await aiExtend(state.chapter);
+  if(ok)toast('เขียนต่อเสร็จ ✅ อย่าลืมกด 🧾 สรุปใหม่');
 }
 
-/* ---------- SUMMARIZE ---------- */
+/* ---------- SUMMARIZE (เบื้องหลัง) ---------- */
 async function summarizeChapter(ch,silent=false){
-  if(!ch)return null;if(!needKey())return null;
+  if(!ch)return null;if(!getKeyPool().length)return null;
   const content=ch.content||$('#ed-content').value;
   if(content.trim().length<200){if(!silent)toast('เนื้อหาสั้นเกินไป','warn');return null;}
   try{
@@ -1372,9 +1409,9 @@ async function summarizeChapter(ch,silent=false){
     ch.summary=s.trim();
     if(state.chapter&&state.chapter.id===ch.id){$('#ed-summary').value=ch.summary;$('#ed-sum-wrap').open=true;}
     await dbPut('chapters',ch);
-    if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');else toast(`บันทึกความจำตอนที่ ${ch.num} อัตโนมัติแล้ว 🧠`);
+    if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');else toast(`ความจำตอนที่ ${ch.num} บันทึกแล้ว 🧠`);
     return ch.summary;
-  }catch(e){if(e.name!=='AbortError')toast('สรุปไม่สำเร็จ: '+e.message,'err');return null;}
+  }catch(e){if(e.name!=='AbortError'&&silent===false)toast('สรุปไม่สำเร็จ: '+e.message,'err');return null;}
 }
 async function sumBtnWrap(){
   const b=$('#ed-sum-btn');if(!state.chapter)return;
@@ -1382,6 +1419,20 @@ async function sumBtnWrap(){
   b.disabled=true;b.textContent='...';
   await summarizeChapter(ch,false);
   b.disabled=false;b.textContent='🧾 สรุปตอนนี้เป็นความจำ';
+}
+
+/* ---------- TEXT TO SPEECH ---------- */
+let speaking=false;
+function toggleSpeak(){
+  if(!('speechSynthesis' in window))return toast('เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง','warn');
+  if(speaking){speechSynthesis.cancel();speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง';return}
+  const t=$('#ed-content').value;if(!t.trim())return toast('ยังไม่มีเนื้อหาให้อ่าน','warn');
+  const u=new SpeechSynthesisUtterance(t.slice(0,30000));
+  u.lang='th-TH';u.rate=1;
+  u.onend=()=>{speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง'};
+  u.onerror=()=>{speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง'};
+  speechSynthesis.speak(u);speaking=true;
+  $('#ed-speak-btn').textContent='⏹ หยุดอ่าน';
 }
 
 /* ---------- CONSISTENCY CHECKER ---------- */
