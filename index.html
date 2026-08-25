@@ -7,23 +7,12 @@
 <title>NovelForge AI — เขียนนิยายด้วย AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0f1117; --panel:#171a23; --panel2:#1d212d; --input:#12141c;
-  --bd:#272c3a; --bd2:#333a4d; --tx:#e9ebf3; --tx2:#9aa3b8; --tx3:#6b7488;
-  --ac:#7c6cff; --ac2:#b06cff; --ok:#34d399; --warn:#fbbf24; --err:#f87171;
-  --grad:linear-gradient(135deg,#7c6cff,#b06cff);
-  --sh:0 10px 30px rgba(0,0,0,.45);
-}
-[data-theme=light]{
-  --bg:#f3f4fa; --panel:#ffffff; --panel2:#f2f3fb; --input:#f6f7fd;
-  --bd:#e3e6f2; --bd2:#cdd2e6; --tx:#1c2030; --tx2:#525b74; --tx3:#8a92ab;
-  --sh:0 10px 24px rgba(80,80,140,.14);
-}
+:root{--bg:#0f1117;--panel:#171a23;--panel2:#1d212d;--input:#12141c;--bd:#272c3a;--bd2:#333a4d;--tx:#e9ebf3;--tx2:#9aa3b8;--tx3:#6b7488;--ac:#7c6cff;--ok:#34d399;--warn:#fbbf24;--err:#f87171;--grad:linear-gradient(135deg,#7c6cff,#b06cff);--sh:0 10px 30px rgba(0,0,0,.45)}
+[data-theme=light]{--bg:#f3f4fa;--panel:#fff;--panel2:#f2f3fb;--input:#f6f7fd;--bd:#e3e6f2;--bd2:#cdd2e6;--tx:#1c2030;--tx2:#525b74;--tx3:#8a92ab;--sh:0 10px 24px rgba(80,80,140,.14)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Prompt',sans-serif;background:var(--bg) radial-gradient(1200px 500px at 80% -10%,rgba(124,108,255,.13),transparent),radial-gradient(900px 420px at -10% 30%,rgba(176,108,255,.09),transparent);color:var(--tx);min-height:100vh}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:8px}
-.wrap{max-width:1080px;margin:0 auto;padding:22px 18px 70px}
-.wrap.wide{max-width:1280px}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 18px 70px}.wrap.wide{max-width:1280px}
 .topbar{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:12px 22px;background:color-mix(in srgb,var(--bg) 75%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
 .brand{font-weight:700;font-size:1.25rem;cursor:pointer;user-select:none}
 .brand em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -38,26 +27,23 @@ body{font-family:'Prompt',sans-serif;background:var(--bg) radial-gradient(1200px
 .btn.danger{color:var(--err);border-color:color-mix(in srgb,var(--err) 40%,transparent)}
 .btn.sm{font-size:.8rem;padding:.4em .8em;border-radius:9px}
 .btn:disabled{opacity:.5;pointer-events:none}
-.hero{margin:26px 0 18px}
-.hero h1{font-size:clamp(1.5rem,3.5vw,2.1rem)}
-.hero p{color:var(--tx2);margin-top:6px}
+.hero{margin:26px 0 18px}.hero h1{font-size:clamp(1.5rem,3.5vw,2.1rem)}.hero p{color:var(--tx2);margin-top:6px}
 .banner{background:linear-gradient(90deg,rgba(124,108,255,.16),rgba(176,108,255,.07));border:1px solid color-mix(in srgb,var(--ac) 40%,transparent);border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:18px}
-.card{border-radius:16px;overflow:hidden;background:var(--panel);border:1px solid var(--bd);cursor:pointer;transition:.2s;position:relative}
+.card{border-radius:16px;overflow:hidden;background:var(--panel);border:1px solid var(--bd);cursor:pointer;transition:.2s}
 .card:hover{transform:translateY(-5px);box-shadow:var(--sh);border-color:var(--bd2)}
 .card .cov{aspect-ratio:3/4;width:100%;object-fit:cover;display:block}
 .card .ph{aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:700;color:#fff}
 .card .lab{padding:12px 14px}
 .card .lab b{display:block;font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card .lab span{font-size:.78rem;color:var(--tx2)}
-.add-card{border:2px dashed var(--bd2);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:320px;color:var(--tx2);cursor:pointer;transition:.2s;background:transparent}
+.add-card{border:2px dashed var(--bd2);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:320px;color:var(--tx2);cursor:pointer;transition:.2s}
 .add-card:hover{border-color:var(--ac);color:var(--tx);background:rgba(124,108,255,.06)}
 .add-card .plus{font-size:2.6rem;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .story-head{display:flex;gap:22px;margin:18px 0 22px;flex-wrap:wrap}
 .st-cover{width:172px;height:242px;border-radius:14px;overflow:hidden;flex-shrink:0;border:1px solid var(--bd);box-shadow:var(--sh);display:flex;align-items:center;justify-content:center;font-size:3.4rem;font-weight:700;color:#fff}
 .st-cover img{width:100%;height:100%;object-fit:cover}
-.st-info{flex:1;min-width:260px}
-.st-info h1{font-size:1.6rem;margin-bottom:8px}
+.st-info{flex:1;min-width:260px}.st-info h1{font-size:1.6rem;margin-bottom:8px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 10px}
 .chip{font-size:.76rem;padding:.32em .8em;border-radius:99px;background:var(--panel2);border:1px solid var(--bd);color:var(--tx2)}
 .chip.acc{border-color:var(--ac);color:var(--ac)}
@@ -73,27 +59,25 @@ body{font-family:'Prompt',sans-serif;background:var(--bg) radial-gradient(1200px
 @media(max-width:820px){.plot-layout{grid-template-columns:1fr}}
 .arc-layout{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:860px){.arc-layout{grid-template-columns:1fr}}
-.arc-card h3{font-size:1rem;margin-bottom:4px}
-.arc-card .sub{font-size:.78rem;color:var(--tx3);margin-bottom:10px}
+.arc-card h3{font-size:1rem;margin-bottom:4px}.arc-card .sub{font-size:.78rem;color:var(--tx3);margin-bottom:10px}
 textarea.in,input.in,select.in{width:100%;font-family:inherit;font-size:.93rem;background:var(--input);border:1px solid var(--bd);border-radius:12px;padding:11px 13px;color:var(--tx);resize:vertical;transition:border .15s}
 textarea.in:focus,input.in:focus,select.in:focus{outline:none;border-color:var(--ac)}
-label.f{display:block;font-size:.8rem;color:var(--tx2);margin:12px 0 6px;font-weight:500}
-label.f:first-child{margin-top:0}
+label.f{display:block;font-size:.8rem;color:var(--tx2);margin:12px 0 6px;font-weight:500}label.f:first-child{margin-top:0}
 .hint{font-size:.75rem;color:var(--tx3);margin-top:5px}
 .toolrow{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:14px}
 .ccard{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:8px;transition:.18s}
 .ccard:hover{border-color:var(--bd2);transform:translateY(-2px)}
 .ccard .top{display:flex;align-items:center;gap:10px}
-.avat{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+.avat{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.avat img{width:100%;height:100%;object-fit:cover}
 .role-chip{font-size:.68rem;padding:.2em .65em;border-radius:99px;background:rgba(124,108,255,.15);color:var(--ac);border:1px solid color-mix(in srgb,var(--ac) 35%,transparent)}
 .ccard .snip{font-size:.8rem;color:var(--tx2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.icon-btns{display:flex;gap:6px;margin-top:auto}
+.icon-btns{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap}
 .ibtn{background:none;border:1px solid var(--bd);border-radius:8px;padding:4px 9px;cursor:pointer;font-size:.8rem;color:var(--tx2)}
 .ibtn:hover{border-color:var(--err);color:var(--err)}
 .lr-item{border-left:3px solid var(--ac);background:var(--panel);border-radius:0 12px 12px 0;padding:11px 15px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.lr-item b{font-size:.92rem}
-.lr-item .dt{font-size:.82rem;color:var(--tx2);margin-top:3px;line-height:1.5;white-space:pre-wrap}
+.lr-item b{font-size:.92rem}.lr-item .dt{font-size:.82rem;color:var(--tx2);margin-top:3px;line-height:1.5;white-space:pre-wrap}
 .lr-item .meta{flex-shrink:0;display:flex;gap:6px;align-items:center}
 .cat-pill{font-size:.66rem;padding:.2em .6em;border-radius:99px;border:1px solid var(--bd);color:var(--tx2)}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
@@ -110,8 +94,7 @@ label.f:first-child{margin-top:0}
 #rel-svg{flex:1;min-width:340px;background:var(--panel);border:1px solid var(--bd);border-radius:16px}
 #rel-svg text{font-family:'Prompt',sans-serif}
 #rel-info{width:280px;background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:15px;font-size:.86rem}
-#rel-info h4{margin-bottom:8px}
-#rel-info .fld{margin-bottom:5px;color:var(--tx2)}
+#rel-info h4{margin-bottom:8px}#rel-info .fld{margin-bottom:5px;color:var(--tx2)}
 .legend{display:flex;gap:14px;font-size:.76rem;color:var(--tx2);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:22px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .cp-row{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--bd);border-radius:13px;padding:13px 16px;margin-bottom:10px;cursor:pointer;transition:.15s}
@@ -130,7 +113,7 @@ label.f:first-child{margin-top:0}
 #ed-content:focus{outline:none;border-color:var(--ac)}
 #ed-content:read-only{opacity:.85;border-style:dashed}
 .genbar{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(124,108,255,.18),rgba(176,108,255,.1));border:1px solid color-mix(in srgb,var(--ac) 45%,transparent);border-radius:12px;padding:9px 15px;margin-bottom:12px;font-size:.87rem}
-.spin{width:15px;height:15px;border:2.5px solid var(--ac);border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;flex-shrink:0}
+.spin{width:15px;height:15px;border:2.5px solid var(--ac);border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;flex-shrink:0;display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
 details.sum{margin-top:14px;background:var(--panel);border:1px solid var(--bd);border-radius:13px;padding:12px 16px}
 details.sum summary{cursor:pointer;font-size:.86rem;color:var(--tx2);font-weight:500}
@@ -160,7 +143,7 @@ details.sum textarea{margin-top:10px;min-height:90px}
 @keyframes tin{from{transform:translateX(30px);opacity:0}}
 input[type=range]{accent-color:var(--ac);width:100%}
 hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
-#m-consist .modal{width:min(680px,94vw)}
+#m-consist .modal,#m-beta .modal,#m-stats .modal,#m-branch .modal{width:min(680px,94vw)}
 .score-line{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .score-big{font-size:2.5rem;font-weight:700;line-height:1}
 .verdict{font-size:.9rem;color:var(--tx2);flex:1}
@@ -170,11 +153,43 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 .sev{font-size:.66rem;font-weight:600;padding:.2em .7em;border-radius:99px;color:#fff}
 .sev.hi{background:var(--err)}.sev.mid{background:var(--warn);color:#111}.sev.low{background:var(--ok)}
 .issue .typ{font-size:.7rem;padding:.2em .65em;border-radius:99px;border:1px solid var(--bd2);color:var(--tx2)}
-.issue p{font-size:.85rem;line-height:1.6}
-.issue .sug{color:var(--ac);margin-top:4px}
+.issue p{font-size:.85rem;line-height:1.6}.issue .sug{color:var(--ac);margin-top:4px}
 .sql-box{font-family:ui-monospace,monospace;font-size:.7rem;background:var(--input);border:1px solid var(--bd);padding:11px;border-radius:9px;white-space:pre-wrap;color:var(--tx2);max-height:190px;overflow-y:auto}
 .acct-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .badge-on{color:var(--ok);font-weight:600}.badge-off{color:var(--tx3)}
+.polish{position:fixed;z-index:300;background:var(--panel);border:1px solid var(--bd2);border-radius:12px;box-shadow:var(--sh);display:none;flex-direction:column;overflow:hidden;min-width:170px}
+.polish.open{display:flex}
+.polish button{background:none;border:none;font-family:inherit;font-size:.83rem;color:var(--tx);text-align:left;padding:9px 14px;cursor:pointer}
+.polish button:hover{background:var(--panel2);color:var(--ac)}
+.imgstrip{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.imgstrip .th{position:relative;width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)}
+.imgstrip img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+.imgstrip .x{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:20px;height:20px;cursor:pointer;font-size:.7rem;line-height:1}
+#readmode{position:fixed;inset:0;z-index:250;background:var(--bg);overflow-y:auto;display:none}
+#readmode.show{display:block}
+#read-ctrl{position:sticky;top:0;display:flex;gap:8px;justify-content:center;padding:10px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);z-index:2}
+#read-body{max-width:760px;margin:0 auto;padding:40px 22px 120px;font-family:'Sarabun',sans-serif;line-height:2.1}
+#read-body h2{margin:34px 0 12px;font-size:1.2em;border-bottom:1px solid var(--bd);padding-bottom:6px}
+#read-body p{margin:.5em 0;text-indent:2.5em}
+.brow{display:flex;gap:8px;align-items:center;font-size:.82rem;margin:5px 0}
+.brow .bl{width:110px;color:var(--tx2);flex-shrink:0}
+.bar{height:10px;border-radius:6px;background:var(--grad);min-width:2px}
+.bcard{border:1px solid var(--bd);border-radius:12px;padding:12px 14px;background:var(--panel2);margin-bottom:10px}
+.bcard b{font-size:.9rem}
+.bcard p{font-size:.83rem;color:var(--tx2);margin-top:4px;line-height:1.6;white-space:pre-wrap}
+.bcard .acts{margin-top:8px;display:flex;gap:6px}
+.srch-it{padding:10px 12px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.85rem;line-height:1.6}
+.srch-it:hover{border-color:var(--ac)}
+.srch-it b{color:var(--ac)}
+.srch-it mark{background:rgba(251,191,36,.35);color:inherit;border-radius:3px;padding:0 2px}
+.mem-it{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;font-size:.85rem}
+.hist-it{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;font-size:.83rem}
+.hist-it .pv{flex:1;min-width:0;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.name-it{display:flex;gap:8px;align-items:center;padding:8px 11px;border:1px solid var(--bd);border-radius:10px;margin-bottom:7px;font-size:.86rem}
+.tpl-card{border:1px solid var(--bd);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;background:var(--panel2)}
+.tpl-card:hover{border-color:var(--ac);transform:translateY(-2px)}
+.tpl-card b{display:block;margin-bottom:4px}
+.tpl-card span{font-size:.78rem;color:var(--tx2)}
 </style>
 </head>
 <body>
@@ -188,17 +203,22 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </div>
 </header>
 
-<!-- ================= LIBRARY ================= -->
+<!-- LIBRARY -->
 <main id="view-library" class="wrap">
   <div class="hero">
     <h1>📚 ชั้นหนังสือของคุณ</h1>
-    <p>วางพล็อตต้น-กลาง-ปลาย สร้างโลกและตัวละคร แล้วสั่ง AI เขียนทีละตอนหรือแบบแบตช์ 10 ตอนได้ในคลิกเดียว</p>
+    <p>วางพล็อต สร้างโลก แล้วให้ AI เขียนทีละตอน แบตช์ หรือขนานความเร็วสูง</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost sm" onclick="openStats()">📊 สถิติการเขียน</button>
+      <button class="btn ghost sm" onclick="$('#file-txt').click()">📥 นำเข้านิยายเดิม (.txt)</button>
+      <input type="file" id="file-txt" accept=".txt" hidden onchange="importTxt(this)">
+    </div>
   </div>
   <div id="key-banner"></div>
   <div class="grid" id="lib-grid"></div>
 </main>
 
-<!-- ================= STORY ================= -->
+<!-- STORY -->
 <main id="view-story" class="wrap" hidden>
   <button class="btn ghost sm" onclick="goHome()" style="margin-bottom:14px">← กลับชั้นหนังสือ</button>
   <section class="story-head">
@@ -209,13 +229,17 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
       <p class="desc" id="st-desc"></p>
       <div class="row">
         <div class="rel"><button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button></div>
-        <button class="btn ghost sm" onclick="editStoryInfo()">✏️ แก้ไขข้อมูลเรื่อง</button>
+        <button class="btn ghost sm" onclick="editStoryInfo()">✏️ แก้ไขเรื่อง</button>
+        <button class="btn ghost sm" onclick="openSearch()">🔍 ค้นหา</button>
+        <button class="btn ghost sm" onclick="openRead()">📖 อ่านทั้งเรื่อง</button>
+        <button class="btn ghost sm" onclick="openCTitle()">🔤 ชื่อบนปก</button>
         <div class="rel">
-          <button class="btn ghost sm" onclick="toggleMenu(event,'exp-menu')">📤 ส่งออกทั้งเรื่อง</button>
+          <button class="btn ghost sm" onclick="toggleMenu(event,'exp-menu')">📤 ส่งออก</button>
           <div class="menu" id="exp-menu">
             <button onclick="exportWhole('txt')">📄 ไฟล์ .txt</button>
-            <button onclick="exportWhole('md')">📝 ไฟล์ .md (Markdown)</button>
-            <button onclick="printBook()">🖨️ พิมพ์ / บันทึก PDF</button>
+            <button onclick="exportWhole('md')">📝 ไฟล์ .md</button>
+            <button onclick="exportEpub()">📚 ไฟล์ .epub (e-book)</button>
+            <button onclick="printBook()">🖨️ พิมพ์ / PDF</button>
           </div>
         </div>
         <button class="btn ghost sm danger" onclick="deleteStory()">🗑 ลบเรื่องนี้</button>
@@ -232,12 +256,11 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <button data-tab="chaps">📚 ตอนทั้งหมด</button>
   </nav>
 
-  <!-- PLOT -->
   <section id="tab-plot">
     <div class="plot-layout">
       <div class="panel">
         <label class="f">โครงเรื่อง / เนื้อเรื่องย่อหลัก (แก้ไขเองได้ อย่าลืมกดบันทึก)</label>
-        <textarea class="in" id="ol-text" rows="18" placeholder="เขียนโครงเรื่องคร่าวๆ เช่น จุดเริ่มต้น จุดหักเห ความขัดแย้ง ตอนจบ...&#10;&#10;หรือกดปุ่มด้านขวาให้ AI ช่วยสร้างให้"></textarea>
+        <textarea class="in" id="ol-text" rows="18" placeholder="เขียนโครงเรื่องคร่าวๆ หรือกดปุ่มด้านขวาให้ AI สร้างให้"></textarea>
         <div class="row" style="margin-top:12px;justify-content:space-between">
           <button class="btn primary" onclick="saveOutline()">💾 บันทึกโครงเรื่อง</button>
           <span class="hint" id="ol-saved"></span>
@@ -253,6 +276,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
         <input class="in" id="ao-eps" type="number" value="30" min="3" max="500">
         <button class="btn primary" id="ao-gen" style="margin-top:16px;width:100%" onclick="aiOutline()">✨ สร้างโครงเรื่องด้วย AI</button>
         <hr class="sep">
+        <button class="btn ghost" style="width:100%;margin-bottom:10px" onclick="openTpl()">🧩 เทมเพลตแนวเรื่องสำเร็จรูป</button>
         <b style="font-size:.9rem">⚡ เติมข้อมูลอัตโนมัติ</b>
         <p class="hint" style="margin:6px 0 10px">ให้ AI อ่านโครงเรื่องแล้วสร้าง <b>ตัวละคร + สถานที่ + ระบบพลัง + ศัพท์เฉพาะ</b> ลงคลังความจำให้เลย</p>
         <button class="btn ghost" id="po-auto" style="width:100%" onclick="aiPopulateWorld()">🪄 สร้างตัวละคร/โลกจากโครงเรื่อง</button>
@@ -260,86 +284,71 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     </div>
   </section>
 
-  <!-- ARC (3 ACTS) -->
   <section id="tab-arc" hidden>
     <div class="toolrow" style="justify-content:space-between">
-      <span class="hint" style="max-width:560px">วางพล็อตตั้งแต่<b>ต้นเรื่อง → กลางเรื่อง → ปลายเรื่องจนจบ</b> — ข้อมูลนี้จะถูกส่งให้ AI ทุกครั้งที่เขียนตอน เพื่อให้ทั้งเรื่องไปถึงจุดจบที่ตั้งไว้จริง</span>
+      <span class="hint" style="max-width:560px">วางพล็อต<b>ต้นเรื่อง → กลางเรื่อง → ปลายเรื่องจนจบ</b> — ส่งให้ AI ทุกครั้งที่เขียน เพื่อให้เรื่องไปถึงจุดจบที่ตั้งไว้จริง</span>
       <div class="row">
         <button class="btn ghost sm" id="arc-gen" onclick="aiArc()">✨ ให้ AI วาง 3 องก์ให้</button>
         <button class="btn primary sm" onclick="saveArc()">💾 บันทึกพล็อตย่อย</button>
       </div>
     </div>
     <div class="arc-layout">
-      <div class="panel arc-card">
-        <h3>🌅 องก์ 1 — ต้นเรื่อง</h3>
-        <div class="sub">แนะนำโลก/ตัวละคร • เหตุการณ์จุดประกาย (Inciting Incident) • เป้าหมายของตัวเอก • ช่วงตอนที่เท่าไร</div>
-        <textarea class="in" id="arc-b" rows="12" placeholder="เช่น&#10;• ตอน 1-3: ชีวิตธรรมดาของนายเอก + วันที่โลกพลิก&#10;• ตอน 4-6: พบเมนเทอร์ เริ่มฝึกพลังครั้งแรก&#10;• จบองก์: ตัดสินใจออกเดินทาง"></textarea>
-      </div>
-      <div class="panel arc-card">
-        <h3>⚔️ องก์ 2 — กลางเรื่อง</h3>
-        <div class="sub">การเผชิญปัญหา • จุดกึ่งกลาง (Midpoint Twist) • ความสัมพันธ์พัฒนา • ความพ่ายแพ้/จุดต่ำสุด</div>
-        <textarea class="in" id="arc-m" rows="12" placeholder="เช่น&#10;• ตอน 7-15: ภารกิจสะสมพลัง พบพันธมิตรและคู่แข่ง&#10;• ตอน 16: จุดพลิก! ความลับของตระกูลถูกเปิดเผย&#10;• ตอน 17-22: พ่ายแพ้ย่อยยับ สูญเสียสิ่งสำคัญ"></textarea>
-      </div>
-      <div class="panel arc-card">
-        <h3>🔥 องก์ 3 — ปลายเรื่องถึงจบ</h3>
-        <div class="sub">การลุกใหม่ • ศึกชี้ขาดกับตัวร้าย • ไขปริศนาทั้งหมด • บทสรุปของทุกตัวละคร</div>
-        <textarea class="in" id="arc-e" rows="12" placeholder="เช่น&#10;• ตอน 23-26: รวมพลัง ฝึกวิชาต้องห้าม&#10;• ตอน 27-29: มหาสงครามประชันกับจอมมาร&#10;• ตอน 30: บทสรุป ตอบทุกปม ปิดเรื่อง"></textarea>
-      </div>
+      <div class="panel arc-card"><h3>🌅 องก์ 1 — ต้นเรื่อง</h3><div class="sub">แนะนำโลก/ตัวละคร • Inciting Incident • เป้าหมายตัวเอก</div>
+        <textarea class="in" id="arc-b" rows="12" placeholder="เช่น&#10;• ตอน 1-3: ชีวิตธรรมดา + วันที่โลกพลิก&#10;• 4-6: พบเมนเทอร์ เริ่มฝึกพลัง"></textarea></div>
+      <div class="panel arc-card"><h3>⚔️ องก์ 2 — กลางเรื่อง</h3><div class="sub">อุปสรรค • Midpoint Twist • จุดต่ำสุด</div>
+        <textarea class="in" id="arc-m" rows="12" placeholder="เช่น&#10;• 7-15: ภารกิจสะสมพลัง&#10;• 16: จุดพลิก! ความลับถูกเปิดเผย"></textarea></div>
+      <div class="panel arc-card"><h3>🔥 องก์ 3 — ปลายเรื่องถึงจบ</h3><div class="sub">ลุกใหม่ • ศึกชี้ขาด • ไขปม • บทสรุป</div>
+        <textarea class="in" id="arc-e" rows="12" placeholder="เช่น&#10;• 23-26: รวมพลัง&#10;• 27-29: มหาสงคราม&#10;• 30: บทสรุป ปิดเรื่อง"></textarea></div>
     </div>
   </section>
 
-  <!-- CHARACTERS -->
   <section id="tab-chars" hidden>
     <div class="toolrow">
       <button class="btn primary" onclick="openCharModal(null)">＋ เพิ่มตัวละครเอง</button>
       <button class="btn ghost" onclick="aiAddCharacter(event)">🤖 ให้ AI สร้างตัวละครใหม่</button>
-      <span class="hint" style="align-self:center">💡 ใส่ "ความสัมพันธ์" ให้ครบเพื่อให้แผนผังความสัมพันธ์วาดเส้นได้</span>
+      <button class="btn ghost" onclick="openNames()">🎲 สุ่มชื่อตัวละคร</button>
+      <span class="hint">💡 ใส่ "ความสัมพันธ์" ให้ครบเพื่อวาดแผนผัง · กด 🖼️ เพื่อวาดพอร์เทรต</span>
     </div>
     <div class="cgrid" id="ch-grid"></div>
   </section>
 
-  <!-- LORE -->
   <section id="tab-lore" hidden>
     <div class="toolrow">
       <button class="btn primary" onclick="openLoreModal(null)">＋ เพิ่มข้อมูลความจำ</button>
-      <span class="hint" style="align-self:center">ทุกแถวจะถูกส่งให้ AI ทุกครั้งที่เขียน — เหตุการณ์ที่ใส่ "ช่วงเวลา" จะขึ้นบนไทม์ไลน์ด้วย</span>
+      <span class="hint">ทุกแถวจะถูกส่งให้ AI ทุกครั้งที่เขียน — จบตอน AI จะเสนอ "ของใหม่ที่ควรจำ" ให้เอง</span>
     </div>
     <div class="filters" id="lr-filters"></div>
     <div id="lr-list"></div>
   </section>
 
-  <!-- OVERVIEW: TIMELINE + RELATIONS -->
   <section id="tab-overview" hidden>
     <div class="panel" style="margin-bottom:18px">
       <b style="font-size:.98rem">🕸️ แผนผังความสัมพันธ์ตัวละคร</b>
-      <p class="hint" style="margin:4px 0 10px">คลิกที่ตัวละครเพื่อดูรายละเอียดและเส้นเชื่อมของมัน — เส้นถูกสร้างจากช่อง "ความสัมพันธ์" ของแต่ละคน</p>
+      <p class="hint" style="margin:4px 0 10px">คลิกตัวละครเพื่อดูรายละเอียด — เส้นสร้างจากช่อง "ความสัมพันธ์"</p>
       <div class="ov-layout">
         <svg id="rel-svg" viewBox="0 0 640 640" height="520"></svg>
-        <div id="rel-info"><div class="empty" style="padding:10px">คลิกตัวละครบนกราฟเพื่อดูข้อมูล</div></div>
+        <div id="rel-info"><div class="empty" style="padding:10px">คลิกตัวละครบนกราฟ</div></div>
       </div>
       <div class="legend">
-        <span><i style="background:#34d399"></i>ฝ่ายเดียวกัน / บวก</span>
-        <span><i style="background:#f87171"></i>ศัตรู / ลบ</span>
-        <span><i style="background:#8a93a8"></i>เป็นกลาง / ซับซ้อน</span>
+        <span><i style="background:#34d399"></i>ฝ่ายเดียวกัน/บวก</span>
+        <span><i style="background:#f87171"></i>ศัตรู/ลบ</span>
+        <span><i style="background:#8a93a8"></i>เป็นกลาง</span>
       </div>
     </div>
     <div class="panel">
       <b style="font-size:.98rem">📅 ไทม์ไลน์เรื่อง</b>
-      <p class="hint" style="margin:4px 0 14px">จุดสีม่วง = ตอนนิยาย · จุดส้ม = เหตุการณ์สำคัญจากคลังความจำ (เรียงตามเลขตอนที่ระบุใน "ช่วงเวลา")</p>
+      <p class="hint" style="margin:4px 0 14px">จุดม่วง = ตอนนิยาย · จุดส้ม = เหตุการณ์สำคัญ</p>
       <div id="tl-wrap"></div>
     </div>
   </section>
 
-  <!-- CHAPTERS -->
   <section id="tab-chaps" hidden>
-    <div class="toolrow">
-      <button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button>
-    </div>
+    <div class="toolrow"><button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button></div>
     <div id="cp-list"></div>
   </section>
 </main>
 
-<!-- ================= EDITOR ================= -->
+<!-- EDITOR -->
 <main id="view-editor" class="wrap wide" hidden>
   <div class="ed-top">
     <button class="btn ghost sm" onclick="closeEditor()">← กลับ</button>
@@ -347,47 +356,76 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <input class="in" id="ed-title" placeholder="ชื่อตอน">
     <span class="stat-chip" id="ed-stat">≈ 0 คำ</span>
     <button class="btn primary sm" onclick="edSave()">💾 บันทึก</button>
-    <button class="btn ghost sm" id="ed-cont-btn" onclick="edContinue()">▶️ ให้ AI เขียนต่อ</button>
-    <button class="btn ghost sm" id="ed-check-btn" onclick="checkConsistency()">🔍 ตรวจความสอดคล้อง</button>
-    <button class="btn ghost sm" id="ed-sum-btn" onclick="sumBtnWrap()">🧾 สรุปตอนนี้เป็นความจำ</button>
+    <button class="btn ghost sm" id="ed-cont-btn" onclick="edContinue()">▶️ เขียนต่อ</button>
+    <button class="btn ghost sm" id="ed-check-btn" onclick="checkConsistency()">🔍 ตรวจสอดคล้อง</button>
+    <button class="btn ghost sm" onclick="runBeta()">🧐 Beta Reader</button>
+    <button class="btn ghost sm" id="ed-sum-btn" onclick="sumBtnWrap()">🧾 สรุปเป็นความจำ</button>
+    <button class="btn ghost sm" onclick="openBranch()">🌿 What if</button>
+    <button class="btn ghost sm" onclick="genScenes()">🖼️ ภาพฉากเด็ด</button>
     <button class="btn ghost sm" id="ed-speak-btn" onclick="toggleSpeak()">🔊 อ่านออกเสียง</button>
+    <button class="btn ghost sm" onclick="openHist()">🕘 ประวัติ</button>
     <button class="btn ghost sm" onclick="downloadChapter()">📄 .txt</button>
     <button class="btn ghost sm danger" onclick="edDelete()">🗑</button>
   </div>
   <div class="genbar" id="ed-genbar" hidden>
-    <span class="spin"></span><span id="ed-gentext">AI กำลังเขียน… (เห็นตัวอักษรไหลสดๆ ด้านล่าง)</span>
+    <span class="spin"></span><span id="ed-gentext">AI กำลังเขียน…</span>
     <button class="btn ghost sm" style="margin-left:auto" onclick="stopGen()">⏹ หยุด</button>
   </div>
-  <textarea id="ed-content" spellcheck="false" placeholder="เนื้อหานิยายจะปรากฏที่นี่ — แก้ไขได้อิสระเหมือนเขียนเอง"></textarea>
+  <textarea id="ed-content" spellcheck="false" placeholder="เนื้อหานิยายจะปรากฏที่นี่ — ลากคลุมข้อความเพื่อให้ AI แต่งเฉพาะส่วนนั้นได้"></textarea>
+  <div class="imgstrip" id="ed-imgs"></div>
   <details class="sum" id="ed-sum-wrap">
-    <summary>🧾 สรุปเนื้อเรื่องของตอนนี้ (ใช้เป็นความจำส่งให้ AI ในตอนถัดไป)</summary>
-    <textarea class="in" id="ed-summary" rows="4" placeholder="ยังไม่มีสรุป — กดปุ่ม 🧾 ด้านบน"></textarea>
+    <summary>🧾 สรุปเนื้อเรื่องของตอนนี้ (ความจำสำหรับตอนถัดไป)</summary>
+    <textarea class="in" id="ed-summary" rows="4" placeholder="ยังไม่มีสรุป"></textarea>
     <button class="btn ghost sm" style="margin-top:9px" onclick="edSave(true)">บันทึกสรุป</button>
   </details>
 </main>
 
-<!-- ================= MODALS ================= -->
+<!-- polish floating menu -->
+<div class="polish" id="polish">
+  <button onclick="polishApply('drama')">🎭 ดราม่าขึ้น</button>
+  <button onclick="polishApply('short')">✂️ ย่อสั้นลง</button>
+  <button onclick="polishApply('dialog')">💬 เพิ่มบทสนทนา</button>
+  <button onclick="polishApply('fix')">🪄 แก้สำนวนให้ลื่น</button>
+  <button onclick="polishApply('expand')">📈 ขยายรายละเอียด</button>
+</div>
+
+<!-- reading mode -->
+<div id="readmode">
+  <div id="read-ctrl">
+    <button class="btn ghost sm" onclick="readFont(-2)">A−</button>
+    <button class="btn ghost sm" onclick="readFont(2)">A+</button>
+    <button class="btn ghost sm" onclick="closeRead()">✕ ปิด</button>
+  </div>
+  <div id="read-body"></div>
+</div>
+
+<!-- SETTINGS MODAL -->
 <div class="overlay" id="m-settings">
   <div class="modal">
     <h2>⚙️ ตั้งค่า <button class="x" onclick="closeM('m-settings')">✕</button></h2>
-    <label class="f">Gemini API Keys — ใส่ได้หลายคีย์ (บรรทัดละ 1 คีย์) <span class="hint">รับฟรีที่ aistudio.google.com/apikey — ระบบจะหมุนสลับใช้ และสลับทันทีเมื่อคีย์ใดโดน 429</span></label>
-    <textarea class="in" id="set-keys" rows="3" placeholder="AIza... (คีย์หลัก)&#10;AIza... (คีย์สำรอง ถ้ามี)&#10;AIza... (เพิ่มได้เรื่อยๆ)" oninput="updateKeysCount()"></textarea>
+    <label class="f">Gemini API Keys — ใส่ได้หลายคีย์ (บรรทัดละ 1 คีย์) <span class="hint">ระบบหมุนสลับ + กระโดดสลับทันทีเมื่อโดน 429</span></label>
+    <textarea class="in" id="set-keys" rows="3" placeholder="AIza...&#10;AIza... (คีย์ที่ 2)&#10;AIza... (เพิ่มได้เรื่อยๆ)" oninput="updateKeysCount()"></textarea>
     <p class="hint" id="keys-count"></p>
-    <label class="f">โมเดล (ตัวเขียนเรื่อง) <span class="hint">💡 เร็วสุด = Flash-Lite + ปิด "คิดก่อนเขียน"</span></label>
+    <label class="f">โมเดลเขียนเรื่อง <span class="hint">💡 เร็วสุด = Flash-Lite + ปิดคิดก่อนเขียน</span></label>
     <select class="in" id="set-model">
-      <option value="gemini-3.6-flash">Gemini 3.6 Flash — แนะนำ เสถียร เร็ว คุ้ม</option>
-      <option value="gemini-3.5-flash">Gemini 3.5 Flash — ฉลาดขึ้น งานซับซ้อน</option>
-      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — เร็ว/ประหยัดสุด ⚡</option>
-      <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite — เร็ว/ประหยัด ⚡</option>
-      <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro — ฉลาดสุด (ช้า/แพงกว่า)</option>
-      <option value="gemini-2.5-flash">Gemini 2.5 Flash (เก่า — ปิด 16 ต.ค. 2026)</option>
+      <option value="gemini-3.6-flash">Gemini 3.6 Flash — แนะนำ</option>
+      <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite — เร็วสุด ⚡</option>
+      <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite — เร็ว ⚡</option>
+      <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro — ฉลาดสุด (ช้า)</option>
+      <option value="gemini-2.5-flash">Gemini 2.5 Flash (เก่า)</option>
     </select>
-    <label class="f">ความครีเอทีฟ (temperature): <b id="temp-val">0.95</b> <span class="hint">(มีผลเฉพาะโมเดล 2.5 — Gemini 3 จัดการเอง)</span></label>
+    <label class="f">โมเดลงานเบา (สรุป/ตรวจ/วิเคราะห์/สกัดความจำ)</label>
+    <select class="in" id="set-model-util">
+      <option value="gemini-3.5-flash-lite">Flash-Lite — เร็ว ประหยัด (แนะนำ)</option>
+      <option value="gemini-3.6-flash">Flash</option>
+      <option value="gemini-3.1-pro-preview">Pro</option>
+    </select>
+    <label class="f">ความครีเอทีฟ: <b id="temp-val">0.95</b> <span class="hint">(เฉพาะโมเดล 2.5)</span></label>
     <input type="range" id="set-temp" min="0" max="1" step="0.05" value="0.95" oninput="$('#temp-val').textContent=this.value">
-    <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (คุณภาพดีขึ้น แต่ช้ากว่ามาก)</label>
+    <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (ดีขึ้นแต่ช้ามาก)</label>
     <hr class="sep">
-    <b style="font-size:.9rem">☁️ Supabase — เก็บข้อมูลบนคลาวด์ (เขียนข้ามเครื่อง)</b>
-    <p class="hint" style="margin:6px 0">สมัครฟรีที่ supabase.com → สร้าง Project → เอา Project URL + anon public key มาวาง แล้วรัน SQL ที่ปุ่ม 👤 คลาวด์ แสดงให้ 1 ครั้ง</p>
+    <b style="font-size:.9rem">☁️ Supabase — คลาวด์ข้ามเครื่อง</b>
     <label class="f">Project URL</label><input class="in" id="set-sburl" placeholder="https://xxxx.supabase.co">
     <label class="f">anon public key</label><input class="in" id="set-sbkey" placeholder="eyJ...">
     <div class="mfoot">
@@ -395,52 +433,40 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
       <button class="btn primary" onclick="saveSettings()">บันทึก</button>
     </div>
     <hr class="sep">
-    <b style="font-size:.9rem">💾 ข้อมูลทั้งหมด (สำรอง/กู้คืน)</b>
+    <b style="font-size:.9rem">💾 ข้อมูลทั้งหมด</b>
     <div class="row" style="margin-top:10px">
-      <button class="btn ghost sm" onclick="exportBackup()">ส่งออกไฟล์สำรอง</button>
-      <button class="btn ghost sm" onclick="$('#file-imp').click()">นำเข้าไฟล์สำรอง</button>
+      <button class="btn ghost sm" onclick="exportBackup()">ส่งออกสำรอง</button>
+      <button class="btn ghost sm" onclick="$('#file-imp').click()">นำเข้าสำรอง</button>
       <input type="file" id="file-imp" accept=".json" hidden onchange="importBackup(this)">
-      <button class="btn ghost sm danger" onclick="wipeAll()">ล้างข้อมูลทั้งหมด</button>
+      <button class="btn ghost sm danger" onclick="wipeAll()">ล้างทั้งหมด</button>
     </div>
-    <p class="hint" style="margin-top:10px">API key และรหัสผ่าน Supabase เก็บในเครื่องคุณเท่านั้น แอปคุยกับ Gemini/Supabase ตรงจากเบราว์เซอร์</p>
   </div>
 </div>
 
+<!-- NEW STORY MODAL -->
 <div class="overlay" id="m-newstory">
   <div class="modal">
     <h2 id="ns-h">✨ สร้างนิยายใหม่ <button class="x" onclick="closeM('m-newstory')">✕</button></h2>
     <input type="hidden" id="ns-id">
-    <label class="f">ชื่อเรื่อง *</label>
-    <input class="in" id="ns-title" placeholder="เช่น ตำนานจอมเวทผู้พลิงชะตา">
+    <label class="f">ชื่อเรื่อง *</label><input class="in" id="ns-title">
     <label class="f">แนวเรื่อง</label>
-    <input class="in" id="ns-genre" list="genres" placeholder="พิมพ์หรือเลือกได้">
-    <datalist id="genres">
-      <option>เซียน/ย้อนยุคจีน (Xianxia)</option><option>ฟันทวย/กำลังภายใน</option>
-      <option>แฟนตาซี/ต่างโลก</option><option>วาย (BL)</option><option>ก๊วย (GL)</option>
-      <option>โรแมนติก</option><option>สืบสวนสอบสวน</option><option>Sci-fi</option>
-      <option>สยองขวัญ</option><option>ดราม่า</option><option>ตลก</option><option>โรงเรียน/วัยรุ่น</option>
-    </datalist>
-    <label class="f">โทน/สไตล์การเล่า</label>
-    <input class="in" id="ns-tone" list="tones" placeholder="เช่น ดาร์ค อบอุ่น ตลก เท่ๆ">
-    <datalist id="tones">
-      <option>ดราม่าเข้มข้น อารมณ์รุ่มรวย</option><option>ตลกขบขัน อ่านเพลิน</option>
-      <option>ดาร์ค โหด สมจริง</option><option>อบอุ่น feel-good</option>
-      <option>เท่ๆ จังหวะไว ต่อสู้เยอะ</option><option>โรแมนติกหวานเจี๊ยบ</option><option>ลึกลับน่าติดตาม</option>
-    </datalist>
-    <label class="f">ภาษาที่ใช้เขียน</label>
-    <select class="in" id="ns-lang"><option value="th">ภาษาไทย</option><option value="en">English</option></select>
-    <label class="f">คำอธิบายเรื่องสั้นๆ</label>
-    <textarea class="in" id="ns-desc" rows="3" placeholder="เกริ่นนำเรื่องแบบท้ายสำคัญ..."></textarea>
-    <label class="f">หน้าปกนิยาย (อัปโหลด = บีบอัดอัตโนมัติ หรือให้ AI วาดให้)</label>
+    <input class="in" id="ns-genre" list="genres">
+    <datalist id="genres"><option>เซียน/ย้อนยุคจีน (Xianxia)</option><option>ฟันทวย/กำลังภายใน</option><option>แฟนตาซี/ต่างโลก</option><option>วาย (BL)</option><option>ก๊วย (GL)</option><option>โรแมนติก</option><option>สืบสวนสอบสวน</option><option>Sci-fi</option><option>สยองขวัญ</option><option>ดราม่า</option><option>ตลก</option><option>โรงเรียน/วัยรุ่น</option></datalist>
+    <label class="f">โทน/สไตล์</label>
+    <input class="in" id="ns-tone" list="tones">
+    <datalist id="tones"><option>ดราม่าเข้มข้น</option><option>ตลกขบขัน อ่านเพลิน</option><option>ดาร์ค โหด สมจริง</option><option>อบอุ่น feel-good</option><option>เท่ๆ จังหวะไว</option><option>โรแมนติกหวาน</option><option>ลึกลับน่าติดตาม</option></datalist>
+    <label class="f">ภาษา</label><select class="in" id="ns-lang"><option value="th">ภาษาไทย</option><option value="en">English</option></select>
+    <label class="f">คำอธิบายเรื่อง</label><textarea class="in" id="ns-desc" rows="3"></textarea>
+    <label class="f">หน้าปก (อัปโหลด = บีบอัดอัตโนมัติ / ให้ AI วาด)</label>
     <div style="display:flex;gap:14px;align-items:flex-start">
       <div class="prev-box" id="ns-prev" onclick="$('#ns-cover').click()">🖼️</div>
       <div style="flex:1">
         <div class="row">
           <button class="btn ghost sm" onclick="$('#ns-cover').click()">เลือกรูป...</button>
-          <button class="btn ghost sm" id="btn-aicover" onclick="openAiCover(event)">🤖 สร้างปกด้วย AI</button>
+          <button class="btn ghost sm" onclick="openAiCover(event)">🤖 สร้างปก AI</button>
         </div>
         <input type="file" id="ns-cover" accept="image/*" hidden>
-        <p class="hint" id="ns-cinfo">ยังไม่ได้เลือกรูป — ถ้าไม่ใส่ ระบบจะทำปกตัวอักษรสวยๆ ให้เอง</p>
+        <p class="hint" id="ns-cinfo">ยังไม่ได้เลือกรูป</p>
       </div>
     </div>
     <div class="mfoot">
@@ -450,89 +476,74 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </div>
 </div>
 
+<!-- CHARACTER MODAL -->
 <div class="overlay" id="m-char">
   <div class="modal">
     <h2 id="cf-h">👥 ตัวละคร <button class="x" onclick="closeM('m-char')">✕</button></h2>
     <input type="hidden" id="cf-id">
     <label class="f">ชื่อ *</label><input class="in" id="cf-name">
     <label class="f">บทบาท</label>
-    <select class="in" id="cf-role">
-      <option>ตัวเอก</option><option>ตัวรอง</option><option>ตัวร้าย</option>
-      <option>เมนเทอร์/ผู้ใหญ่</option><option>คนรัก/คู่จิ้น</option><option>เพื่อนซี้</option><option>ตัวประกอบ</option>
-    </select>
-    <label class="f">อายุ / ข้อมูลพื้นฐาน</label><input class="in" id="cf-age">
-    <label class="f">หน้าตา ท่าทาง เสื้อผ้า</label><textarea class="in" id="cf-app" rows="2"></textarea>
+    <select class="in" id="cf-role"><option>ตัวเอก</option><option>ตัวรอง</option><option>ตัวร้าย</option><option>เมนเทอร์/ผู้ใหญ่</option><option>คนรัก/คู่จิ้น</option><option>เพื่อนซี้</option><option>ตัวประกอบ</option></select>
+    <label class="f">อายุ/ข้อมูลพื้นฐาน</label><input class="in" id="cf-age">
+    <label class="f">หน้าตา ท่าทาง เสื้อผ้า <span class="hint">(ยิ่งละเอียด ภาพ AI ยิ่งตรง)</span></label><textarea class="in" id="cf-app" rows="2"></textarea>
     <label class="f">นิสัย</label><textarea class="in" id="cf-per" rows="2"></textarea>
-    <label class="f">พลัง/วิชา/ความสามารถ</label><textarea class="in" id="cf-abl" rows="2"></textarea>
-    <label class="f">ประวัติคร่าวๆ</label><textarea class="in" id="cf-bg" rows="3"></textarea>
-    <label class="f">เป้าหมาย/ความปรารถนา</label><input class="in" id="cf-goal">
-    <label class="f">ความสัมพันธ์กับตัวละครอื่น <span class="hint">(พิมพ์ชื่อเพื่อนตัวละครลงไป เช่น "เป็นน้องชายแท้ๆ ของ อารยา")</span></label>
-    <textarea class="in" id="cf-rel" rows="2"></textarea>
+    <label class="f">พลัง/วิชา</label><textarea class="in" id="cf-abl" rows="2"></textarea>
+    <label class="f">ประวัติ</label><textarea class="in" id="cf-bg" rows="3"></textarea>
+    <label class="f">เป้าหมาย</label><input class="in" id="cf-goal">
+    <label class="f">ความสัมพันธ์กับตัวละครอื่น</label><textarea class="in" id="cf-rel" rows="2"></textarea>
     <div class="mfoot">
-      <button class="btn ghost" onclick="closeM('m-char')">ยกเลิก</button>
+      <button class="btn ghost" onclick="charPortraitFromModal()">🖼️ วาดพอร์เทรต</button>
       <button class="btn primary" onclick="saveChar()">💾 บันทึก</button>
     </div>
   </div>
 </div>
 
+<!-- LORE MODAL -->
 <div class="overlay" id="m-lore">
   <div class="modal">
-    <h2 id="lf-h">🧠 ข้อมูลความจำ <button class="x" onclick="closeM('m-lore')">✕</button></h2>
+    <h2 id="lf-h">🧠 ความจำ <button class="x" onclick="closeM('m-lore')">✕</button></h2>
     <input type="hidden" id="lf-id">
     <label class="f">หมวด</label>
-    <select class="in" id="lf-cat">
-      <option value="location">🏯 สถานที่</option>
-      <option value="power">⚡ ระบบ/ระดับพลัง</option>
-      <option value="technique">📜 ชื่อวิชา/เทคนิค</option>
-      <option value="term">🔖 ศัพท์เฉพาะ/ชื่อเฉพาะอื่นๆ</option>
-      <option value="relation">💞 ความสัมพันธ์</option>
-      <option value="event">📅 เหตุการณ์สำคัญ</option>
-    </select>
+    <select class="in" id="lf-cat"><option value="location">🏯 สถานที่</option><option value="power">⚡ ระบบ/ระดับพลัง</option><option value="technique">📜 วิชา/เทคนิค</option><option value="term">🔖 ศัพท์เฉพาะ</option><option value="relation">💞 ความสัมพันธ์</option><option value="event">📅 เหตุการณ์</option></select>
     <label class="f">ชื่อ *</label><input class="in" id="lf-name">
     <label class="f">รายละเอียด</label><textarea class="in" id="lf-detail" rows="4"></textarea>
-    <label class="f">ช่วงเวลา (เฉพาะเหตุการณ์ — เพื่อจัดไทม์ไลน์)</label>
-    <input class="in" id="lf-when" placeholder="เช่น ตอน 12 หรือ ก่อนเรื่องเริ่ม">
-    <div class="mfoot">
-      <button class="btn ghost" onclick="closeM('m-lore')">ยกเลิก</button>
-      <button class="btn primary" onclick="saveLore()">💾 บันทึก</button>
-    </div>
+    <label class="f">ช่วงเวลา (เหตุการณ์)</label><input class="in" id="lf-when" placeholder="เช่น ตอน 12">
+    <div class="mfoot"><button class="btn primary" onclick="saveLore()">💾 บันทึก</button></div>
   </div>
 </div>
 
+<!-- NEW CHAPTER MODAL -->
 <div class="overlay" id="m-newchap">
   <div class="modal">
     <h2>✍️ เขียนตอนใหม่ <button class="x" onclick="closeM('m-newchap')">✕</button></h2>
     <div class="radio-row">
-      <label><input type="radio" name="planmode" value="self" checked onchange="planToggle()"> ✍️ กำหนดเนื้อเรื่องของตอนเอง</label>
-      <label><input type="radio" name="planmode" value="ai" onchange="planToggle()"> 🤖 ให้ AI ไปต่อตามโครงเรื่องเอง</label>
+      <label><input type="radio" name="planmode" value="self" checked onchange="planToggle()"> ✍️ กำหนดเอง</label>
+      <label><input type="radio" name="planmode" value="ai" onchange="planToggle()"> 🤖 AI วางเอง</label>
     </div>
     <div id="nc-self-wrap">
-      <label class="f">เนื้อเรื่องย่อของตอนนี้* <span class="hint">— ถ้าจะเขียนหลายตอนต่อเนื่อง ให้ใส่ 1 บรรทัดต่อ 1 ตอน</span></label>
-      <textarea class="in" id="nc-plan" rows="5" placeholder="ตอนนี้: นายเอกปะทะจอมโจรครั้งแรกที่ถ้ำหุบเขา แพ้ แต่ปลุกพลังลับ&#10;(บรรทัดถัดไป = แผนของตอนถัดไป ถ้าใช้แบตช์)"></textarea>
+      <label class="f">เนื้อเรื่องย่อของตอน* <span class="hint">(หลายตอน = 1 บรรทัดต่อ 1 ตอน)</span></label>
+      <textarea class="in" id="nc-plan" rows="5"></textarea>
     </div>
-    <label class="f">โน้ตเพิ่มเติม (สไตล์/ฉาก/อารมณ์)</label>
-    <textarea class="in" id="nc-notes" rows="2" placeholder="เช่น เน้นบทสนทนาฮาๆ ปิดท้ายด้วยแง่ซึ้ง"></textarea>
-    <label class="f">ชื่อตอน (เว้นว่าง = ให้ AI ตั้ง — ใช้ได้แค่ตอนแรกถ้าเป็นแบตช์)</label>
-    <input class="in" id="nc-title">
+    <label class="f">โน้ตเพิ่มเติม</label>
+    <textarea class="in" id="nc-notes" rows="2"></textarea>
+    <div class="row" style="margin-top:8px">
+      <select class="in" id="nc-preset" style="flex:1" onchange="presetPick(this)"><option value="">📚 คลังโน้ตส่วนตัว…</option></select>
+      <button class="btn ghost sm" onclick="savePreset()">💾 เซฟโน้ตนี้</button>
+    </div>
+    <label class="f">ชื่อตอน (เว้นว่าง = AI ตั้ง)</label><input class="in" id="nc-title">
     <div class="row" style="margin-top:12px">
-      <div style="flex:1;min-width:150px">
-        <label class="f" style="margin-top:0">ความยาวต่อตอน</label>
-        <select class="in" id="nc-length">
-          <option value="2000">~2,000 คำ</option>
-          <option value="2500" selected>~2,500 คำ</option>
-          <option value="3000">~3,000 คำ</option>
-        </select>
-      </div>
-      <div style="flex:1;min-width:150px">
-        <label class="f" style="margin-top:0">⏩ จำนวนตอนต่อเนื่อง (Batch)</label>
-        <select class="in" id="nc-count">
-          <option value="1" selected>1 ตอน</option><option value="2">2 ตอน</option><option value="3">3 ตอน</option>
-          <option value="5">5 ตอน</option><option value="8">8 ตอน</option><option value="10">10 ตอน</option>
-        </select>
-      </div>
+      <div style="flex:1;min-width:150px"><label class="f" style="margin-top:0">ความยาว/ตอน</label>
+        <select class="in" id="nc-length"><option value="2000">~2,000 คำ</option><option value="2500" selected>~2,500 คำ</option><option value="3000">~3,000 คำ</option></select></div>
+      <div style="flex:1;min-width:150px"><label class="f" style="margin-top:0">⏩ จำนวนตอน (Batch)</label>
+        <select class="in" id="nc-count" onchange="$('#nc-par-wrap').style.display=this.value>1?'':'none'">
+          <option value="1" selected>1 ตอน</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="8">8</option><option value="10">10</option>
+        </select></div>
     </div>
-    <p class="hint" style="margin-top:8px">⏩ แบตช์ &gt; 1 ตอน: AI เขียนต่อเนื่อง เก็บความจำขนานไปด้วย (เร็วขึ้น) — กด ⏹ เพื่อหยุดหลังตอนปัจจุบัน · ถ้าตอนไหนสั้นกว่าเป้า ระบบสั่งเขียนต่อให้อัตโนมัติ</p>
-    <label class="checkline"><input type="checkbox" id="nc-autosum" checked> สรุปตอนอัตโนมัติเก็บเป็นความจำเมื่อเขียนเสร็จ (ทำเบื้องหลัง ไม่หน่วง)</label>
+    <div id="nc-par-wrap" style="display:none">
+      <label class="checkline"><input type="checkbox" id="nc-parallel" checked> 🚀 Speed Mode — เขียนหลายตอนขนานกัน (ใช้หลายคีย์พร้อมกัน เร็วขึ้น 3-4 เท่า)</label>
+    </div>
+    <p class="hint" style="margin-top:8px">แบตช์: AI เก็บความจำระหว่างทาง · ตอนสั้นกว่าเป้า = เขียนต่ออัตโนมัติ · จบตอน AI เสนอ "ของใหม่ที่ควรจำ"</p>
+    <label class="checkline"><input type="checkbox" id="nc-autosum" checked> สรุปความจำอัตโนมัติ (เบื้องหลัง ไม่หน่วง)</label>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeM('m-newchap')">ยกเลิก</button>
       <button class="btn primary" onclick="startWriting()">🚀 เริ่มเขียน!</button>
@@ -540,22 +551,21 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </div>
 </div>
 
+<!-- AI COVER MODAL -->
 <div class="overlay" id="m-aicover" style="z-index:120">
   <div class="modal">
     <h2>🎨 สร้างปกด้วย AI <button class="x" onclick="closeM('m-aicover')">✕</button></h2>
-    <p class="hint" style="margin-bottom:10px">ใช้ชื่อเรื่อง แนว โทน และคำอธิบายจากฟอร์มด้านหลังเป็นฐาน อาจใช้เวลา ~10-30 วินาที</p>
     <label class="f">สไตล์ภาพ</label>
     <select class="in" id="aics-style">
       <option value="epic anime illustration, vivid colors, dynamic composition">อนิเมะ/การ์ตูนสดใส</option>
-      <option value="dark fantasy oil painting, dramatic chiaroscuro lighting, epic atmosphere">แฟนตาซีดาร์ค สีน้ำมัน</option>
-      <option value="ancient Chinese xianxia ink-wash mixed with vibrant colors, flowing robes, mystical mountains">จีนโบราณ/เซียน (Xianxia)</option>
-      <option value="soft romantic watercolor, warm pastel tones, dreamy glow">โรแมนติกพาสเทล</option>
-      <option value="cinematic sci-fi concept art, neon and chrome, futuristic cityscape">ไซไฟ/อนาคต</option>
-      <option value="semi-realistic detailed digital painting, movie-poster quality">เซมิเรียลลิสต์ระดับโปสเตอร์หนัง</option>
+      <option value="dark fantasy oil painting, dramatic chiaroscuro lighting">แฟนตาซีดาร์ค</option>
+      <option value="ancient Chinese xianxia ink-wash mixed with vibrant colors, flowing robes">จีนโบราณ/เซียน</option>
+      <option value="soft romantic watercolor, warm pastel tones">โรแมนติกพาสเทล</option>
+      <option value="cinematic sci-fi concept art, neon and chrome">ไซไฟ</option>
+      <option value="semi-realistic detailed digital painting, movie-poster quality">เซมิเรียลลิสต์</option>
     </select>
-    <label class="f">คำสั่งเพิ่มเติม (ฉาก/ตัวละคร/สีที่อยากได้)</label>
-    <input class="in" id="aics-extra" placeholder="เช่น หญิงสาวผมดำถือดาบเรืองแสงยืนบนหน้าผา พื้นหลังพระจันทร์สีแดง">
-    <label class="checkline"><input type="checkbox" id="aics-textchk"> พยายามใส่ชื่อเรื่องบนปกด้วย <span class="hint">(AI สะกดไทยอาจเพี้ยน)</span></label>
+    <label class="f">คำสั่งเพิ่มเติม</label><input class="in" id="aics-extra" placeholder="เช่น หญิงสาวผมดำถือดาบบนหน้าผา พระจันทร์สีแดง">
+    <label class="checkline"><input type="checkbox" id="aics-textchk"> พยายามใส่ชื่อเรื่องบนปก <span class="hint">(ไทยอาจเพี้ยน — ใช้ปุ่ม 🔤 ดีกว่า)</span></label>
     <div class="row" style="margin-top:14px;gap:14px;align-items:flex-start">
       <div class="prev-box" id="aics-prev" style="width:150px;height:210px">🖼️</div>
       <div style="flex:1">
@@ -570,49 +580,124 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </div>
 </div>
 
+<!-- CONSISTENCY / BETA / SEARCH / TPL / HIST / MEMSUG / NAMES / BRANCH / STATS / CTITLE / ACCOUNT -->
 <div class="overlay" id="m-consist" style="z-index:120">
-  <div class="modal">
-    <h2>🔍 ผลตรวจความสอดคล้อง <button class="x" onclick="closeM('m-consist')">✕</button></h2>
+  <div class="modal"><h2>🔍 ผลตรวจความสอดคล้อง <button class="x" onclick="closeM('m-consist')">✕</button></h2>
     <div id="cs-body"></div>
-    <div class="mfoot"><button class="btn primary" onclick="closeM('m-consist')">รับทราบ</button></div>
+    <div class="mfoot"><button class="btn primary" onclick="closeM('m-consist')">รับทราบ</button></div></div>
+</div>
+
+<div class="overlay" id="m-beta" style="z-index:120">
+  <div class="modal"><h2>🧐 Beta Reader <button class="x" onclick="closeM('m-beta')">✕</button></h2>
+    <div id="beta-body"></div>
+    <div class="mfoot"><button class="btn primary" onclick="closeM('m-beta')">รับทราบ</button></div></div>
+</div>
+
+<div class="overlay" id="m-search">
+  <div class="modal">
+    <h2>🔍 ค้นหาทั้งเรื่อง <button class="x" onclick="closeM('m-search')">✕</button></h2>
+    <input class="in" id="sr-q" placeholder="พิมพ์คำค้น เช่น ชื่อวิชา ชื่อคน เหตุการณ์" oninput="doSearchDebounced()">
+    <div id="sr-res" style="margin-top:14px;max-height:56vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-tpl">
+  <div class="modal">
+    <h2>🧩 เทมเพลตแนวเรื่อง <button class="x" onclick="closeM('m-tpl')">✕</button></h2>
+    <p class="hint" style="margin-bottom:12px">เลือกแนว → ได้โครงเรื่อง + พล็อต 3 องก์ + ตัวละคร + คลังความจำตั้งต้น (เติมใส่เรื่องปัจจุบัน แก้ต่อได้ทุกอย่าง)</p>
+    <div class="cgrid" id="tpl-grid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-hist">
+  <div class="modal">
+    <h2>🕘 ประวัติการแก้ไข <button class="x" onclick="closeM('m-hist')">✕</button></h2>
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-memsug" style="z-index:130">
+  <div class="modal">
+    <h2>🧠 ของใหม่ที่ควรจำจากตอนนี้ <button class="x" onclick="closeM('m-memsug')">✕</button></h2>
+    <div id="mem-list"></div>
+    <div class="mfoot"><button class="btn primary" onclick="addMemSug()">➕ เพิ่มที่เลือกเข้าคลังความจำ</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-names">
+  <div class="modal">
+    <h2>🎲 สุ่มชื่อตัวละคร <button class="x" onclick="closeM('m-names')">✕</button></h2>
+    <button class="btn primary" style="width:100%" id="names-go" onclick="genNames()">✨ สุ่มชื่อให้เข้ากับแนวเรื่อง</button>
+    <div id="names-list" style="margin-top:14px;max-height:56vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-branch" style="z-index:120">
+  <div class="modal">
+    <h2>🌿 What if… เส้นเรื่องทางเลือก <button class="x" onclick="closeM('m-branch')">✕</button></h2>
+    <p class="hint" style="margin-bottom:8px">AI เขียนต่อจากท้ายตอนปัจจุบันเป็น 2-3 เวอร์ชัน ให้เลือกเก็บเป็นตอนใหม่</p>
+    <label class="f">คำถาม/เงื่อนไข (เช่น "ถ้าตัวเอกเลือกไม่ช่วยเมนเทอร์")</label>
+    <textarea class="in" id="br-q" rows="2"></textarea>
+    <label class="f">จำนวนเวอร์ชัน</label>
+    <select class="in" id="br-n"><option value="2">2 เวอร์ชัน</option><option value="3" selected>3 เวอร์ชัน</option></select>
+    <button class="btn primary" id="br-go" style="width:100%;margin-top:12px" onclick="genBranch()">✨ แตกเส้นเรื่อง</button>
+    <div id="br-res" style="margin-top:14px;max-height:50vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-stats">
+  <div class="modal"><h2>📊 สถิติการเขียน <button class="x" onclick="closeM('m-stats')">✕</button></h2>
+    <div id="stats-body"></div></div>
+</div>
+
+<div class="overlay" id="m-ctitle">
+  <div class="modal">
+    <h2>🔤 ใส่ชื่อเรื่องบนปก <button class="x" onclick="closeM('m-ctitle')">✕</button></h2>
+    <div class="row" style="gap:14px;align-items:flex-start">
+      <canvas id="ct-prev" width="240" height="320" style="border-radius:10px;border:1px solid var(--bd);flex-shrink:0"></canvas>
+      <div style="flex:1">
+        <label class="f">ตำแหน่ง</label>
+        <select class="in" id="ct-pos" onchange="renderCTitle()"><option value="top">ด้านบน</option><option value="bottom">ด้านล่าง</option></select>
+        <label class="f">สีตัวอักษร</label>
+        <select class="in" id="ct-color" onchange="renderCTitle()"><option value="#ffffff">ขาว</option><option value="#111111">ดำ</option><option value="#ffd700">ทอง</option></select>
+        <label class="f">ขนาด: <b id="ct-size-v">64</b></label>
+        <input type="range" id="ct-size" min="36" max="120" value="64" oninput="$('#ct-size-v').textContent=this.value;renderCTitle()">
+        <label class="checkline"><input type="checkbox" id="ct-stroke" checked onchange="renderCTitle()"> เส้นขอบให้อ่านง่าย</label>
+        <button class="btn primary" style="width:100%;margin-top:12px" onclick="applyCTitle()">✅ ใช้ปกนี้</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="overlay" id="m-account">
   <div class="modal">
-    <h2>👤 บัญชี & คลาวด์ (Supabase) <button class="x" onclick="closeM('m-account')">✕</button></h2>
+    <h2>👤 คลาวด์ (Supabase) <button class="x" onclick="closeM('m-account')">✕</button></h2>
     <div id="ac-status">กำลังตรวจสอบ…</div>
     <div id="ac-form" hidden>
       <label class="f">อีเมล</label><input class="in" id="ac-email" type="email">
-      <label class="f">รหัสผ่าน (อย่างน้อย 6 ตัว)</label><input class="in" id="ac-pass" type="password">
-      <div class="acct-row">
-        <button class="btn primary sm" onclick="acctSignIn()">เข้าสู่ระบบ</button>
-        <button class="btn ghost sm" onclick="acctSignUp()">สมัครสมาชิกใหม่</button>
-      </div>
+      <label class="f">รหัสผ่าน</label><input class="in" id="ac-pass" type="password">
+      <div class="acct-row"><button class="btn primary sm" onclick="acctSignIn()">เข้าสู่ระบบ</button>
+        <button class="btn ghost sm" onclick="acctSignUp()">สมัครสมาชิก</button></div>
     </div>
     <div id="ac-signedin" hidden>
       <div class="acct-row"><span class="badge-on">●</span> <b id="ac-user"></b>
         <button class="btn ghost sm" onclick="acctSignOut()" style="margin-left:auto">ออกจากระบบ</button></div>
       <hr class="sep">
-      <b style="font-size:.9rem">ซิงก์ข้อมูล</b>
-      <p class="hint" style="margin:5px 0">Push = เอาข้อมูลเครื่องนี้ขึ้นคลาวด์ทั้งหมด (ทับของเดิม) · Pull = ดึงจากคลาวด์มาทับเครื่องนี้</p>
       <div class="acct-row">
         <button class="btn primary sm" onclick="pushCloud()">⬆️ Push ขึ้นคลาวด์</button>
         <button class="btn ghost sm" onclick="pullCloud()">⬇️ Pull จากคลาวด์</button>
       </div>
-      <p class="hint" id="ac-lastsync" style="margin-top:8px"></p>
+      <p class="hint" id="ac-lastsync"></p>
     </div>
     <details style="margin-top:16px">
-      <summary style="cursor:pointer;font-size:.85rem;color:var(--tx2)">🛠️ ตั้งค่าครั้งแรก: รัน SQL นี้ใน Supabase (SQL Editor) 1 ครั้ง</summary>
+      <summary style="cursor:pointer;font-size:.85rem;color:var(--tx2)">🛠️ รัน SQL นี้ใน Supabase 1 ครั้ง</summary>
       <div class="sql-box" id="sql-box"></div>
       <button class="btn ghost sm" style="margin-top:8px" onclick="copySql()">📋 คัดลอก SQL</button>
-      <p class="hint">ถ้ายังไม่รัน SQL ปุ่มซิงก์จะขึ้นว่า table ไม่มี — รันแล้วลองใหม่</p>
     </details>
   </div>
 </div>
 
 <div id="toasts"></div>
-
 <script>
 /* ================= UTILITIES ================= */
 const $=s=>document.querySelector(s);
@@ -625,19 +710,17 @@ function openM(id){$('#'+id).classList.add('show')}
 function closeM(id){$('#'+id).classList.remove('show')}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));
-  if(e.ctrlKey&&e.key==='s'&&!$('#view-editor').hidden){e.preventDefault();edSave();}
-});
+  if(e.key==='Escape'){document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));hidePolish();closeRead();}
+  if(e.ctrlKey&&e.key==='s'&&!$('#view-editor').hidden){e.preventDefault();edSave();}});
 function hue(name){let h=0;for(const ch of String(name))h=(h*31+ch.codePointAt(0))%360;return h}
 function toggleMenu(ev,id){ev.stopPropagation();document.querySelectorAll('.menu.open').forEach(m=>{if(m.id!==id)m.classList.remove('open')});$('#'+id).classList.toggle('open');}
 document.addEventListener('click',()=>document.querySelectorAll('.menu.open').forEach(m=>m.classList.remove('open')));
+function loadJS(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('โหลด '+src+' ไม่สำเร็จ'));document.head.appendChild(s);});}
 
 /* ================= DATABASE ================= */
 let db;
-function openDB(){return new Promise((res,rej)=>{
-  const r=indexedDB.open('novelforge',1);
-  r.onupgradeneeded=e=>{const d=e.target.result;
-    for(const s of['stories','characters','lore','chapters'])if(!d.objectStoreNames.contains(s))d.createObjectStore(s,{keyPath:'id'});};
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('novelforge',1);
+  r.onupgradeneeded=e=>{const d=e.target.result;for(const s of['stories','characters','lore','chapters'])if(!d.objectStoreNames.contains(s))d.createObjectStore(s,{keyPath:'id'});};
   r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 function txo(s,m){return db.transaction(s,m).objectStore(s)}
 const dbPut=(s,v)=>new Promise((res,rej)=>{const r=txo(s,'readwrite').put(v);r.onsuccess=()=>res(v);r.onerror=()=>rej(r.error)});
@@ -647,7 +730,7 @@ const dbAll=s=>new Promise((res,rej)=>{const r=txo(s,'readonly').getAll();r.onsu
 const dbClear=s=>new Promise((res,rej)=>{const r=txo(s,'readwrite').clear();r.onsuccess=res;r.onerror=()=>rej(r.error)});
 
 /* ================= SETTINGS ================= */
-let settings={apiKey:'',keys:'',model:'gemini-3.6-flash',temperature:.95,thinking:false,theme:'dark',sbUrl:'',sbKey:''};
+let settings={apiKey:'',keys:'',model:'gemini-3.6-flash',modelUtil:'gemini-3.5-flash-lite',temperature:.95,thinking:false,theme:'dark',sbUrl:'',sbKey:''};
 const MODEL_MIGRATE={'gemini-2.5-flash':'gemini-3.6-flash','gemini-2.5-pro':'gemini-3.1-pro-preview','gemini-2.5-flash-lite':'gemini-3.5-flash-lite','gemini-2.0-flash':'gemini-3.6-flash'};
 function loadSettings(){try{Object.assign(settings,JSON.parse(localStorage.getItem('nf_settings')||'{}'))}catch{}
   if(!settings.keys&&settings.apiKey)settings.keys=settings.apiKey;
@@ -656,43 +739,43 @@ function persistSettings(){localStorage.setItem('nf_settings',JSON.stringify(set
 function toggleTheme(){settings.theme=settings.theme==='dark'?'light':'dark';persistSettings();applyTheme();}
 function applyTheme(){document.documentElement.dataset.theme=settings.theme;$('#btn-theme').textContent=settings.theme==='dark'?'🌙':'☀️';}
 function openSettings(){$('#set-keys').value=settings.keys||settings.apiKey||'';
-  $('#set-model').value=settings.model;
+  $('#set-model').value=settings.model;$('#set-model-util').value=settings.modelUtil||'gemini-3.5-flash-lite';
   $('#set-temp').value=settings.temperature;$('#temp-val').textContent=settings.temperature;
   $('#set-think').checked=settings.thinking;$('#set-sburl').value=settings.sbUrl;$('#set-sbkey').value=settings.sbKey;
   updateKeysCount();openM('m-settings');}
 function saveSettings(){settings.keys=$('#set-keys').value.trim();
   settings.apiKey=(settings.keys.split(/\r?\n/)[0]||'').trim();
-  settings.model=$('#set-model').value;
+  settings.model=$('#set-model').value;settings.modelUtil=$('#set-model-util').value;
   settings.temperature=parseFloat($('#set-temp').value);settings.thinking=$('#set-think').checked;
   const nu=$('#set-sburl').value.trim(),nk=$('#set-sbkey').value.trim();
   if(nu!==settings.sbUrl||nk!==settings.sbKey){settings.sbUrl=nu;settings.sbKey=nk;sbClient=null;}
   persistSettings();closeM('m-settings');renderKeyBanner();toast('บันทึกการตั้งค่าแล้ว ✅');}
+function getKeyPool(){return(settings.keys||settings.apiKey||'').split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>20)}
 function updateKeysCount(){const n=getKeyPool();const el=$('#keys-count');
-  if(el)el.textContent=n.length?`ตรวจพบ ${n.length} คีย์ — ระบบจะหมุนสลับใช้และกระโดดสลับทันทีเมื่อโดน 429`:'ยังไม่มีคีย์';}
+  if(el)el.textContent=n.length?`ตรวจพบ ${n.length} คีย์ — หมุนสลับ + กระโดดสลับเมื่อโดน 429${n.length>1?' · พร้อม Speed Mode ขนาน':''}`:'ยังไม่มีคีย์';}
 async function testKey(){const pool=getKeyPool();const k=pool[0]||$('#set-keys').value.trim();
   if(!k)return toast('ใส่ key ก่อนนะ','warn');
   const b=$('#test-key');b.disabled=true;b.textContent='กำลังทดสอบ...';
   try{await aiStream({prompt:'ตอบว่า OK',temp:0,maxTokens:200,keyOverride:k});
-    toast(pool.length>1?`คีย์ใช้ได้ ✅ (มี ${pool.length} คีย์ในระบบ ใช้โมเดล ${$('#set-model').value})`:'คีย์ใช้งานได้ ✅ ('+$('#set-model').value+')');}
+    toast(pool.length>1?`คีย์ใช้ได้ ✅ (มี ${pool.length} คีย์ · ${$('#set-model').value})`:'คีย์ใช้ได้ ✅ ('+$('#set-model').value+')');}
   catch(e){toast('ทดสอบ: '+e.message,'err');}
   b.disabled=false;b.textContent='🔌 ทดสอบคีย์';}
 
-/* ================= GEMINI TEXT CORE (multi-key pool) ================= */
+/* ================= GEMINI CORE ================= */
 const MODEL_MAX={'gemini-3.6-flash':32768,'gemini-3.5-flash':32768,'gemini-3.5-flash-lite':32768,'gemini-3.1-flash-lite':32768,'gemini-3.1-pro-preview':32768,'gemini-2.5-flash':16384,'gemini-2.5-pro':16384,'gemini-2.5-flash-lite':16384};
 let abortCtl=null,generating=false,batching=false,batchStop=false,keyIdx=0,genTarget=0;
-function getKeyPool(){return(settings.keys||settings.apiKey||'').split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>20)}
 function needKey(){if(!getKeyPool().length){toast('กรุณาใส่ Gemini API Key ก่อน (⚙️ ตั้งค่า)','warn');openSettings();return false}return true}
 function stopGen(){if(abortCtl)abortCtl.abort();if(batching)batchStop=true;}
 function setGenLabel(t){const el=$('#ed-gentext');if(el)el.textContent=t}
-async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxTokens=null,keyOverride=null}={}){
-  const pool=keyOverride?[keyOverride]:getKeyPool();
-  if(!pool.length)throw new Error('ยังไม่ได้ใส่ API Key');
+async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxTokens=null,keyOverride=null,model=null,think=null}={}){
+  const pool=getKeyPool();
+  const mdl=model||settings.model;
+  if(!keyOverride&&!pool.length)throw new Error('ยังไม่ได้ใส่ API Key');
   abortCtl=new AbortController();
-  const model=settings.model;
-  const gc={maxOutputTokens:maxTokens||MODEL_MAX[model]||32768};
-  if(model.startsWith('gemini-3')){gc.thinkingConfig={thinkingLevel:settings.thinking?'high':'low'};}
+  const gc={maxOutputTokens:maxTokens||MODEL_MAX[mdl]||32768};
+  if(mdl.startsWith('gemini-3')){gc.thinkingConfig={thinkingLevel:think||(settings.thinking?'high':'low')};}
   else{gc.temperature=temp??settings.temperature;gc.topP=.95;
-    if(model.startsWith('gemini-2.5')){gc.thinkingConfig={thinkingBudget:settings.thinking?(model.includes('pro')?1024:-1):(model.includes('pro')?128:0)};}}
+    if(mdl.startsWith('gemini-2.5'))gc.thinkingConfig={thinkingBudget:think==='low'?0:(settings.thinking?1024:128)};}
   if(json)gc.responseMimeType='application/json';
   const body={contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gc};
   if(sys)body.systemInstruction={parts:[{text:sys}]};
@@ -700,18 +783,16 @@ async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxToke
   let res=null;
   for(let att=0;att<maxAtt;att++){
     const useKey=keyOverride||pool[Math.abs(keyIdx)%pool.length];
-    res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(useKey)}`,{
+    res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${mdl}:streamGenerateContent?alt=sse&key=${encodeURIComponent(useKey)}`,{
       method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtl.signal});
     if((res.status===429||res.status===503)&&att<maxAtt-1&&!keyOverride){
       keyIdx++;
-      if(pool.length>1)setGenLabel(`🔄 คีย์เต็มโควตา — สลับไป Key #${(Math.abs(keyIdx)%pool.length)+1} ทันที…`);
-      if(res.status===503||att>=pool.length-1){
-        setGenLabel(`⏳ API ถึงขีดจำกัด — รอ 15 วินาทีแล้วลองใหม่ (${att+1}/${maxAtt})…`);
-        await new Promise(r=>setTimeout(r,15000));}
+      if(pool.length>1)setGenLabel(`🔄 คีย์เต็มโควตา — สลับ Key #${(Math.abs(keyIdx)%pool.length)+1} ทันที…`);
+      if(res.status===503||att>=pool.length-1){setGenLabel(`⏳ API จำกัด — รอ 15 วิ แล้วลองใหม่ (${att+1}/${maxAtt})…`);await new Promise(r=>setTimeout(r,15000));}
       continue;}
     break;}
   if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
-    if(res.status===429)msg='คีย์ทุกตัวถึงขีดจำกัดชั่วคราว (429) — รอ ~1 นาทีแล้วลองใหม่ (โควตารายวันรีเซ็ต ~14:00 น. เวลาไทย)';
+    if(res.status===429)msg='คีย์ถึงขีดจำกัด (429) — รอ ~1 นาที หรือเพิ่มคีย์/ใช้ Speed Mode';
     throw new Error(msg);}
   const rd=res.body.getReader(),dec=new TextDecoder();let buf='',full='';
   while(true){const{done,value}=await rd.read();if(done)break;
@@ -721,57 +802,48 @@ async function aiStream({prompt,sys='',onDelta=null,temp=null,json=false,maxToke
       let j;try{j=JSON.parse(d)}catch{continue}
       if(j.error)throw new Error(j.error.message);
       for(const p of(j.candidates?.[0]?.content?.parts||[]))
-        if(p.text){full+=p.text;onDelta&&onDelta(p.text,full);}
-    }}
+        if(p.text){full+=p.text;onDelta&&onDelta(p.text,full);}}}
   return full;}
+const aiUtil=o=>aiStream({...o,model:settings.modelUtil||settings.model,think:'low',temp:o.temp??.5});
 function parseJSONLoose(t){let s=String(t).trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');
   const a=s.indexOf('{'),b=s.lastIndexOf('}');if(a>-1&&b>a)s=s.slice(a,b+1);return JSON.parse(s);}
 
-/* ================= GEMINI IMAGE CORE ================= */
+/* ================= IMAGE CORE ================= */
 const IMG_MODELS=['gemini-3.1-flash-image','gemini-3-pro-image','gemini-3.1-flash-lite-image','gemini-2.5-flash-image'];
-const IMG_CFG_VARIANTS=[
-  {responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:'3:4'}},
-  {responseModalities:['TEXT','IMAGE']},
-  {}
-];
+const IMG_CFG_VARIANTS=[{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:'3:4'}},{responseModalities:['TEXT','IMAGE']},{}];
 async function generateImage(prompt){
-  if(!getKeyPool().length)throw new Error('ยังไม่ได้ใส่ API Key');
+  const pool=getKeyPool();if(!pool.length)throw new Error('ยังไม่ได้ใส่ API Key');
   let lastErr;
-  for(const model of IMG_MODELS){
-    let skipModel=false;
-    for(const gcv of IMG_CFG_VARIANTS){
-      try{
-        const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(getKeyPool()[0])}`,{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gcv})});
-        if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
-          if(res.status===429)throw new Error('ถึงขีดจำกัดฟรีเทียร์ (429) — รอสักครู่แล้วลองใหม่');
-          if(res.status===404||/not found|not supported|unsupported/i.test(msg)){lastErr=new Error(msg);skipModel=true;break;}
-          lastErr=new Error(msg);continue;}
-        const j=await res.json();
-        const parts=j.candidates?.[0]?.content?.parts||[];
-        const img=parts.find(p=>p.inlineData||p.inline_data);
-        if(img){const d=img.inlineData||img.inline_data;return{mime:d.mimeType||d.mime_type||'image/png',data:d.data};}
-        lastErr=new Error('โมเดลไม่ส่งภาพกลับมา (อาจถูก safety filter บล็อก ลองเปลี่ยนคำสั่ง)');break;
-      }catch(e){lastErr=e;}
-    }
-    if(skipModel)continue;
-  }
-  throw lastErr||new Error('สร้างภาพไม่สำเร็จ');
-}
-async function cropToCover(src){
-  const img=new Image();img.src=src;await img.decode();
-  const targetR=3/4;let sw=img.width,sh=img.height,sx=0,sy=0;
-  if(sw/sh>targetR){const nw=sh*targetR;sx=(sw-nw)/2;sw=nw;}else{const nh=sw/targetR;sy=(sh-nh)/2;sh=nh;}
+  for(const model of IMG_MODELS){let skipModel=false;
+    for(const gcv of IMG_CFG_VARIANTS){try{
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(pool[Math.abs(keyIdx)%pool.length])}`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gcv})});
+      if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
+        if(res.status===429){keyIdx++;throw new Error('429 — รอสักครู่แล้วลองใหม่');}
+        if(res.status===404||/not found|not supported|unsupported/i.test(msg)){lastErr=new Error(msg);skipModel=true;break;}
+        lastErr=new Error(msg);continue;}
+      const j=await res.json();
+      const img=(j.candidates?.[0]?.content?.parts||[]).find(p=>p.inlineData||p.inline_data);
+      if(img){const d=img.inlineData||img.inline_data;return{mime:d.mimeType||d.mime_type||'image/png',data:d.data};}
+      lastErr=new Error('โมเดลไม่ส่งภาพ (อาจโดน safety filter)');break;
+    }catch(e){lastErr=e;}}
+    if(skipModel)continue;}
+  throw lastErr||new Error('สร้างภาพไม่สำเร็จ');}
+async function cropToCover(src){const img=new Image();img.src=src;await img.decode();
+  const tR=3/4;let sw=img.width,sh=img.height,sx=0,sy=0;
+  if(sw/sh>tR){const nw=sh*tR;sx=(sw-nw)/2;sw=nw;}else{const nh=sw/tR;sy=(sh-nh)/2;sh=nh;}
   const c=document.createElement('canvas');c.width=900;c.height=1200;
   c.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,900,1200);
   return c.toDataURL('image/jpeg',.88);}
-
-/* ================= IMAGE COMPRESSION (UPLOAD) ================= */
+async function shrinkDataURL(src,maxDim=700,q=.78){const img=new Image();img.src=src;await img.decode();
+  const sc=Math.min(1,maxDim/Math.max(img.width,img.height));
+  const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',q);}
 let pendingCover=null;
 function compressImageFile(file,maxDim=900,q=.82){return new Promise(async(res,rej)=>{
-  try{
-    const url=URL.createObjectURL(file);const img=new Image();img.src=url;await img.decode();
+  try{const url=URL.createObjectURL(file);const img=new Image();img.src=url;await img.decode();
     const sc=Math.min(1,maxDim/Math.max(img.width,img.height));
     const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
     c.getContext('2d').drawImage(img,0,0,c.width,c.height);
@@ -781,10 +853,10 @@ function compressImageFile(file,maxDim=900,q=.82){return new Promise(async(res,r
 
 /* ================= VIEWS ================= */
 function show(id){for(const v of['view-library','view-story','view-editor'])$('#'+v).hidden=v!==id;window.scrollTo(0,0);}
-function goHome(){if(generating&&!confirm('AI กำลังเขียนอยู่ ออกไปเลย? (จะหยุดการเขียน)'))return;stopGen();renderLibrary();show('view-library');}
+function goHome(){if((generating||batching)&&!confirm('AI กำลังเขียนอยู่ ออกไปเลย? (จะหยุดหลังรอบปัจจุบัน)'))return;stopGen();renderLibrary();show('view-library');}
 function phColor(name){const h=hue(name);return`linear-gradient(135deg,hsl(${h},55%,42%),hsl(${(h+60)%360},60%,30%))`}
 function renderKeyBanner(){const n=getKeyPool().length;$('#key-banner').innerHTML=n?'':`
-  <div class="banner"><div>🔑 <b>ยังไม่ได้ใส่ Gemini API Key</b> — ใส่ก่อนถึงจะให้ AI เขียนได้ (ใส่ได้หลายคีย์เพื่อไม่ให้โดน 429 · รับฟรีที่ aistudio.google.com/apikey)</div>
+  <div class="banner"><div>🔑 <b>ยังไม่ได้ใส่ Gemini API Key</b> — ใส่ได้หลายคีย์เพื่อไม่โดน 429 และเปิด Speed Mode (รับฟรีที่ aistudio.google.com/apikey)</div>
   <button class="btn primary sm" onclick="openSettings()">ใส่ Key เลย</button></div>`;}
 
 /* ---------- LIBRARY ---------- */
@@ -796,157 +868,115 @@ async function renderLibrary(){
   add.innerHTML='<div class="plus">+</div><b>สร้างนิยายใหม่</b><span style="font-size:.78rem">ตั้งชื่อ เลือกแนว ใส่ปก</span>';
   add.onclick=()=>openNewStoryModal();g.appendChild(add);
   const allChaps=await dbAll('chapters');
-  for(const s of list){
-    const chaps=allChaps.filter(c=>c.storyId===s.id);
+  for(const s of list){const chaps=allChaps.filter(c=>c.storyId===s.id);
     const tot=chaps.reduce((n,c)=>n+estWords(c.content),0);
     const d=document.createElement('div');d.className='card';
-    d.innerHTML=(s.cover?`<img class="cov" src="${s.cover}" alt="">`:`<div class="ph" style="background:${phColor(s.title)}">${esc(s.title[0]||'📖')}</div>`)
+    d.innerHTML=(s.cover?`<img class="cov" src="${s.cover}">`:`<div class="ph" style="background:${phColor(s.title)}">${esc(s.title[0]||'📖')}</div>`)
       +`<div class="lab"><b>${esc(s.title)}</b><span>${esc(s.genre||'ไม่ระบุแนว')} · ${chaps.length} ตอน${tot?` · ≈${tot.toLocaleString()} คำ`:''}</span></div>`;
-    d.onclick=()=>openStory(s.id);g.appendChild(d);
-  }
+    d.onclick=()=>openStory(s.id);g.appendChild(d);}
   if(!list.length){const e=document.createElement('div');e.className='empty';e.style.gridColumn='1/-1';
-    e.textContent='ยังไม่มีนิยาย — กด "สร้างนิยายใหม่" เพื่อเริ่มเลย!';g.appendChild(e);}
-}
+    e.textContent='ยังไม่มีนิยาย — กด "สร้างนิยายใหม่" หรือ "นำเข้า .txt" เพื่อเริ่ม!';g.appendChild(e);}}
 
-/* ---------- NEW / EDIT STORY ---------- */
+/* ---------- NEW/EDIT STORY ---------- */
 function openNewStoryModal(edit=null){
-  edit=(edit&&edit.id)?edit:null;
-  pendingCover=null;tmpAICover=null;
+  edit=(edit&&edit.id)?edit:null;pendingCover=null;tmpAICover=null;
   $('#ns-id').value=edit?edit.id:'';
-  $('#ns-title').value=edit?(edit.title||''):'';$('#ns-genre').value=edit?(edit.genre||''):'';
-  $('#ns-tone').value=edit?(edit.tone||''):'';
+  $('#ns-title').value=edit?(edit.title||''):'';$('#ns-genre').value=edit?(edit.genre||''):'';$('#ns-tone').value=edit?(edit.tone||''):'';
   $('#ns-desc').value=edit?(edit.desc||''):'';$('#ns-lang').value=edit?(edit.lang||'th'):'th';$('#ns-cover').value='';
-  $('#ns-cinfo').textContent='ยังไม่ได้เลือกรูป — ถ้าไม่ใส่ ระบบจะทำปกตัวอักษรสวยๆ ให้เอง';
+  $('#ns-cinfo').textContent='ยังไม่ได้เลือกรูป';
   $('#ns-prev').innerHTML='🖼️';$('#ns-h').firstChild.textContent=edit?'✏️ แก้ไขข้อมูลเรื่อง ':'✨ สร้างนิยายใหม่ ';
   $('#ns-go').textContent=edit?'บันทึก':'สร้างเรื่อง →';
   if(edit&&edit.cover){$('#ns-prev').innerHTML=`<img src="${edit.cover}">`;pendingCover={data:edit.cover,keep:true};}
-  openM('m-newstory');
-}
+  openM('m-newstory');}
 function editStoryInfo(){if(state.story)openNewStoryModal(state.story)}
-async function onCoverPick(inp){
-  const f=inp.files[0];if(!f)return;
-  try{const r=await compressImageFile(f);
-    pendingCover=r;tmpAICover=null;
+async function onCoverPick(inp){const f=inp.files[0];if(!f)return;
+  try{const r=await compressImageFile(f);pendingCover=r;tmpAICover=null;
     $('#ns-prev').innerHTML=`<img src="${r.data}">`;
-    $('#ns-cinfo').textContent=`บีบอัดแล้ว: ${(r.before/1048576).toFixed(2)}MB → ${(r.after/1024).toFixed(0)}KB (JPEG ${r.w}×${r.h}px) ✅`;
-  }catch(e){toast('อ่านรูปไม่สำเร็จ','err')}
-  inp.value='';
-}
+    $('#ns-cinfo').textContent=`บีบอัดแล้ว ${(r.after/1024).toFixed(0)}KB ✅`;
+  }catch(e){toast('อ่านรูปไม่สำเร็จ','err')}inp.value='';}
 async function createStory(){
-  const title=$('#ns-title').value.trim();
-  if(!title)return toast('กรุณาตั้งชื่อเรื่อง','warn');
+  const title=$('#ns-title').value.trim();if(!title)return toast('กรุณาตั้งชื่อเรื่อง','warn');
   const id=$('#ns-id').value;
-  let st=id?await dbGet('stories',id):null;
-  const isNew=!st;
+  let st=id?await dbGet('stories',id):null;const isNew=!st;
   if(!st)st={id:uid(),cover:null,outline:'',arc:{beginning:'',middle:'',end:''},createdAt:Date.now()};
   Object.assign(st,{title,genre:$('#ns-genre').value.trim(),tone:$('#ns-tone').value.trim(),
     desc:$('#ns-desc').value.trim(),lang:$('#ns-lang').value,updatedAt:Date.now()});
   if(pendingCover&&!pendingCover.keep)st.cover=pendingCover.data;
   await dbPut('stories',st);closeM('m-newstory');
-  toast(isNew?'สร้างเรื่องใหม่แล้ว 🎉 ลองให้ AI วางโครงเรื่องก่อน!':'บันทึกข้อมูลเรื่องแล้ว ✅');
-  openStory(st.id);
-}
+  toast(isNew?'สร้างเรื่องแล้ว 🎉 ลองใช้เทมเพลตหรือให้ AI วางโครงเรื่อง!':'บันทึกแล้ว ✅');
+  openStory(st.id);}
 
 /* ---------- STORY VIEW ---------- */
 let state={story:null,chapter:null,loreFilter:'all'};
-async function openStory(id){
-  state.story=await dbGet('stories',id);
+async function openStory(id){state.story=await dbGet('stories',id);
   if(!state.story){goHome();return}
   if(!state.story.arc)state.story.arc={beginning:'',middle:'',end:''};
-  renderStoryHead();fillOutline();switchTab('plot');show('view-story');
-}
-async function renderStoryHead(){
-  const s=state.story;$('#st-title').textContent=s.title;
+  renderStoryHead();fillOutline();switchTab('plot');show('view-story');}
+async function renderStoryHead(){const s=state.story;$('#st-title').textContent=s.title;
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s.id);
   const tot=chaps.reduce((n,c)=>n+estWords(c.content),0);
-  $('#st-meta').innerHTML=[s.genre,s.tone,s.lang==='en'?'EN':'ไทย',`${chaps.length} ตอน`,tot?`≈${tot.toLocaleString()} คำ`:'',`อัปเดต ${fmtD(s.updatedAt)}`]
-    .filter(Boolean).map(t=>`<span class="chip">${esc(t)}</span>`).join('');
+  $('#st-meta').innerHTML=[s.genre,s.tone,s.lang==='en'?'EN':'ไทย',`${chaps.length} ตอน`,tot?`≈${tot.toLocaleString()} คำ`:'',`อัปเดต ${fmtD(s.updatedAt)}`].filter(Boolean).map(t=>`<span class="chip">${esc(t)}</span>`).join('');
   $('#st-desc').textContent=s.desc||'';
-  $('#st-cover').innerHTML=s.cover?`<img src="${s.cover}">`:`<span style="background:${phColor(s.title)};width:100%;height:100%;display:flex;align-items:center;justify-content:center">${esc(s.title[0]||'📖')}</span>`;
-}
-async function deleteStory(){
-  const s=state.story;if(!confirm(`ลบ "${s.title}" พร้อมตัวละคร ความจำ และทุกตอน ถาวรเลย?`))return;
-  for(const st of['characters','lore','chapters'])
-    for(const it of(await dbAll(st)).filter(x=>x.storyId===s.id))await dbDel(st,it.id);
-  await dbDel('stories',s.id);toast('ลบเรื่องแล้ว');goHome();
-}
+  $('#st-cover').innerHTML=s.cover?`<img src="${s.cover}">`:`<span style="background:${phColor(s.title)};width:100%;height:100%;display:flex;align-items:center;justify-content:center">${esc(s.title[0]||'📖')}</span>`;}
+async function deleteStory(){const s=state.story;
+  if(!confirm(`ลบ "${s.title}" พร้อมทุกตอนและความจำ ถาวร?`))return;
+  for(const st of['characters','lore','chapters'])for(const it of(await dbAll(st)).filter(x=>x.storyId===s.id))await dbDel(st,it.id);
+  await dbDel('stories',s.id);toast('ลบแล้ว');goHome();}
 $('#tabs')?.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchTab(b.dataset.tab)});
 const TAB_IDS=['plot','arc','chars','lore','overview','chaps'];
-function switchTab(t){
-  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+function switchTab(t){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   for(const x of TAB_IDS)$('#tab-'+x).hidden=x!==t;
-  if(t==='chars')renderChars();
-  if(t==='lore'){initLoreFilters();renderLore();}
-  if(t==='chaps')renderChaps();
-  if(t==='plot')fillOutline();
-  if(t==='arc')fillArc();
-  if(t==='overview')renderOverview();
-}
+  if(t==='chars')renderChars();if(t==='lore'){initLoreFilters();renderLore();}
+  if(t==='chaps')renderChaps();if(t==='plot')fillOutline();if(t==='arc')fillArc();if(t==='overview')renderOverview();}
 
-/* ---------- PLOT TAB ---------- */
+/* ---------- PLOT ---------- */
 function fillOutline(){if(state.story)$('#ol-text').value=state.story.outline||''}
-async function saveOutline(silent){
-  state.story.outline=$('#ol-text').value;state.story.updatedAt=Date.now();
+async function saveOutline(silent){state.story.outline=$('#ol-text').value;state.story.updatedAt=Date.now();
   await dbPut('stories',state.story);
-  $('#ol-saved').textContent='บันทึกล่าสุด '+new Date().toLocaleTimeString('th-TH');
-  if(!silent)toast('บันทึกโครงเรื่องแล้ว 💾');
-}
+  $('#ol-saved').textContent='บันทึก '+new Date().toLocaleTimeString('th-TH');
+  if(!silent)toast('บันทึกโครงเรื่องแล้ว 💾');}
 const AO_ELEMENTS=['ระบบพลัง/เวทมนตร์ชัดเจน','ตัวร้ายทรงพลัง','สายความรัก','ครอบครัว/พี่น้อง','ปริศนา/ความลับในอดีต','แก๊ง/ตระกูล/การเมือง','ไล่เลเวล power fantasy','หักมุมเดือด'];
 function initAOEls(){$('#ao-els').innerHTML=AO_ELEMENTS.map(e=>`<label class="chip" style="cursor:pointer;display:inline-flex;gap:5px;align-items:center"><input type="checkbox" class="ao-el" value="${esc(e)}" style="accent-color:var(--ac)"> ${esc(e)}</label>`).join('');}
 async function aiOutline(){
   if(!needKey())return;
-  const idea=$('#ao-idea').value.trim();
-  const els=[...document.querySelectorAll('.ao-el:checked')].map(c=>c.value);
-  const eps=parseInt($('#ao-eps').value)||30;
-  if(state.story.outline&&!confirm('มีโครงเรื่องเดิมอยู่แล้ว จะถูกแทนที่ — ตกลงไหม?'))return;
+  const idea=$('#ao-idea').value.trim(),els=[...document.querySelectorAll('.ao-el:checked')].map(c=>c.value),eps=parseInt($('#ao-eps').value)||30;
+  if(state.story.outline&&!confirm('มีโครงเรื่องเดิม จะถูกแทนที่ — ตกลง?'))return;
   const b=$('#ao-gen');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const s=state.story;
-  const prompt=`คุณคือนักวางโครงเรื่องนิยายมืออาชีพ จงสร้างโครงเรื่อง (outline) สำหรับนิยายเรื่องนี้:
+  const prompt=`คุณคือนักวางโครงเรื่องนิยายมืออาชีพ จงสร้างโครงเรื่องสำหรับเรื่องนี้:
 ชื่อเรื่อง: ${s.title}
-แนว: ${s.genre||'ไม่ระบุ'} | โทน: ${s.tone||'ไม่ระบุ'} | เขียนภาษา${s.lang==='en'?'อังกฤษ':'ไทย'}
+แนว: ${s.genre||'ไม่ระบุ'} | โทน: ${s.tone||'ไม่ระบุ'} | ภาษา${s.lang==='en'?'อังกฤษ':'ไทย'}
 คำอธิบาย: ${s.desc||'-'}
-ไอเดียจากผู้เขียน: ${idea||'(ไม่มี ช่วยคิดให้เลย)'}
-องค์ประกอบที่ต้องมี: ${els.join(', ')||'ไม่ระบุ'}
-จำนวนตอนเป้าหมาย: ~${eps} ตอน
-
-เขียนเป็นภาษา${s.lang==='en'?'อังกฤษ':'ไทย'} ในรูปแบบ (ใช้หัวข้อและ bullet สั้น กระชับ รวม ~450-750 คำ):
+ไอเดีย: ${idea||'(คิดให้เลย)'}
+องค์ประกอบต้องมี: ${els.join(', ')||'ไม่ระบุ'}
+เป้าตอน: ~${eps} ตอน
+รูปแบบ (bullet สั้น กระชับ ~450-750 คำ):
 ## ธีมและปมหลัก
 ## ตัวละครหลัก (ชื่อ — บทบาท — จุดเด่น)
-## โครงเรื่องแบ่งองก์ (องก์ 1 / 2 / 3 พร้อมลำดับเหตุการณ์สำคัญ ระบุช่วงตอนประมาณ เช่น "ตอน 1-8")
+## โครงเรื่องแบ่งองก์ (ระบุช่วงตอน เช่น ตอน 1-8)
 ## ฉาก/โลกที่ต้องมี
 ## ตัวร้าย/แรงต้าน
 ## จุดจบและทิศทางท้ายเรื่อง`;
-  try{
-    const txt=await aiStream({prompt,temp:.9,onDelta:(d,full)=>{$('#ol-text').value=full;}});
-    $('#ol-text').value=txt;await saveOutline(true);toast('AI สร้างโครงเรื่องและบันทึกแล้ว ✨');
+  try{const txt=await aiStream({prompt,temp:.9,onDelta:(d,f)=>{$('#ol-text').value=f;}});
+    $('#ol-text').value=txt;await saveOutline(true);toast('AI สร้างโครงเรื่องแล้ว ✨');
   }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
-  b.disabled=false;b.textContent='✨ สร้างโครงเรื่องด้วย AI';
-}
+  b.disabled=false;b.textContent='✨ สร้างโครงเรื่องด้วย AI';}
 async function aiPopulateWorld(){
   if(!needKey())return;
-  if(!state.story.outline)return toast('ต้องมีโครงเรื่องก่อน (เขียนเองหรือกดให้ AI สร้าง)','warn');
+  if(!state.story.outline)return toast('ต้องมีโครงเรื่องก่อน','warn');
   const b=$('#po-auto');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const sid=state.story.id;
   const exC=(await dbAll('characters')).filter(c=>c.storyId===sid);
   const exL=(await dbAll('lore')).filter(l=>l.storyId===sid);
-  const prompt=`อ่านโครงเรื่องนิยายนี้ แล้วสร้างข้อมูลโลกเป็น JSON อย่างเดียว (ไม่ต้องมีข้อความอื่น):
-
+  const prompt=`อ่านโครงเรื่องนี้ สร้างข้อมูลโลกเป็น JSON อย่างเดียว:
 # เรื่อง: ${state.story.title} (${state.story.genre||'-'})
 # โครงเรื่อง:
-"""
-${state.story.outline.slice(0,6000)}
-"""
-
-ตัวละครที่มีแล้ว (ห้ามซ้ำ): ${exC.map(c=>c.name).join(', ')||'(ยังไม่มี)'}
-ศัพท์เฉพาะที่มีแล้ว (ห้ามซ้ำ): ${exL.map(l=>l.name).join(', ')||'(ยังไม่มี)'}
-
-รูปแบบ JSON:
-{"characters":[{"name":"","role":"ตัวเอก|ตัวรอง|ตัวร้าย|เมนเทอร์/ผู้ใหญ่|คนรัก/คู่จิ้น|เพื่อนซี้","age":"","appearance":"","personality":"","abilities":"","background":"","goal":"","relations":""}],
-"lore":[{"cat":"location|power|technique|term|event","name":"","detail":"","when":""}]}
-กฎ: characters 3-6 คนที่สำคัญกับเรื่อง (relations ระบุชื่อตัวละครด้วยกันเองให้ชัด), lore 5-10 รายการ (สถานที่หลัก ระดับพลัง วิชาเด่น ศัพท์เฉพาะ เหตุการณ์สำคัญ), detail กระชับ 1-2 ประโยค, when ใส่เฉพาะ event เช่น "ตอน 5", ภาษาไทย`;
-  try{
-    const txt=await aiStream({prompt,temp:.8,json:true});
-    const j=parseJSONLoose(txt);let nc=0,nl=0;
+"""${state.story.outline.slice(0,6000)}"""
+ตัวละครที่มีแล้ว (ห้ามซ้ำ): ${exC.map(c=>c.name).join(', ')||'(ไม่มี)'}
+ศัพท์ที่มีแล้ว (ห้ามซ้ำ): ${exL.map(l=>l.name).join(', ')||'(ไม่มี)'}
+JSON: {"characters":[{"name","role":"ตัวเอก|ตัวรอง|ตัวร้าย|เมนเทอร์/ผู้ใหญ่|คนรัก/คู่จิ้น|เพื่อนซี้","age","appearance","personality","abilities","background","goal","relations"}],"lore":[{"cat":"location|power|technique|term|event","name","detail","when"}]}
+กฎ: characters 3-6 คน (relations อ้างชื่อกันเองชัดๆ), lore 5-10 รายการ, detail กระชับ, when เฉพาะ event เช่น "ตอน 5", ภาษาไทย`;
+  try{const j=parseJSONLoose(await aiStream({prompt,temp:.8,json:true,think:'low'}));let nc=0,nl=0;
     const cn=new Set(exC.map(c=>c.name)),ln=new Set(exL.map(l=>l.name));
     for(const c of(j.characters||[])){if(!c.name||cn.has(c.name))continue;
       await dbPut('characters',{id:uid(),storyId:sid,name:c.name,role:c.role||'ตัวรอง',age:c.age||'',appearance:c.appearance||'',
@@ -955,162 +985,176 @@ ${state.story.outline.slice(0,6000)}
       await dbPut('lore',{id:uid(),storyId:sid,cat:l.cat,name:l.name,detail:l.detail||'',when:l.when||'',createdAt:Date.now()});nl++;}
     toast(`เพิ่มตัวละคร ${nc} คน + ความจำ ${nl} รายการ 🪄`);
   }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
-  b.disabled=false;b.textContent='🪄 สร้างตัวละคร/โลกจากโครงเรื่อง';
-}
+  b.disabled=false;b.textContent='🪄 สร้างตัวละคร/โลกจากโครงเรื่อง';}
 
-/* ---------- ARC TAB (3 ACTS) ---------- */
-function fillArc(){const a=state.story.arc||{};
-  $('#arc-b').value=a.beginning||'';$('#arc-m').value=a.middle||'';$('#arc-e').value=a.end||'';}
-async function saveArc(silent){
-  state.story.arc={beginning:$('#arc-b').value,middle:$('#arc-m').value,end:$('#arc-e').value};
+/* ---------- ARC ---------- */
+function fillArc(){const a=state.story.arc||{};$('#arc-b').value=a.beginning||'';$('#arc-m').value=a.middle||'';$('#arc-e').value=a.end||'';}
+async function saveArc(silent){state.story.arc={beginning:$('#arc-b').value,middle:$('#arc-m').value,end:$('#arc-e').value};
   state.story.updatedAt=Date.now();await dbPut('stories',state.story);
-  if(!silent)toast('บันทึกพล็อตย่อย 3 องก์แล้ว 🧭');
-}
-async function aiArc(){
-  if(!needKey())return;
+  if(!silent)toast('บันทึกพล็อต 3 องก์แล้ว 🧭');}
+async function aiArc(){if(!needKey())return;
   const b=$('#arc-gen');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const s=state.story;
-  const prompt=`คุณคือ script doctor มืออาชีพ จากข้อมูลนิยายนี้ จงวางพล็อตย่อยแบ่ง 3 องก์ (ต้น-กลาง-ปลายจนจบ)
-ตอบ JSON เท่านั้น:
+  const prompt=`คุณคือ script doctor วางพล็อต 3 องก์ให้เรื่องนี้ ตอบ JSON เท่านั้น:
 {"beginning":"...","middle":"...","end":"..."}
-
-ชื่อเรื่อง: ${s.title} | แนว: ${s.genre||'-'} | โทน: ${s.tone||'-'}
-โครงเรื่องหลัก:
-"""
-${(s.outline||s.desc||'ไม่มี ให้คิดเองจากชื่อและแนวเรื่อง').slice(0,5000)}
-"""
-
-กฎ: แต่ละฟิลด์เป็นภาษาไทย 80-220 คำ ใช้ bullet ขึ้นต้นด้วย "• " แยกบรรทัด (\n)
-- beginning: แนะนำโลก/ตัวเอก + Inciting Incident + เป้าหมาย + ระบุช่วงตอน เช่น (ตอน 1-6)
-- middle: อุปสรรค + Midpoint twist + จุดต่ำสุด + ความสัมพันธ์พัฒนา + ระบุช่วงตอน
-- end: การลุกใหม่ + ศึกชี้ขาด + ไขปมทั้งหมด + บทสรุปทุกตัวละคร + ระบุช่วงตอนจบ`;
-  try{
-    const j=parseJSONLoose(await aiStream({prompt,temp:.85,json:true}));
+ชื่อ: ${s.title} | แนว: ${s.genre||'-'} | โทน: ${s.tone||'-'}
+โครงเรื่อง:
+"""${(s.outline||s.desc||'ไม่มี คิดเองจากชื่อ').slice(0,5000)}"""
+กฎ: แต่ละฟิลด์ไทย 80-220 คำ bullet "• " แยกบรรทัด(\n) ระบุช่วงตอน
+- beginning: โลก/ตัวเอก + Inciting Incident + เป้าหมาย
+- middle: อุปสรรค + Midpoint twist + จุดต่ำสุด
+- end: ลุกใหม่ + ศึกชี้ขาด + ไขปม + บทสรุป`;
+  try{const j=parseJSONLoose(await aiStream({prompt,temp:.85,json:true,think:'low'}));
     $('#arc-b').value=j.beginning||'';$('#arc-m').value=j.middle||'';$('#arc-e').value=j.end||'';
-    await saveArc(true);toast('AI วางพล็อต 3 องก์แล้ว 🧭 อย่าลืมปรับแก้ตามใจ');
+    await saveArc(true);toast('AI วาง 3 องก์แล้ว 🧭');
   }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
-  b.disabled=false;b.textContent='✨ ให้ AI วาง 3 องก์ให้';
-}
+  b.disabled=false;b.textContent='✨ ให้ AI วาง 3 องก์ให้';}
 
 /* ---------- CHARACTERS ---------- */
 async function renderChars(){
-  const sid=state.story.id;
-  const chars=(await dbAll('characters')).filter(c=>c.storyId===sid).sort((a,b)=>a.createdAt-b.createdAt);
+  const chars=(await dbAll('characters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.createdAt-b.createdAt);
   const g=$('#ch-grid');g.innerHTML='';
-  if(!chars.length){g.innerHTML='<div class="empty" style="grid-column:1/-1">ยังไม่มีตัวละคร — เพิ่มเอง หรือใช้ปุ่ม "🪄 สร้างตัวละคร/โลกจากโครงเรื่อง" ในแท็บโครงเรื่อง</div>';return}
+  if(!chars.length){g.innerHTML='<div class="empty" style="grid-column:1/-1">ยังไม่มีตัวละคร — เพิ่มเอง / ให้ AI สร้าง / 🎲 สุ่มชื่อ / ใช้เทมเพลต</div>';return}
   for(const c of chars){
     const snip=[c.age,c.personality,c.appearance,c.goal].filter(Boolean).join(' · ')||'(ยังไม่มีรายละเอียด)';
+    const av=c.portrait?`<img src="${c.portrait}" alt="">`:esc(c.name[0]||'?');
     const d=document.createElement('div');d.className='ccard';
-    d.innerHTML=`<div class="top"><div class="avat" style="background:hsl(${hue(c.name)},58%,45%)">${esc(c.name[0]||'?')}</div>
+    d.innerHTML=`<div class="top"><div class="avat" style="${c.portrait?'':'background:hsl('+hue(c.name)+',58%,45%)'}">${av}</div>
       <div style="min-width:0"><b style="font-size:.95rem">${esc(c.name)}</b><br><span class="role-chip">${esc(c.role||'-')}</span></div></div>
       <div class="snip">${esc(snip)}</div>
-      <div class="icon-btns"><button class="ibtn e">✏️ แก้ไข</button><button class="ibtn dl">🗑</button></div>`;
+      <div class="icon-btns"><button class="ibtn e">✏️ แก้ไข</button><button class="ibtn p">🖼️ วาดภาพ</button><button class="ibtn dl">🗑</button></div>`;
     d.querySelector('.e').onclick=()=>openCharModal(c);
-    d.querySelector('.dl').onclick=async()=>{if(confirm(`ลบตัวละคร "${c.name}"?`)){await dbDel('characters',c.id);renderChars();toast('ลบแล้ว');}};
-    g.appendChild(d);
-  }
-}
+    d.querySelector('.p').onclick=()=>charPortrait(c);
+    d.querySelector('.dl').onclick=async()=>{if(confirm(`ลบ "${c.name}"?`)){await dbDel('characters',c.id);renderChars();}};
+    g.appendChild(d);}}
 function openCharModal(c){
   $('#cf-h').firstChild.textContent=(c?'✏️ แก้ไข: '+c.name:'＋ ตัวละครใหม่')+' ';
   $('#cf-id').value=c?.id||'';$('#cf-name').value=c?.name||'';$('#cf-role').value=c?.role||'ตัวรอง';
   $('#cf-age').value=c?.age||'';$('#cf-app').value=c?.appearance||'';$('#cf-per').value=c?.personality||'';
   $('#cf-abl').value=c?.abilities||'';$('#cf-bg').value=c?.background||'';$('#cf-goal').value=c?.goal||'';$('#cf-rel').value=c?.relations||'';
-  openM('m-char');setTimeout(()=>$('#cf-name').focus(),50);
-}
+  openM('m-char');setTimeout(()=>$('#cf-name').focus(),50);}
 async function saveChar(){
-  const name=$('#cf-name').value.trim();if(!name)return toast('ใส่ชื่อตัวละครก่อน','warn');
+  const name=$('#cf-name').value.trim();if(!name)return toast('ใส่ชื่อก่อน','warn');
   const id=$('#cf-id').value;
   const obj=id?await dbGet('characters',id):{id:uid(),storyId:state.story.id,createdAt:Date.now()};
   Object.assign(obj,{name,role:$('#cf-role').value,age:$('#cf-age').value.trim(),appearance:$('#cf-app').value.trim(),
     personality:$('#cf-per').value.trim(),abilities:$('#cf-abl').value.trim(),background:$('#cf-bg').value.trim(),
     goal:$('#cf-goal').value.trim(),relations:$('#cf-rel').value.trim(),updatedAt:Date.now()});
-  await dbPut('characters',obj);closeM('m-char');renderChars();toast('บันทึกตัวละครแล้ว 👥');
-}
+  await dbPut('characters',obj);closeM('m-char');renderChars();toast('บันทึกตัวละครแล้ว 👥');}
 async function aiAddCharacter(ev){
   if(!needKey())return;
   const b=ev.target;b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const mem=await gatherContext(state.story.id,[],true);
-  const prompt=`จากข้อมูลนิยายนี้ สร้าง "ตัวละครใหม่ 1 คน" ที่เติมบทบาทที่ยังขาดและทำให้เรื่องน่าติดตามขึ้น
-ตอบเป็น JSON เท่านั้น:
-{"name":"","role":"ตัวรอง|ตัวร้าย|เมนเทอร์/ผู้ใหญ่|คนรัก/คู่จิ้น|เพื่อนซี้","age":"","appearance":"","personality":"","abilities":"","background":"","goal":"","relations":""}
-ทุกฟิลด์ภาษาไทย กระชับแต่มีเอกลักษณ์ ห้ามซ้ำกับตัวละครเดิม (relations อ้างชื่อตัวละครเดิมด้วย)
-
+  const prompt=`จากข้อมูลนิยายนี้ สร้างตัวละครใหม่ 1 คนที่เติมบทบาทที่ขาด
+ตอบ JSON เท่านั้น: {"name","role":"ตัวรอง|ตัวร้าย|เมนเทอร์/ผู้ใหญ่|คนรัก/คู่จิ้น|เพื่อนซี้","age","appearance","personality","abilities","background","goal","relations"}
+ไทย กระชับ ห้ามซ้ำเดิม (relations อ้างชื่อเดิม)
 ${mem.block}`;
-  try{
-    const j=parseJSONLoose(await aiStream({prompt,temp:.95,json:true}));
-    if(!j.name)throw new Error('ไม่ได้ชื่อจาก AI');
+  try{const j=parseJSONLoose(await aiStream({prompt,temp:.95,json:true,think:'low'}));
+    if(!j.name)throw new Error('ไม่ได้ชื่อ');
     await dbPut('characters',{id:uid(),storyId:state.story.id,name:j.name,role:j.role||'ตัวรอง',age:j.age||'',
       appearance:j.appearance||'',personality:j.personality||'',abilities:j.abilities||'',
       background:j.background||'',goal:j.goal||'',relations:j.relations||'',createdAt:Date.now()});
     renderChars();toast('AI สร้าง "'+j.name+'" แล้ว 🤖');
   }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
-  b.disabled=false;b.textContent='🤖 ให้ AI สร้างตัวละครใหม่';
-}
+  b.disabled=false;b.textContent='🤖 ให้ AI สร้างตัวละครใหม่';}
+async function charPortrait(c){
+  if(!needKey())return;
+  toast('🎨 กำลังวาดพอร์เทรต '+c.name+'…');
+  try{
+    const prompt=`Character portrait illustration for a novel. Character: "${c.name}" (${c.role||'character'}). Appearance: ${c.appearance||'design a fitting look'}. Personality: ${c.personality||'-'}. Genre: ${state.story.genre||'-'}.
+Half-body portrait, detailed face, expressive eyes, fitting costume and color palette for the genre, soft dramatic lighting, clean background, high quality digital art, no text, no watermark.`;
+    const r=await generateImage(prompt);
+    const small=await shrinkDataURL(`data:${r.mime};base64,${r.data}`,400,.82);
+    c.portrait=small;c.updatedAt=Date.now();await dbPut('characters',c);
+    renderChars();toast('วาดภาพ '+c.name+' เสร็จ 🖼️');
+  }catch(e){toast('วาดไม่สำเร็จ: '+e.message,'err');}}
+async function charPortraitFromModal(){
+  const id=$('#cf-id').value;const name=$('#cf-name').value.trim();
+  if(!name)return toast('ใส่ชื่อ+ข้อมูลก่อนแล้วบันทึก ค่อยวาดภาพ','warn');
+  if(!id){await saveChar();const chars=await dbAll('characters');const c=chars.find(x=>x.name===name&&x.storyId===state.story.id);
+    if(c){closeM('m-char');await charPortrait(c);}}
+  else{const c=await dbGet('characters',id);
+    c.appearance=$('#cf-app').value.trim();c.role=$('#cf-role').value;
+    await saveChar();closeM('m-char');await charPortrait(c);}}
 
 /* ---------- LORE ---------- */
-const CATS={
-  location:{label:'🏯 สถานที่',color:'#4ea1ff'},
-  power:{label:'⚡ ระบบ/ระดับพลัง',color:'#fbbf24'},
-  technique:{label:'📜 วิชา/เทคนิค',color:'#34d399'},
-  term:{label:'🔖 ศัพท์เฉพาะ',color:'#b06cff'},
-  relation:{label:'💞 ความสัมพันธ์',color:'#ff6b9d'},
-  event:{label:'📅 เหตุการณ์สำคัญ',color:'#ff8f5e'},
-};
-function initLoreFilters(){
-  const f=$('#lr-filters');
-  if(f.dataset.init)return;f.dataset.init='1';
+const CATS={location:{label:'🏯 สถานที่',color:'#4ea1ff'},power:{label:'⚡ ระบบ/ระดับพลัง',color:'#fbbf24'},
+  technique:{label:'📜 วิชา/เทคนิค',color:'#34d399'},term:{label:'🔖 ศัพท์เฉพาะ',color:'#b06cff'},
+  relation:{label:'💞 ความสัมพันธ์',color:'#ff6b9d'},event:{label:'📅 เหตุการณ์สำคัญ',color:'#ff8f5e'}};
+function initLoreFilters(){const f=$('#lr-filters');if(f.dataset.init)return;f.dataset.init='1';
   f.innerHTML=`<button data-cat="all" class="on">ทั้งหมด</button>`+Object.entries(CATS).map(([k,v])=>`<button data-cat="${k}">${v.label}</button>`).join('');
   f.onclick=e=>{const b=e.target.closest('button');if(!b)return;
     f.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-    state.loreFilter=b.dataset.cat;renderLore();};
-}
+    state.loreFilter=b.dataset.cat;renderLore();};}
 async function renderLore(){
-  const sid=state.story.id;
-  let items=(await dbAll('lore')).filter(l=>l.storyId===sid);
+  let items=(await dbAll('lore')).filter(l=>l.storyId===state.story.id);
   if(state.loreFilter!=='all')items=items.filter(l=>l.cat===state.loreFilter);
-  const order=Object.keys(CATS);
-  items.sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat));
+  const order=Object.keys(CATS);items.sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat));
   const el=$('#lr-list');el.innerHTML='';
-  if(!items.length){el.innerHTML='<div class="empty">ยังไม่มีข้อมูลในหมวดนี้<br>💡 ใช้ปุ่ม "🪄 สร้างตัวละคร/โลกจากโครงเรื่อง" ในแท็บโครงเรื่องได้</div>';return}
-  for(const l of items){
-    const c=CATS[l.cat];
+  if(!items.length){el.innerHTML='<div class="empty">ยังไม่มีข้อมูล — ใช้ 🪄 ในแท็บโครงเรื่อง หรือรอ AI เสนอหลังจบตอน</div>';return}
+  for(const l of items){const c=CATS[l.cat];
     const d=document.createElement('div');d.className='lr-item';d.style.borderLeftColor=c.color;
     d.innerHTML=`<div style="min-width:0"><b>${esc(l.name)}</b>${l.when?` <span class="whenchip">${esc(l.when)}</span>`:''}<div class="dt">${esc(l.detail)}</div></div>
-      <div class="meta"><span class="cat-pill">${c.label}</span>
-      <button class="ibtn e">✏️</button><button class="ibtn dl">🗑</button></div>`;
+      <div class="meta"><span class="cat-pill">${c.label}</span><button class="ibtn e">✏️</button><button class="ibtn dl">🗑</button></div>`;
     d.querySelector('.e').onclick=()=>openLoreModal(l);
-    d.querySelector('.dl').onclick=async()=>{if(confirm(`ลบ "${l.name}"?`)){await dbDel('lore',l.id);renderLore();toast('ลบแล้ว');}};
-    el.appendChild(d);
-  }
-}
+    d.querySelector('.dl').onclick=async()=>{if(confirm(`ลบ "${l.name}"?`)){await dbDel('lore',l.id);renderLore();}};
+    el.appendChild(d);}}
 function openLoreModal(l){
-  $('#lf-h').firstChild.textContent=(l?'✏️ แก้ไขข้อมูล ':'＋ เพิ่มความจำ ');
+  $('#lf-h').firstChild.textContent=(l?'✏️ แก้ไข ':'＋ เพิ่มความจำ ');
   $('#lf-id').value=l?.id||'';$('#lf-cat').value=l?.cat||'location';
   $('#lf-name').value=l?.name||'';$('#lf-detail').value=l?.detail||'';$('#lf-when').value=l?.when||'';
-  openM('m-lore');setTimeout(()=>$('#lf-name').focus(),50);
-}
-async function saveLore(){
-  const name=$('#lf-name').value.trim();if(!name)return toast('ใส่ชื่อก่อน','warn');
+  openM('m-lore');setTimeout(()=>$('#lf-name').focus(),50);}
+async function saveLore(){const name=$('#lf-name').value.trim();if(!name)return toast('ใส่ชื่อก่อน','warn');
   const id=$('#lf-id').value;
   const obj=id?await dbGet('lore',id):{id:uid(),storyId:state.story.id,createdAt:Date.now()};
   Object.assign(obj,{cat:$('#lf-cat').value,name,detail:$('#lf-detail').value.trim(),when:$('#lf-when').value.trim(),updatedAt:Date.now()});
-  await dbPut('lore',obj);closeM('m-lore');renderLore();toast('บันทึกความจำแล้ว 🧠');
-}
+  await dbPut('lore',obj);closeM('m-lore');renderLore();toast('บันทึกความจำแล้ว 🧠');}
 
-/* ---------- OVERVIEW: RELATION MAP + TIMELINE ---------- */
+/* ---------- AUTO MEMORY (A1) ---------- */
+let memSugs=[];
+async function autoMemoryExtract(ch){
+  try{
+    const exC=(await dbAll('characters')).filter(c=>c.storyId===ch.storyId).map(c=>c.name);
+    const exL=(await dbAll('lore')).filter(l=>l.storyId===ch.storyId).map(l=>l.name);
+    const prompt=`อ่านตอนนิยายนี้ ดึง "สิ่งใหม่" ที่ควรจำข้ามตอน เฉพาะที่ไม่มีในรายชื่อเดิม:
+ตัวละครเดิม: ${exC.join(', ')||'(ไม่มี)'}
+ความจำเดิม: ${exL.join(', ')||'(ไม่มี)'}
+ตอบ JSON: {"characters":[{"name","role","note"}],"lore":[{"cat":"location|power|technique|term|relation|event","name","detail"}]}
+เฉพาะของใหม่จริง (ตัวละครสำคัญ/สถานที่/วิชา/ศัพท์/ไอเทม/เหตุการณ์สำคัญ) รวมสูงสุด 4 รายการ ไม่มีให้ array ว่าง
+"""${ch.content.slice(0,20000)}"""`;
+    const j=parseJSONLoose(await aiUtil({temp:.3,json:true,prompt}));
+    const cn=new Set(exC),ln=new Set(exL.map(s=>s.toLowerCase()));
+    memSugs=[];
+    for(const c of(j.characters||[]))if(c.name&&!cn.has(c.name))memSugs.push({type:'char',name:c.name,role:c.role||'ตัวรอง',detail:c.note||''});
+    for(const l of(j.lore||[]))if(l.name&&!ln.has(l.name.toLowerCase())&&CATS[l.cat])memSugs.push({type:'lore',cat:l.cat,name:l.name,detail:l.detail||''});
+    if(memSugs.length)renderMemSug();
+  }catch(e){}}
+function renderMemSug(){
+  $('#mem-list').innerHTML=memSugs.map((m,i)=>`<label class="mem-it"><input type="checkbox" class="mem-ck" data-i="${i}" checked style="accent-color:var(--ac)">
+    <div><b>${esc(m.name)}</b> <span class="cat-pill">${m.type==='char'?'👥 '+esc(m.role):CATS[m.cat].label}</span>
+    ${m.detail?`<div class="hint" style="margin-top:3px">${esc(m.detail)}</div>`:''}</div></label>`).join('');
+  openM('m-memsug');}
+async function addMemSug(){
+  const cks=document.querySelectorAll('.mem-ck:checked');let n=0;
+  for(const ck of cks){const m=memSugs[+ck.dataset.i];
+    if(m.type==='char'){await dbPut('characters',{id:uid(),storyId:state.story.id,name:m.name,role:m.role,background:m.detail,createdAt:Date.now()});}
+    else{await dbPut('lore',{id:uid(),storyId:state.story.id,cat:m.cat,name:m.name,detail:m.detail,createdAt:Date.now()});}
+    n++;}
+  closeM('m-memsug');toast(`เพิ่มความจำใหม่ ${n} รายการ 🧠`);}
+</script>
+<script>
+/* ---------- OVERVIEW: REL MAP + TIMELINE ---------- */
 function relTone(t){t=t||'';
   if(/เกลียด|ชัง|ศัตรู|แค้น|ฆ่า|ทำร้าย|ข้าศึก|ทรยศ|เป็นปฏิ|ต่อต้าน/.test(t))return'neg';
-  if(/รัก|ชอบ|เพื่อน|ผูกพัน|ครอบครัว|พี่น้อง|น้อง|ภรรยา|สามี|แฟน|คู่|ห่วง|ดูแล|เคารพ|เทิด|ลูกศิษย์|อาจารย์|พันธมิตร|ฝาแฝด|ลูก|แม่|พ่อ/.test(t))return'pos';
+  if(/รัก|ชอบ|เพื่อน|ผูกพัน|ครอบครัว|พี่น้อง|น้อง|ภรรยา|สามี|แฟน|คู่|ห่วง|ดูแล|เคารพ|ลูกศิษย์|อาจารย์|พันธมิตร|ฝาแฝด|ลูก|แม่|พ่อ/.test(t))return'pos';
   return'neu';}
 const TONE_COLOR={pos:'#34d399',neg:'#f87171',neu:'#8a93a8'};
-let selChar=null;
-async function renderOverview(){selChar=null;await Promise.all([renderRelMap(),renderTimeline()]);}
+async function renderOverview(){await Promise.all([renderRelMap(),renderTimeline()]);}
 async function renderRelMap(){
-  const sid=state.story.id;
-  const chars=(await dbAll('characters')).filter(c=>c.storyId===sid).sort((a,b)=>a.createdAt-b.createdAt);
+  const chars=(await dbAll('characters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.createdAt-b.createdAt);
   const svg=$('#rel-svg');svg.innerHTML='';const NS='http://www.w3.org/2000/svg';
-  const info=$('#rel-info');info.innerHTML='<div class="empty" style="padding:10px">คลิกตัวละครบนกราฟเพื่อดูข้อมูล</div>';
-  if(chars.length<2){svg.innerHTML='<text x="320" y="320" text-anchor="middle" fill="#8a93a8" font-size="15">ต้องมีตัวละครอย่างน้อย 2 คน ถึงจะวาดเส้นความสัมพันธ์ได้</text>';return}
+  const info=$('#rel-info');info.innerHTML='<div class="empty" style="padding:10px">คลิกตัวละครบนกราฟ</div>';
+  if(chars.length<2){svg.innerHTML='<text x="320" y="320" text-anchor="middle" fill="#8a93a8" font-size="15">ต้องมีตัวละคร ≥ 2 คน</text>';return}
   const cx=320,cy=320,R=235,n=chars.length;
   const pos=chars.map((c,i)=>{const ang=-Math.PI/2+i*2*Math.PI/n;return{x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang)}});
   const edges=[];
@@ -1119,10 +1163,9 @@ async function renderRelMap(){
     const ta=(a.relations||'').includes(b.name)?a.relations:'';
     const tb=(b.relations||'').includes(a.name)?b.relations:'';
     if(!ta&&!tb)continue;
-    const raw=(ta||tb);
+    const raw=ta||tb;
     const seg=raw.split(/[;\n]/).map(s=>s.trim()).find(s=>s&&(ta?s.includes(b.name):s.includes(a.name)))||raw;
-    edges.push({i,j,tone:relTone(seg),label:seg.slice(0,120)});
-  }
+    edges.push({i,j,tone:relTone(seg),label:seg.slice(0,120)});}
   const mk=(tag,at)=>{const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);return e};
   const shorten=(p,q,r)=>{const dx=q.x-p.x,dy=q.y-p.y,d=Math.hypot(dx,dy)||1;return{x:p.x+dx/d*r,y:p.y+dy/d*r}};
   for(const e of edges){
@@ -1135,61 +1178,47 @@ async function renderRelMap(){
     g.appendChild(mk('circle',{cx:pos[i].x,cy:pos[i].y,r:30,fill:`hsl(${hue(c.name)},58%,45%)`,stroke:'#ffffff55','stroke-width':2}));
     const t1=mk('text',{x:pos[i].x,y:pos[i].y+7,'text-anchor':'middle','font-size':19,'font-weight':700,fill:'#fff'});
     t1.textContent=c.name[0]||'?';g.appendChild(t1);
-    const lbl=mk('text',{x:pos[i].x,y:pos[i].y+(pos[i].y>cy?52:-40),'text-anchor':'middle','font-size':14,'font-weight':600,
-      fill:'currentColor'});
+    const lbl=mk('text',{x:pos[i].x,y:pos[i].y+(pos[i].y>cy?52:-40),'text-anchor':'middle','font-size':14,'font-weight':600,fill:'currentColor'});
     lbl.setAttribute('stroke','var(--bg)');lbl.setAttribute('stroke-width',4);lbl.setAttribute('paint-order','stroke');
     lbl.textContent=c.name;g.appendChild(lbl);
-    const ti=document.createElementNS(NS,'title');ti.textContent=`${c.name} — ${c.role||''}`;g.appendChild(ti);
-    g.addEventListener('click',()=>selectChar(i));
-    svg.appendChild(g);});
+    g.addEventListener('click',()=>selectChar(i));svg.appendChild(g);});
   function selectChar(i){
-    selChar=i===selChar?null:i;
-    svg.querySelectorAll('.node').forEach(g=>{const gi=+g.dataset.i;
-      g.setAttribute('opacity',selChar===null||gi===selChar?1:.18);});
+    svg.querySelectorAll('.node').forEach(g=>{const gi=+g.dataset.i;g.setAttribute('opacity',gi===i?1:.25);});
     svg.querySelectorAll('.edge').forEach(l=>{const a=+l.dataset.i,b=+l.dataset.j;
-      l.setAttribute('opacity',(selChar===null||a===selChar||b===selChar)?.9:.08);
-      l.setAttribute('stroke-width',(a===selChar||b===selChar)&&selChar!==null?4:2.5);});
-    if(selChar===null){info.innerHTML='<div class="empty" style="padding:10px">คลิกตัวละครบนกราฟเพื่อดูข้อมูล</div>';return}
-    const c=chars[selChar];
-    const rel=edges.filter(e=>e.i===selChar||e.j===selChar)
-      .map(e=>`<div class="fld">↔️ <b>${esc(chars[e.i===selChar?e.j:e.i].name)}</b>: ${esc(e.label)}</div>`).join('');
-    info.innerHTML=`<h4><span class="avat" style="display:inline-flex;width:30px;height:30px;font-size:.9rem;background:hsl(${hue(c.name)},58%,45%)">${esc(c.name[0])}</span> ${esc(c.name)} <span class="role-chip">${esc(c.role||'-')}</span></h4>`
+      l.setAttribute('opacity',(a===i||b===i)?.9:.08);
+      l.setAttribute('stroke-width',(a===i||b===i)?4:2.5);});
+    const c=chars[i];
+    const rel=edges.filter(e=>e.i===i||e.j===i)
+      .map(e=>`<div class="fld">↔️ <b>${esc(chars[e.i===i?e.j:e.i].name)}</b>: ${esc(e.label)}</div>`).join('');
+    info.innerHTML=`<h4>${c.portrait?`<img src="${c.portrait}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px">`:''}${esc(c.name)} <span class="role-chip">${esc(c.role||'-')}</span></h4>`
       +[['อายุ/ข้อมูล',c.age],['หน้าตา',c.appearance],['นิสัย',c.personality],['พลัง/วิชา',c.abilities],['ประวัติ',c.background],['เป้าหมาย',c.goal]]
       .filter(f=>f[1]).map(f=>`<div class="fld"><b>${f[0]}:</b> ${esc(f[1])}</div>`).join('')
-      +(rel?`<hr class="sep" style="margin:10px 0">${rel}`:'<p class="hint">ยังไม่มีเส้นความสัมพันธ์ — เพิ่มชื่อตัวละครอื่นในช่อง "ความสัมพันธ์"</p>');
-  }
-}
+      +(rel?`<hr class="sep" style="margin:10px 0">${rel}`:'<p class="hint">ยังไม่มีเส้นความสัมพันธ์</p>');}}
 async function renderTimeline(){
-  const sid=state.story.id;
-  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===sid).sort((a,b)=>a.num-b.num);
-  const events=(await dbAll('lore')).filter(l=>l.storyId===sid&&l.cat==='event');
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  const events=(await dbAll('lore')).filter(l=>l.storyId===state.story.id&&l.cat==='event');
   const items=[];
-  for(const c of chaps)items.push({pos:c.num,ev:false,
-    tt:`ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}`,
+  for(const c of chaps)items.push({pos:c.num,ev:false,tt:`ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}`,
     dt:c.summary||(c.content?`(≈${estWords(c.content).toLocaleString()} คำ)`:'(ยังไม่มีเนื้อหา)')});
-  for(const l of events){
-    const m=/ตอน\s*(\d+)/.exec(l.when||l.detail||'');
+  for(const l of events){const m=/ตอน\s*(\d+)/.exec(l.when||l.detail||'');
     items.push({pos:m?+m[1]:null,ev:true,tt:esc(l.name)+(l.when?` <span class="whenchip">${esc(l.when)}</span>`:''),dt:esc(l.detail)});}
-  items.sort((a,b)=>{if(a.pos!==null&&b.pos!==null)return a.pos-b.pos;
-    if(a.pos!==null)return -1;if(b.pos!==null)return 1;return 0});
+  items.sort((a,b)=>{if(a.pos!==null&&b.pos!==null)return a.pos-b.pos;if(a.pos!==null)return -1;if(b.pos!==null)return 1;return 0});
   const w=$('#tl-wrap');
-  if(!items.length){w.innerHTML='<div class="empty">ยังไม่มีข้อมูล — เขียนตอน หรือเพิ่ม "เหตุการณ์สำคัญ" ในคลังความจำ (ใส่ช่วงเวลา เช่น ตอน 5)</div>';return}
-  w.innerHTML='<div class="tl">'+items.map(it=>
-    `<div class="tl-item ${it.ev?'ev':''}"><div class="tt">${it.tt}</div><div class="dt">${it.dt}</div></div>`).join('')+'</div>';
-}
+  if(!items.length){w.innerHTML='<div class="empty">ยังไม่มีข้อมูล</div>';return}
+  w.innerHTML='<div class="tl">'+items.map(it=>`<div class="tl-item ${it.ev?'ev':''}"><div class="tt">${it.tt}</div><div class="dt">${it.dt}</div></div>`).join('')+'</div>';}
 
-/* ---------- MEMORY / CONTEXT ---------- */
+/* ---------- MEMORY/CONTEXT ---------- */
 async function gatherContext(sid,chaps=null,skipTails=false){
   const s=await dbGet('stories',sid);
   const chars=(await dbAll('characters')).filter(c=>c.storyId===sid);
   const lore=(await dbAll('lore')).filter(l=>l.storyId===sid);
-  let b=`# ข้อมูลนิยาย\nชื่อเรื่อง: ${s.title}\nแนว: ${s.genre||'-'}\nโทน/สไตล์: ${s.tone||'-'}\nคำอธิบาย: ${s.desc||'-'}\n\n# โครงเรื่อง\n${s.outline||'(ยังไม่มีโครงเรื่อง)'}`;
+  let b=`# ข้อมูลนิยาย\nชื่อเรื่อง: ${s.title}\nแนว: ${s.genre||'-'}\nโทน: ${s.tone||'-'}\nคำอธิบาย: ${s.desc||'-'}\n\n# โครงเรื่อง\n${s.outline||'(ยังไม่มี)'}`;
   const arc=s.arc||{};
   if(arc.beginning||arc.middle||arc.end){
-    b+=`\n\n# พล็อตย่อย 3 องก์ (เดินเรื่องให้มุ่งสู่จุดจบตามแผนนี้)\n[องก์ 1 ต้นเรื่อง]\n${arc.beginning||'-'}`;
-    if(arc.middle)b+=`\n[องก์ 2 กลางเรื่อง]\n${arc.middle}`;
-    if(arc.end)b+=`\n[องก์ 3 ปลายเรื่อง-จบ]\n${arc.end}`;}
-  if(chars.length){b+=`\n\n# ตัวละคร (ยึดตามนี้เคร่งครัด)`;
+    b+=`\n\n# พล็อตย่อย 3 องก์ (เดินเรื่องมุ่งสู่จุดจบตามแผน)\n[องก์ 1]\n${arc.beginning||'-'}`;
+    if(arc.middle)b+=`\n[องก์ 2]\n${arc.middle}`;
+    if(arc.end)b+=`\n[องก์ 3-จบ]\n${arc.end}`;}
+  if(chars.length){b+=`\n\n# ตัวละคร (ยึดเคร่งครัด)`;
     for(const c of chars){let ln=`- ${c.name} [${c.role||'-'}]${c.age?' | '+c.age:''}`;
       const dd=[];if(c.appearance)dd.push('หน้าตา: '+c.appearance);if(c.personality)dd.push('นิสัย: '+c.personality);
       if(c.abilities)dd.push('พลัง/วิชา: '+c.abilities);if(c.background)dd.push('ประวัติ: '+c.background);
@@ -1200,52 +1229,53 @@ async function gatherContext(sid,chaps=null,skipTails=false){
     b+=`\n\n# ${info.label} (ยึดตามนี้ ห้ามแต่งทับ)`;
     for(const i of its)b+=`\n- ${i.name}${i.when?` (${i.when})`:''}: ${i.detail}`;}
   const sorted=(chaps||[]).slice().sort((a,b)=>a.num-b.num);
-  const sums=sorted.filter(c=>c.summary).slice(-12)
-    .map(c=>`ตอน ${c.num} «${c.title||'ไม่มีชื่อ'}»: ${c.summary}`).join('\n');
+  const sums=sorted.filter(c=>c.summary).slice(-12).map(c=>`ตอน ${c.num} «${c.title||''}»: ${c.summary}`).join('\n');
   const last=sorted[sorted.length-1];
   return{block:b,summaries:sums,
-    lastTail:!skipTails&&last?last.content.replace(/^.*?\n/,'').slice(-1600):'',lastNum:last?.num||0};
-}
-const SYS_WRITER=lang=>`คุณคือนักเขียนนิยายมืออาชีพที่เขียนเรื่องยาวต่อเนื่องได้อย่างมีชีวิตชีวาและน่าติดตาม
+    lastTail:!skipTails&&last?last.content.replace(/^.*?\n/,'').slice(-1600):'',lastNum:last?.num||0};}
+const SYS_WRITER=lang=>`คุณคือนักเขียนนิยายมืออาชีพ เขียนเรื่องยาวต่อเนื่องได้มีชีวิตชีวาน่าติดตาม
 กฎเหล็ก:
-1. เขียนเป็นภาษา${lang==='en'?'อังกฤษ':'ไทย'} สไตล์นิยาย สลับบทสนทนากับบรรยาย เห็นภาพ จับอารมณ์ได้ อ่านสนุก
-2. ยึดชื่อตัวละคร สถานที่ ระดับพลัง ชื่อวิชา ศัพท์เฉพาะ เหตุการณ์ และความสัมพันธ์ ตาม "ฐานข้อมูลความจำ" อย่างเคร่งครัด ห้ามขัดแย้ง ห้ามแต่งใหม่ทับ
-3. เดินเรื่องให้สอดคล้องกับพล็อตย่อย 3 องก์ที่วางไว้ มุ่งสู่จุดจบของเรื่อง
-4. ห้ามมีคำนำ คำส่งท้าย คำอธิบายนอกเหนือจากเนื้อนิยาย ห้ามพูดถึงว่าเป็น AI
-5. ห้ามใช้ markdown อื่นนอกจากหัวตอนที่กำหนด ห้ามทำ bullet ในเนื้อเรื่อง
-6. แบ่งเป็นย่อหน้า คั่นบรรทัดว่าง บทสนทนาใช้เครื่องหมายคำพูด`;
+1. เขียนภาษา${lang==='en'?'อังกฤษ':'ไทย'} สไตล์นิยาย สลับบทสนทนากับบรรยาย เห็นภาพ จับอารมณ์
+2. ยึดชื่อตัวละคร สถานที่ ระดับพลัง วิชา ศัพท์เฉพาะ เหตุการณ์ ความสัมพันธ์ ตามฐานความจำเคร่งครัด ห้ามขัดแย้ง
+3. เดินเรื่องตามพล็อตย่อย 3 องก์ มุ่งสู่จุดจบของเรื่อง
+4. ห้ามคำนำ/ส่งท้าย/อธิบายนอกเนื้อเรื่อง ห้ามบอกว่าเป็น AI
+5. ห้าม markdown อื่นนอกจากหัวตอนที่กำหนด ห้าม bullet
+6. แบ่งย่อหน้า คั่นบรรทัดว่าง บทสนทนาใช้เครื่องหมายคำพูด`;
 
 /* ---------- CHAPTERS LIST ---------- */
 async function renderChaps(){
-  const sid=state.story.id;
-  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===sid).sort((a,b)=>a.num-b.num);
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
   const el=$('#cp-list');el.innerHTML='';
-  if(!chaps.length){el.innerHTML='<div class="empty">ยังไม่มีตอน — กด "✍️ เขียนตอนใหม่ / แบตช์"</div>';return}
-  for(const c of chaps){
-    const d=document.createElement('div');d.className='cp-row';
+  if(!chaps.length){el.innerHTML='<div class="empty">ยังไม่มีตอน — กด "✍️ เขียนตอนใหม่"</div>';return}
+  for(const c of chaps){const d=document.createElement('div');d.className='cp-row';
     d.innerHTML=`<div class="numbadge">${c.num}</div>
-      <div class="ti"><b>${c.title?esc(c.title):'(ยังไม่มีชื่อ)'}</b>
-      <span>≈${estWords(c.content).toLocaleString()} คำ · แก้ล่าสุด ${fmtD(c.updatedAt)}</span></div>
-      ${c.summary?'<span class="chip acc">🧾 มีความจำ</span>':''}
+      <div class="ti"><b>${c.title?esc(c.title):'(ไม่มีชื่อ)'}</b>
+      <span>≈${estWords(c.content).toLocaleString()} คำ · ${fmtD(c.updatedAt)}</span></div>
+      ${c.summary?'<span class="chip acc">🧾</span>':''}
+      ${(c.images&&c.images.length)?`<span class="chip">🖼️${c.images.length}</span>`:''}
       <span class="dot" style="background:${c.content?'var(--ok)':'var(--warn)'}"></span>`;
-    d.onclick=()=>openEditor(c.id);
-    el.appendChild(d);
-  }
-}
+    d.onclick=()=>openEditor(c.id);el.appendChild(d);}}
 
 /* ---------- NEW CHAPTER MODAL ---------- */
+function getPresets(){try{return JSON.parse(localStorage.getItem('nf_prompts')||'[]')}catch{return[]}}
+function loadPresets(){const ps=getPresets();const sel=$('#nc-preset');
+  sel.innerHTML='<option value="">📚 คลังโน้ตส่วนตัว…</option>'+ps.map((p,i)=>`<option value="${i}">📝 ${esc(p.slice(0,42))}${p.length>42?'…':''}</option>`).join('');}
+function presetPick(sel){if(sel.value!=='')$('#nc-notes').value=getPresets()[+sel.value]||'';}
+function savePreset(){const t=$('#nc-notes').value.trim();if(!t)return toast('พิมพ์โน้ตก่อนแล้วเซฟ','warn');
+  const ps=getPresets();ps.unshift(t);localStorage.setItem('nf_prompts',JSON.stringify(ps.slice(0,20)));
+  loadPresets();toast('เซฟโน้ตเป็นเทมเพลตแล้ว 💾');}
 function openNewChapterModal(){
   $('input[name=planmode][value=self]').checked=true;
   $('#nc-self-wrap').style.display='';$('#nc-plan').value='';$('#nc-notes').value='';
   $('#nc-title').value='';$('#nc-length').value='2500';$('#nc-count').value='1';
-  openM('m-newchap');
-}
+  $('#nc-par-wrap').style.display='none';$('#nc-parallel').checked=true;
+  loadPresets();openM('m-newchap');}
 function planToggle(){$('#nc-self-wrap').style.display=$('input[name=planmode]:checked').value==='self'?'':'none'}
 
-/* ---------- GENERATE (SINGLE + BATCH) ---------- */
+/* ---------- GENERATE (single/sequential/parallel Speed Mode) ---------- */
 function extractTitle(t){const m=String(t).match(/^\s*#{0,3}\s*(?:ตอนที่|Chapter)\s*\d+\s*[:：\-–]?\s*(.+)$/mi);return m?m[1].trim():''}
 async function startWriting(){
-  if(generating)return;if(!needKey())return;
+  if(generating||batching)return;if(!needKey())return;
   const count=Math.min(10,Math.max(1,parseInt($('#nc-count').value)||1));
   const mode=$('input[name=planmode]:checked').value;
   const planRaw=$('#nc-plan').value.trim();
@@ -1253,84 +1283,116 @@ async function startWriting(){
   const titleIn=$('#nc-title').value.trim();
   const target=parseInt($('#nc-length').value)||2500;
   const autoSum=$('#nc-autosum').checked||count>1;
+  const parallel=count>1&&$('#nc-parallel').checked;
   if(mode==='self'&&!planRaw)return toast('ใส่เนื้อเรื่องย่อก่อน หรือเลือกให้ AI วางเอง','warn');
   let lines=[];
   if(mode==='self'&&count>1){lines=planRaw.split('\n').map(t=>t.trim()).filter(Boolean);
-    if(lines.length&&!confirm(`คุณใส่แผน ${lines.length} บรรทัด แต่สั่งเขียน ${count} ตอน — ตอนที่เกิน AI จะวางเองต่อจากโครงเรื่อง ตกลงไหม?`))return;}
+    if(!parallel&&lines.length&&!confirm(`ใส่แผน ${lines.length} บรรทัด แต่สั่ง ${count} ตอน — ส่วนเกิน AI วางเอง ตกลง?`))return;}
   closeM('m-newchap');
-  batching=true;batchStop=false;
-  let made=0;
+  const pool=getKeyPool();
+  const existing=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id);
+  const startNum=existing.reduce((m,c)=>Math.max(m,+c.num||0),0)+1;
+  if(parallel){
+    batching=true;batchStop=false;
+    try{
+      let plans=lines;
+      if(!plans||plans.length<count){
+        toast('🗺️ AI กำลังวางแผนทั้ง '+count+' ตอนก่อน…');
+        const mem=await gatherContext(state.story.id,existing);
+        const p=await aiUtil({temp:.7,prompt:`${mem.block}\n${mem.summaries?`# ตอนก่อนหน้า\n${mem.summaries}\n`:''}
+จงวางแผนเหตุการณ์สำคัญของ ${count} ตอนถัดไป (ตอนที่ ${startNum} ถึง ${startNum+count-1}) ให้ต่อเนื่องมุ่งตามโครงเรื่อง
+ตอบเป็นข้อความ ${count} บรรทัดพอดี บรรทัดละ 1-2 ประโยค ไม่ต้องมีเลขข้อนำหน้า ภาษาไทย`});
+        plans=p.split('\n').map(t=>t.replace(/^[-•*\d.)\s]+/,'').trim()).filter(Boolean);
+        while(plans.length<count)plans.push('');}
+      const wave=Math.max(1,Math.min(pool.length||1,3,count));
+      toast(`🚀 Speed Mode: เขียนขนาน ${count} ตอน (${wave} ตอน/รอบ, ${pool.length} คีย์)`);
+      const made=[];let err=null;
+      for(let i=0;i<count;i+=wave){
+        if(batchStop){toast(`หยุดแล้ว (ได้ ${made.length}/${count} ตอน)`,'warn');break;}
+        const grp=[];
+        for(let j=i;j<Math.min(i+wave,count);j++){
+          grp.push(generateOne({silent:true,numOverride:startNum+j,plan:plans[j]||'',notes,target,autoSum,
+            keyOverride:pool.length?pool[j%pool.length]:null}).then(async r=>{
+              if(r.error&&/429/.test(r.error.message)&&pool.length>1){
+                if(r.ch&&!r.ch.content)await dbDel('chapters',r.ch.id);
+                return generateOne({silent:true,numOverride:startNum+j,plan:plans[j]||'',notes,target,autoSum,
+                  keyOverride:pool[(j+1)%pool.length]});}
+              return r;}));}
+        const rs=await Promise.all(grp);
+        for(const r of rs){if(r.error){err=r.error;batchStop=true;}else made.push(r.ch);}}
+      if(made.length){toast(`🚀 เสร็จ! เขียนได้ ${made.length} ตอนขนาน ✅`);
+        made.sort((a,b)=>a.num-b.num);
+        await renderStoryHead();openEditor(made[0].id);}
+      else if(err)toast('ผิดพลาด: '+err.message,'err');
+    }finally{batching=false;batchStop=false;}
+    return;}
+  batching=count>1;batchStop=false;
+  let madeN=0;
   for(let i=0;i<count;i++){
-    if(batchStop){toast(`หยุดแบตช์แล้ว (เขียนได้ ${made}/${count} ตอน)`,'warn');break;}
+    if(batchStop){toast(`หยุดแบตช์ (${madeN}/${count} ตอน)`,'warn');break;}
     const plan=count===1?(mode==='self'?planRaw:''):(mode==='self'?(lines[i]||''):'');
-    const r=await generateOne({
-      plan,notes,target,autoSum,
+    const r=await generateOne({plan,notes,target,autoSum,silent:false,
       titleOverride:i===0?titleIn:'',
       label:count>1?`⏩ แบตช์ ตอน ${i+1}/${count} · AI กำลังเขียน…`:undefined});
-    if(r.error){toast('หยุดแบตช์: '+r.error.message,'err');break;}
-    made++;
-  }
+    if(r.error){toast('หยุด: '+r.error.message,'err');break;}
+    madeN++;}
   batching=false;batchStop=false;
   unlockEditor();
-  if(made>0){await renderStoryHead();
-    if(count>1)toast(`แบตช์เสร็จ! เขียนได้ ${made} ตอนต่อเนื่อง ✅`);}
-}
-async function generateOne({plan='',notes='',target=2500,autoSum=true,titleOverride='',label=null}={}){
+  if(madeN>0){await renderStoryHead();if(count>1)toast(`แบตช์เสร็จ ${madeN} ตอน ✅`);}}
+
+async function generateOne({plan='',notes='',target=2500,autoSum=true,titleOverride='',label=null,silent=false,numOverride=null,keyOverride=null}={}){
   const sid=state.story.id;
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===sid);
-  const num=chaps.reduce((m,c)=>Math.max(m,+c.num||0),0)+1;
+  const num=numOverride||chaps.reduce((m,c)=>Math.max(m,+c.num||0),0)+1;
   const ch={id:uid(),storyId:sid,num,title:titleOverride,content:'',summary:'',status:'generating',createdAt:Date.now(),updatedAt:Date.now()};
   await dbPut('chapters',ch);
-  state.chapter=ch;
-  genTarget=target;
-  enterEditor(ch,{lock:true});
-  if(label)setGenLabel(label);else setGenLabel('AI กำลังเขียน… (เห็นตัวอักษรไหลสดๆ ด้านล่าง)');
-  const mem=await gatherContext(sid,chaps);
-  const contBlock=mem.lastTail?`\n\n# ท้ายตอนที่ ${mem.lastNum} (เนื้อเรื่องดำเนินต่อจากจุดนี้พอดี)\n"""\n${mem.lastTail}\n"""`:'';
+  let full='';
+  if(!silent){state.chapter=ch;genTarget=target;enterEditor(ch,{lock:true});
+    if(label)setGenLabel(label);else setGenLabel('AI กำลังเขียน… (ตัวอักษรไหลด้านล่าง)');}
+  const mem=await gatherContext(sid,chaps.filter(c=>c.id!==ch.id));
+  const contBlock=mem.lastTail?`\n\n# ท้ายตอนที่ ${mem.lastNum} (ดำเนินต่อจากจุดนี้พอดี)\n"""\n${mem.lastTail}\n"""`:'';
   const sumBlock=mem.summaries?`\n\n# เรื่องย่อตอนก่อนหน้า\n${mem.summaries}`:'';
   const mission=plan
-    ?`เหตุการณ์หลักที่ต้องเกิดในตอนนี้:\n"""\n${plan}\n"""\nเดินเรื่องให้ครบทุกเหตุการณ์นี้ แต่เล่าแบบมีลูกเล่น`
-    :'ไม่มีพล็อตย่อยกำหนด — เลือกพัฒนาการต่อจากโครงเรื่อง/องก์ปัจจุบันที่น่าติดตามที่สุด และก้าวหน้าเรื่องอย่างเห็นผลชัดในตอนนี้';
+    ?`เหตุการณ์หลักที่ต้องเกิดในตอนนี้:\n"""\n${plan}\n"""\nเดินเรื่องให้ครบทุกเหตุการณ์ แต่เล่ามีลูกเล่น`
+    :'ไม่มีพล็อตย่อย — เลือกพัฒนาการต่อจากโครงเรื่องที่น่าติดตามที่สุด ก้าวหน้าเรื่องชัดเจน';
   const prompt=`${mem.block}${sumBlock}${contBlock}
 
 # ภารกิจ: เขียน "ตอนที่ ${num}" ให้สมบูรณ์
 - ${mission}
-- โน้ตเพิ่มเติมจากผู้เขียน: ${notes||'(ไม่มี)'}
-- ${titleOverride?`ใช้ชื่อตอน: "${titleOverride}"`:'ตั้งชื่อตอนที่สื่อถึงเหตุการณ์สำคัญของตอนนี้'}
-- ความยาว: ${target.toLocaleString()}-${(target+600).toLocaleString()} คำ${state.story.lang==='en'?' words':'ไทย'} (สำคัญมาก เขียนให้เต็มความยาว ขยายฉาก บทสนทนา และอารมณ์ อย่ารีบจบ)
-- บรรทัดแรกคือหัวตอน: "## ตอนที่ ${num}: <ชื่อตอน>" จากนั้นลงเนื้อนิยายทันที
-- จบตอนอย่างสมบูรณ์ ปิดฉากสวยงามพร้อม hook ท้ายตอน ห้ามตัดกลางคำหรือกลางฉากเด็ดขาด`;
+- โน้ตผู้เขียน: ${notes||'(ไม่มี)'}
+- ${titleOverride?`ชื่อตอน: "${titleOverride}"`:'ตั้งชื่อตอนสื่อเหตุการณ์สำคัญ'}
+- ความยาว: ${target.toLocaleString()}-${(target+600).toLocaleString()} คำ${state.story.lang==='en'?' words':'ไทย'} (เขียนให้เต็ม ขยายฉาก/บทสนทนา/อารมณ์ อย่ารีบจบ)
+- บรรทัดแรก: "## ตอนที่ ${num}: <ชื่อตอน>" แล้วลงเนื้อทันที
+- จบตอนสมบูรณ์ ปิดฉากสวย + hook ท้ายตอน ห้ามตัดกลางคำ`;
   let error=null;
-  try{
-    generating=true;
-    await aiStream({sys:SYS_WRITER(state.story.lang),prompt,onDelta:(d,full)=>{
-      const ta=$('#ed-content');ta.value=full;ta.scrollTop=ta.scrollHeight;updateStats();}});
+  try{generating=true;
+    await aiStream({sys:SYS_WRITER(state.story.lang),prompt,keyOverride,
+      onDelta:(d,f)=>{full=f;if(!silent){const ta=$('#ed-content');ta.value=f;ta.scrollTop=1e9;updateStats();}}});
   }catch(e){
-    if(e.name==='AbortError')toast('หยุดการเขียนแล้ว (เก็บเนื้อหาที่ได้ไว้)','warn');
-    else{error=e;toast('สร้างไม่สำเร็จ: '+e.message,'err');}
-  }
+    if(e.name==='AbortError')toast('หยุดการเขียน (เก็บที่ได้ไว้)','warn');
+    else{error=e;toast('สร้างไม่สำเร็จ: '+e.message,'err');}}
   generating=false;
-  ch.content=$('#ed-content').value;
+  ch.content=full;
   ch.title=titleOverride||extractTitle(ch.content)||'';
   ch.status='done';ch.words=estWords(ch.content);ch.updatedAt=Date.now();
   await dbPut('chapters',ch);
-  $('#ed-title').value=ch.title;
-  updateStats();
-  if(ch.content.length>200)toast(`ตอนที่ ${num} เสร็จ ✅ (≈${ch.words.toLocaleString()} คำ)`);
-  // เติมความยาวอัตโนมัติถ้าสั้นกว่าเป้ามาก
-  const minW=Math.round(target*0.55);
-  if(!error&&ch.content.length>200&&ch.words<minW){
-    toast(`ตอนยังสั้น (≈${ch.words.toLocaleString()}/${target.toLocaleString()} คำ) — AI กำลังเขียนต่อให้เต็มอัตโนมัติ…`,'warn');
-    await aiExtend(ch,{minAdd:1000,maxAdd:1800});
-    ch.title=titleOverride||extractTitle(ch.content)||ch.title;
-    $('#ed-title').value=ch.title;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
-    await dbPut('chapters',ch);
-  }
-  // สรุปความจำแบบเบื้องหลัง (ไม่หน่วงตอนถัดไป)
-  if(autoSum&&ch.content.length>400)summarizeChapter(ch,true).catch(()=>{});
-  genTarget=0;updateStats();
-  return{ch,error};
-}
+  if(!silent){
+    snap(ch,'AI เขียน');
+    $('#ed-title').value=ch.title;updateStats();
+    if(ch.content.length>200)toast(`ตอนที่ ${num} เสร็จ ✅ (≈${ch.words.toLocaleString()} คำ)`);
+    const minW=Math.round(target*.55);
+    if(!error&&ch.content.length>200&&ch.words<minW){
+      toast(`ตอนสั้น (≈${ch.words.toLocaleString()}/${target.toLocaleString()}) — เขียนต่อให้อัตโนมัติ…`,'warn');
+      await aiExtend(ch,{minAdd:1000,maxAdd:1800});
+      ch.title=titleOverride||extractTitle(ch.content)||ch.title;$('#ed-title').value=ch.title;
+      ch.words=estWords(ch.content);ch.updatedAt=Date.now();await dbPut('chapters',ch);}
+    genTarget=0;updateStats();
+    if(autoSum&&ch.content.length>400)summarizeChapter(ch,true).catch(()=>{});
+    if(ch.content.length>800)setTimeout(()=>autoMemoryExtract(ch),1500);
+  }else{
+    if(autoSum&&ch.content.length>400)summarizeChapter(ch,true).catch(()=>{});
+    if(ch.content.length>200)toast(`ตอนที่ ${num} เสร็จ ✅ (≈${ch.words.toLocaleString()} คำ)`);}
+  return{ch,error};}
 
 /* ---------- EDITOR ---------- */
 let saveTimer=null;
@@ -1340,13 +1402,13 @@ function enterEditor(ch,{lock=false}={}){
   $('#ed-content').value=ch.content||'';
   $('#ed-summary').value=ch.summary||'';
   $('#ed-sum-wrap').open=!!ch.summary;
+  renderImgs();
   if(lock){$('#ed-content').readOnly=true;$('#ed-genbar').hidden=false;$('#ed-cont-btn').disabled=true;}
   else unlockEditor();
-  updateStats();show('view-editor');
-}
+  updateStats();show('view-editor');}
 async function openEditor(cid){enterEditor(await dbGet('chapters',cid));}
 function unlockEditor(){$('#ed-content').readOnly=false;$('#ed-genbar').hidden=true;$('#ed-cont-btn').disabled=false;}
-async function closeEditor(){if(generating&&!confirm('AI กำลังเขียนอยู่ แน่ใจ? (จะหยุดการเขียน)'))return;
+async function closeEditor(){if((generating||batching)&&!confirm('AI กำลังเขียน แน่ใจ?'))return;
   stopGen();try{speechSynthesis.cancel()}catch{}
   await edSaveSilent();state.chapter=null;
   renderChaps();show('view-story');renderStoryHead();}
@@ -1354,128 +1416,492 @@ async function edSaveSilent(){if(!state.chapter)return;const ch=state.chapter;
   ch.num=Math.max(1,parseInt($('#ed-num').value)||ch.num);ch.title=$('#ed-title').value.trim();
   ch.content=$('#ed-content').value;ch.summary=$('#ed-summary').value;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
   await dbPut('chapters',ch);}
-async function edSave(sumOnly=false){await edSaveSilent();toast(sumOnly?'บันทึกสรุปแล้ว 🧾':'บันทึกตอนแล้ว 💾');}
-$('#ed-content')?.addEventListener('input',()=>{updateStats();clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(!generating)edSaveSilent()},900);});
+async function edSave(sumOnly=false){await edSaveSilent();
+  if(!sumOnly)snap(state.chapter,'บันทึกมือ');
+  toast(sumOnly?'บันทึกสรุปแล้ว 🧾':'บันทึกแล้ว 💾');}
+$('#ed-content')?.addEventListener('input',()=>{updateStats();clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{if(!generating&&!batching)edSaveSilent()},900);});
 function updateStats(){const t=$('#ed-content').value;const w=estWords(t);
-  $('#ed-stat').textContent=genTarget>0
-    ?`≈ ${w.toLocaleString()} / ~${genTarget.toLocaleString()} คำ`
-    :`≈ ${w.toLocaleString()} คำ · ${t.length.toLocaleString()} ตัวอักษร`;}
+  $('#ed-stat').textContent=genTarget>0?`≈ ${w.toLocaleString()} / ~${genTarget.toLocaleString()} คำ`:`≈ ${w.toLocaleString()} คำ · ${t.length.toLocaleString()} ตัวอักษร`;}
 
-/* ---------- EXTEND (เขียนต่อ — ใช้ทั้งปุ่มมือและอัตโนมัติ) ---------- */
+/* ---------- EXTEND ---------- */
 async function aiExtend(ch,{minAdd=800,maxAdd=1500}={}){
   if(generating)return false;
   const base=$('#ed-content').value;
   if(base.trim().length<50)return false;
+  snap(ch,'ก่อนเขียนต่อ');
   const mem=await gatherContext(ch.storyId,(await dbAll('chapters')).filter(c=>c.storyId===ch.storyId&&c.id!==ch.id));
-  const prompt=`${mem.block}\n\n# เนื้อหาตอนที่ ${ch.num} ที่กำลังเขียนอยู่ (ท้ายสุดคือจุดต่อ)\n"""\n${base.slice(-1400)}\n"""
-
+  const prompt=`${mem.block}\n\n# เนื้อหาตอนที่ ${ch.num} (ท้ายสุดคือจุดต่อ)\n"""\n${base.slice(-1400)}\n"""
 # ภารกิจ
-เขียนต่อจากท้ายข้อความข้างบน "ทันที" โดยเนียนที่สุด ห้ามทวนความเดิม ห้ามมีหัวตอน ห้ามซ้ำเนื้อหาเดิม
-ยาวเพิ่มอีก ${minAdd.toLocaleString()}-${maxAdd.toLocaleString()} คำ พัฒนาฉากปัจจุบันให้ถึงจุดจบของฉาก/ตอน ปิดตอนให้สมบูรณ์พร้อม hook ท้ายตอน มีบทสนทนาและอารมณ์`;
+เขียนต่อท้ายทันที เนียนสุด ห้ามทวนเดิม ห้ามหัวตอน ห้ามซ้ำ
+ยาวเพิ่ม ${minAdd.toLocaleString()}-${maxAdd.toLocaleString()} คำ ปิดตอนสมบูรณ์ + hook ท้ายตอน`;
   generating=true;$('#ed-genbar').hidden=false;$('#ed-content').readOnly=true;
   setGenLabel('AI กำลังเขียนส่วนที่เหลือ…');
   const genBase=base.replace(/\s+$/,'')+'\n\n';
   let ok=false;
-  try{
-    await aiStream({sys:SYS_WRITER(state.story.lang),prompt,onDelta:(d,full)=>{
-      $('#ed-content').value=genBase+full;updateStats();}});
-    ok=true;
-  }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
+  try{await aiStream({sys:SYS_WRITER(state.story.lang),prompt,onDelta:(d,f)=>{$('#ed-content').value=genBase+f;updateStats();}});ok=true;}
+  catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
   generating=false;unlockEditor();
   ch.content=$('#ed-content').value;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
-  await dbPut('chapters',ch);
-  return ok;
-}
+  await dbPut('chapters',ch);snap(ch,'AI ต่อยาว');
+  return ok;}
 async function edContinue(){
   if(generating||!state.chapter)return;if(!needKey())return;
   const ok=await aiExtend(state.chapter);
-  if(ok)toast('เขียนต่อเสร็จ ✅ อย่าลืมกด 🧾 สรุปใหม่');
-}
+  if(ok)toast('เขียนต่อเสร็จ ✅ อย่าลืม 🧾 สรุปใหม่');}
 
-/* ---------- SUMMARIZE (เบื้องหลัง) ---------- */
-async function summarizeChapter(ch,silent=false){
-  if(!ch)return null;if(!getKeyPool().length)return null;
-  const content=ch.content||$('#ed-content').value;
-  if(content.trim().length<200){if(!silent)toast('เนื้อหาสั้นเกินไป','warn');return null;}
+/* ---------- POLISH (ลากคลุมข้อความ) ---------- */
+const pol=$('#polish');
+function hidePolish(){pol&&pol.classList.remove('open')}
+let polishSel=null;
+$('#ed-content')?.addEventListener('mouseup',e=>{
+  if(generating)return;
+  const ta=$('#ed-content');const s=ta.selectionStart,en=ta.selectionEnd;
+  if(s===en||en-s<10){hidePolish();return}
+  polishSel={s,e:en};
+  pol.style.left=Math.min(e.clientX,window.innerWidth-190)+'px';
+  pol.style.top=Math.min(e.clientY+8,window.innerHeight-200)+'px';
+  pol.classList.add('open');});
+document.addEventListener('mousedown',e=>{if(pol&&!pol.contains(e.target)&&e.target.id!=='ed-content')hidePolish();});
+async function polishApply(mode){
+  const ta=$('#ed-content');const s=polishSel?.s,e=polishSel?.e;
+  hidePolish();
+  if(s==null||s===e)return;
+  const txt=ta.value.slice(s,e);
+  const instr={drama:'แต่งให้อารมณ์เข้มข้น ดราม่าขึ้น จับใจ คงความยาวใกล้เดิม',
+    short:'ย่อความยาวลงประมาณครึ่งหนึ่ง คงปมสำคัญและอารมณ์',
+    dialog:'เพิ่มบทสนทนาให้มีชีวิตชีวา สลับบรรยายพองาม',
+    fix:'เรียบเรียงสำนวนให้ลื่นไหลถูกอรรถรส แก้คำผิด/ซ้ำซ้อน คงความยาวใกล้เดิม',
+    expand:'ขยายรายละเอียด บรรยายและอารมณ์ให้ลึกขึ้นราวสองเท่า'}[mode];
+  snap(state.chapter,'ก่อนแต่งข้อความ');
+  setGenLabel('✨ AI กำลังแต่งข้อความที่เลือก…');$('#ed-genbar').hidden=false;ta.readOnly=true;
   try{
-    const s=await aiStream({temp:.5,prompt:`อ่านตอนนิยายนี้แล้วสรุปเพื่อใช้เป็น "ความจำ" ของ AI ในการเขียนตอนถัดไป ภาษาไทย 120-220 คำ ย่อหน้าเดียว ต้องครอบคลุม:
-• เหตุการณ์หลักที่เกิดขึ้น
-• ตัวละครที่ปรากฏ + สถานะ/ความสัมพันธ์ที่เปลี่ยนไป
-• สถานที่ที่ใช้
-• ข้อมูล/ศัพท์เฉพาะ/ไอเทมใหม่ที่เกิดขึ้นและต้องจำ
-• ปมค้าง/คำถามที่ทิ้งไว้ท้ายตอน
+    const out=await aiUtil({temp:.8,prompt:`คุณคือบรรณาธิการนิยาย แต่งข้อความต่อไปนี้ตามคำสั่ง ตอบเฉพาะข้อความที่แต่งแล้ว ไม่มีคำอธิบาย
+คำสั่ง: ${instr}
+"""${txt}"""`});
+    ta.setRangeText(out.trim(),s,e,'end');
+    await edSaveSilent();snap(state.chapter,'AI แต่งข้อความ');
+    toast('แต่งข้อความแล้ว ✨');
+  }catch(err){toast('ผิดพลาด: '+err.message,'err');}
+  ta.readOnly=false;$('#ed-genbar').hidden=true;updateStats();}
 
+/* ---------- SUMMARIZE ---------- */
+async function summarizeChapter(ch,silent=false){
+  if(!ch||!getKeyPool().length)return null;
+  const content=ch.content||$('#ed-content')?.value||'';
+  if(content.trim().length<200)return null;
+  try{
+    const s=await aiUtil({prompt:`อ่านตอนนี้แล้วสรุปเป็น "ความจำ" สำหรับเขียนตอนถัดไป ไทย 120-220 คำ ย่อหน้าเดียว ครอบคลุม: เหตุการณ์หลัก / ตัวละคร+ความสัมพันธ์ที่เปลี่ยน / สถานที่ / ศัพท์-ไอเทมใหม่ / ปมค้างท้ายตอน
 """${content.slice(0,24000)}"""`});
     ch.summary=s.trim();
     if(state.chapter&&state.chapter.id===ch.id){$('#ed-summary').value=ch.summary;$('#ed-sum-wrap').open=true;}
     await dbPut('chapters',ch);
-    if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');else toast(`ความจำตอนที่ ${ch.num} บันทึกแล้ว 🧠`);
+    if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');
     return ch.summary;
-  }catch(e){if(e.name!=='AbortError'&&silent===false)toast('สรุปไม่สำเร็จ: '+e.message,'err');return null;}
-}
-async function sumBtnWrap(){
-  const b=$('#ed-sum-btn');if(!state.chapter)return;
+  }catch(e){return null;}}
+async function sumBtnWrap(){const b=$('#ed-sum-btn');if(!state.chapter)return;
   const ch=state.chapter;ch.content=$('#ed-content').value;
   b.disabled=true;b.textContent='...';
   await summarizeChapter(ch,false);
-  b.disabled=false;b.textContent='🧾 สรุปตอนนี้เป็นความจำ';
-}
+  b.disabled=false;b.textContent='🧾 สรุปตอนนี้เป็นความจำ';}
 
-/* ---------- TEXT TO SPEECH ---------- */
+/* ---------- TTS (เสียงบทสนทนาแยกโทน) ---------- */
 let speaking=false;
+function buildSegs(t){const segs=[];const re=/["“]([^"”]+)["”]/g;let last=0,m;
+  while((m=re.exec(t))){if(m.index>last)segs.push({t:t.slice(last,m.index),d:false});segs.push({t:m[1],d:true});last=re.lastIndex;}
+  if(last<t.length)segs.push({t:t.slice(last),d:false});
+  return segs.filter(s=>s.t.trim());}
 function toggleSpeak(){
-  if(!('speechSynthesis' in window))return toast('เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง','warn');
+  if(!('speechSynthesis' in window))return toast('เบราว์เซอร์ไม่รองรับ','warn');
   if(speaking){speechSynthesis.cancel();speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง';return}
-  const t=$('#ed-content').value;if(!t.trim())return toast('ยังไม่มีเนื้อหาให้อ่าน','warn');
-  const u=new SpeechSynthesisUtterance(t.slice(0,30000));
-  u.lang='th-TH';u.rate=1;
-  u.onend=()=>{speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง'};
-  u.onerror=()=>{speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง'};
-  speechSynthesis.speak(u);speaking=true;
-  $('#ed-speak-btn').textContent='⏹ หยุดอ่าน';
-}
+  const t=$('#ed-content').value;if(!t.trim())return toast('ยังไม่มีเนื้อหา','warn');
+  const segs=buildSegs(t.slice(0,28000));
+  let dlg=0;
+  for(const s of segs){
+    const u=new SpeechSynthesisUtterance(s.t);
+    u.lang='th-TH';u.rate=1;
+    if(s.d){u.pitch=[1.15,.85][dlg%2];u.rate=1.05;dlg++;}else u.pitch=1;
+    speechSynthesis.speak(u);}
+  speaking=true;$('#ed-speak-btn').textContent='⏹ หยุดอ่าน';
+  const check=setInterval(()=>{if(!speechSynthesis.speaking&&!speechSynthesis.pending){
+    clearInterval(check);speaking=false;$('#ed-speak-btn').textContent='🔊 อ่านออกเสียง';}},800);}
 
 /* ---------- CONSISTENCY CHECKER ---------- */
 async function checkConsistency(){
   if(generating||!state.chapter)return;if(!needKey())return;
-  const ch=state.chapter;
-  const content=$('#ed-content').value;
-  if(content.trim().length<300)return toast('เนื้อหาต้องยาวพอสมควรถึงจะตรวจได้ (≥300 ตัวอักษร)','warn');
+  const ch=state.chapter;const content=$('#ed-content').value;
+  if(content.trim().length<300)return toast('เนื้อหาต้องยาวพอ (≥300 ตัวอักษร)','warn');
   const b=$('#ed-check-btn');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   try{
     const others=(await dbAll('chapters')).filter(c=>c.storyId===ch.storyId&&c.id!==ch.id);
     const mem=await gatherContext(ch.storyId,others);
     const prompt=`${mem.block}
-
-${mem.summaries?`# เรื่องย่อตอนก่อนหน้า\n${mem.summaries}\n`:''}# ตอนที่ต้องตรวจ (ตอนที่ ${ch.num})
-"""
-${content.slice(0,26000)}
-"""
-
-# ภารกิจ: ตรวจว่าตอนนี้ขัดแย้งกับฐานข้อมูลด้านบนหรือไม่ โดยเช็ค:
-1) ชื่อ/ฉายาตัวละคร 2) ลักษณะและนิสัยตัวละคร 3) ระดับพลัง/กฎของโลก/ชื่อวิชา 4) สถานที่
-5) เหตุการณ์ก่อนหน้า (เรื่องย่อ) 6) ความสัมพันธ์ระหว่างตัวละคร 7) เส้นเวลา/ลำดับเหตุการณ์
-
-ตอบ JSON เท่านั้น:
-{"score":0-100,"verdict":"สรุปภาพรวม 1-2 ประโยค","issues":[{"severity":"สูง|กลาง|ต่ำ","type":"ตัวละคร|พลัง/กฎ|สถานที่|เหตุการณ์|ความสัมพันธ์|ไทม์ไลน์|อื่นๆ","detail":"ตรงไหนขัด เหตุผล","suggestion":"วิธีแก้"}]}
-ถ้าไม่พบความขัดแย้งให้ issues เป็น [] และ score สูง — ห้ามเดา ต้องอ้างจากสิ่งที่เห็นจริง`;
-    const j=parseJSONLoose(await aiStream({prompt,temp:.3,json:true}));
+${mem.summaries?`# เรื่องย่อก่อนหน้า\n${mem.summaries}\n`:''}# ตอนที่ตรวจ (ตอนที่ ${ch.num})
+"""${content.slice(0,26000)}"""
+ตรวจขัดแย้ง: 1)ชื่อตัวละคร 2)นิสัย/ลักษณะ 3)พลัง/กฎ/วิชา 4)สถานที่ 5)เหตุการณ์ก่อนหน้า 6)ความสัมพันธ์ 7)ไทม์ไลน์
+ตอบ JSON: {"score":0-100,"verdict":"สรุป 1-2 ประโยค","issues":[{"severity":"สูง|กลาง|ต่ำ","type":"ตัวละคร|พลัง/กฎ|สถานที่|เหตุการณ์|ความสัมพันธ์|ไทม์ไลน์|อื่นๆ","detail":"...","suggestion":"..."}]}
+ไม่พบให้ issues=[] ห้ามเดา`;
+    const j=parseJSONLoose(await aiUtil({temp:.3,json:true,prompt}));
     const score=Math.max(0,Math.min(100,j.score??0));
     const col=score>=90?'var(--ok)':score>=70?'var(--warn)':'var(--err)';
     const sevCls=s=>s==='สูง'?'hi':s==='กลาง'?'mid':'low';
-    $('#cs-body').innerHTML=`
-      <div class="score-line"><div class="score-big" style="color:${col}">${score}</div>
-      <div class="verdict">${esc(j.verdict||'')}<br><span class="hint">คะแนนความสอดคล้อง (100 = ไม่ขัดแย้งเลย)</span></div></div>
-      ${(j.issues||[]).length?j.issues.map(i=>`
-        <div class="issue ${sevCls(i.severity)}">
-          <div class="head"><span class="sev ${sevCls(i.severity)}">${esc(i.severity||'กลาง')}</span><span class="typ">${esc(i.type||'อื่นๆ')}</span></div>
-          <p>${esc(i.detail||'')}</p>${i.suggestion?`<p class="sug">💡 ${esc(i.suggestion)}</p>`:''}
-        </div>`).join('')
-      :'<div class="empty" style="padding:18px">🎉 ไม่พบความขัดแย้งกับความจำของเรื่อง!</div>'}`;
+    $('#cs-body').innerHTML=`<div class="score-line"><div class="score-big" style="color:${col}">${score}</div>
+      <div class="verdict">${esc(j.verdict||'')}<br><span class="hint">100 = ไม่ขัดแย้งเลย</span></div></div>`
+      +(j.issues?.length?j.issues.map(i=>`<div class="issue ${sevCls(i.severity)}">
+        <div class="head"><span class="sev ${sevCls(i.severity)}">${esc(i.severity||'กลาง')}</span><span class="typ">${esc(i.type||'')}</span></div>
+        <p>${esc(i.detail||'')}</p>${i.suggestion?`<p class="sug">💡 ${esc(i.suggestion)}</p>`:''}</div>`).join('')
+      :'<div class="empty">🎉 ไม่พบความขัดแย้ง!</div>');
     openM('m-consist');
   }catch(e){if(e.name!=='AbortError')toast('ตรวจไม่สำเร็จ: '+e.message,'err');}
-  b.disabled=false;b.textContent='🔍 ตรวจความสอดคล้อง';
-}
+  b.disabled=false;b.textContent='🔍 ตรวจสอดคล้อง';}
+
+/* ---------- BETA READER ---------- */
+async function runBeta(){
+  if(generating||!state.chapter)return;if(!needKey())return;
+  const content=$('#ed-content').value;
+  if(content.trim().length<300)return toast('เนื้อหาสั้นไป','warn');
+  const mem=await gatherContext(state.story.id,(await dbAll('chapters')).filter(c=>c.storyId===state.story.id&&c.id!==state.chapter.id));
+  $('#beta-body').innerHTML='<div class="empty"><span class="spin"></span> AI กำลังอ่านและวิจารณ์…</div>';
+  openM('m-beta');
+  try{
+    const j=parseJSONLoose(await aiUtil({temp:.4,json:true,prompt:`คุณคือบรรณาธิการกูรูนิยาย อ่านตอนนี้แล้ววิจารณ์ตรงไปตรงมาเพื่อพัฒนา
+ตอบ JSON: {"scores":{"pacing":0-10,"dialogue":0-10,"characters":0-10,"imagery":0-10,"hook":0-10},"overall":0-10,"strengths":["..."],"fixes":["..."]}
+scores: pacing=จังหวะเรื่อง, dialogue=บทสนทนา, characters=ตัวละครมีมิติ, imagery=ภาพ/บรรยาย, hook=ความน่าติดตาม
+strengths 2-3 ข้อ, fixes 3 ข้อ (ชัดเจนทำได้จริง) ภาษาไทย
+บริบทเรื่อง: ${mem.block.slice(0,3000)}
+"""${content.slice(0,24000)}"""`}));
+    const bar=(l,v)=>`<div class="brow"><span class="bl">${l}</span><div style="flex:1;background:var(--input);border-radius:6px;height:10px"><div class="bar" style="width:${v*10}%"></div></div><b style="width:32px;text-align:right">${v}/10</b></div>`;
+    $('#beta-body').innerHTML=`
+      <div class="score-line"><div class="score-big" style="color:${j.overall>=7?'var(--ok)':j.overall>=5?'var(--warn)':'var(--err)'}">${j.overall??'-'}</div>
+      <div class="verdict">คะแนนรวมจากบรรณาธิการ AI</div></div>
+      ${bar('จังหวะเรื่อง',j.scores?.pacing??0)}${bar('บทสนทนา',j.scores?.dialogue??0)}
+      ${bar('ตัวละคร',j.scores?.characters??0)}${bar('ภาพ/บรรยาย',j.scores?.imagery??0)}${bar('น่าติดตาม',j.scores?.hook??0)}
+      <hr class="sep">
+      ${(j.strengths||[]).map(s=>`<div class="issue low"><p>✅ ${esc(s)}</p></div>`).join('')}
+      ${(j.fixes||[]).map(s=>`<div class="issue"><p>🔧 ${esc(s)}</p></div>`).join('')}`;
+  }catch(e){$('#beta-body').innerHTML='<div class="empty">ผิดพลาด: '+esc(e.message)+'</div>';}}
+
+/* ---------- HISTORY ---------- */
+function snap(ch,label){
+  if(!ch||!ch.content)return;
+  ch.history=ch.history||[];
+  const last=ch.history[ch.history.length-1];
+  if(last&&last.content===ch.content)return;
+  ch.history.push({t:Date.now(),label,content:ch.content});
+  while(ch.history.length>8)ch.history.shift();}
+async function openHist(){
+  if(!state.chapter)return;
+  const ch=state.chapter;const hs=(ch.history||[]).slice().reverse();
+  $('#hist-list').innerHTML=hs.length?hs.map((h,i)=>`<div class="hist-it">
+    <span style="flex-shrink:0">${new Date(h.t).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</span>
+    <span class="pv">${esc(h.label)} · ≈${estWords(h.content).toLocaleString()} คำ</span>
+    <button class="btn ghost sm" onclick="restoreHist(${(ch.history.length-1)-i})">♻️ กู้คืน</button></div>`).join('')
+  :'<div class="empty">ยังไม่มีประวัติ — ระบบเก็บอัตโนมัติเมื่อ AI เขียน/แก้ และเมื่อกดบันทึก</div>';
+  openM('m-hist');}
+async function restoreHist(i){
+  const ch=state.chapter;if(!ch||!ch.history?.[i])return;
+  if(!confirm('กู้เนื้อหาเวอร์ชันนี้ทับปัจจุบัน?'))return;
+  snap(ch,'ก่อนกู้คืน');
+  ch.content=ch.history[i].content;ch.updatedAt=Date.now();
+  await dbPut('chapters',ch);
+  $('#ed-content').value=ch.content;updateStats();
+  closeM('m-hist');toast('กู้คืนแล้ว ♻️');}
+
+/* ---------- SCENE IMAGES ---------- */
+function renderImgs(){
+  const ch=state.chapter;const el=$('#ed-imgs');
+  if(!ch||!ch.images?.length){el.innerHTML='';return}
+  el.innerHTML=ch.images.map((im,i)=>`<div class="th"><img src="${im}" onclick="window.open('${im}')" alt=""><button class="x" onclick="delImg(${i})">✕</button></div>`).join('');}
+async function delImg(i){const ch=state.chapter;ch.images.splice(i,1);await dbPut('chapters',ch);renderImgs();}
+async function genScenes(){
+  if(generating||!state.chapter)return;if(!needKey())return;
+  const ch=state.chapter;const content=$('#ed-content').value;
+  if(content.trim().length<300)return toast('ต้องมีเนื้อหาก่อน','warn');
+  toast('🖼️ AI กำลังเลือกฉากเด็ดและวาดภาพ…');
+  try{
+    const j=parseJSONLoose(await aiUtil({temp:.7,json:true,prompt:`อ่านตอนนี้ เลือกฉากเด็ดที่สุด 1-2 ฉากสำหรับวาดภาพประกอบนิยาย
+ตอบ JSON: {"scenes":[{"title":"ชื่อฉากไทย","prompt":"detailed English art prompt: composition, characters, action, lighting, mood"}]}
+แนวเรื่อง: ${state.story.genre||'-'}
+"""${content.slice(0,20000)}"""`}));
+    ch.images=ch.images||[];
+    for(const sc of(j.scenes||[]).slice(0,2)){
+      try{
+        const r=await generateImage(`Novel illustration scene: ${sc.prompt}. Cinematic composition, dramatic lighting, detailed digital painting, no text, no watermark.`);
+        const small=await shrinkDataURL(`data:${r.mime};base64,${r.data}`,700,.78);
+        ch.images.push(small);
+      }catch(e){}}
+    await dbPut('chapters',ch);renderImgs();
+    toast(`วาดภาพฉากเสร็จ ${ch.images.length} ภาพ 🖼️`);
+  }catch(e){toast('ผิดพลาด: '+e.message,'err');}}
+
+/* ---------- WHAT IF BRANCH ---------- */
+async function genBranch(){
+  if(!state.chapter)return;if(!needKey())return;
+  const q=$('#br-q').value.trim();
+  const n=parseInt($('#br-n').value)||3;
+  const content=$('#ed-content').value;
+  if(content.trim().length<200)return toast('ต้องมีเนื้อหาตอนปัจจุบันก่อน','warn');
+  const b=$('#br-go');b.disabled=true;b.innerHTML='<span class="spin"></span> กำลังแตกเส้น…';
+  $('#br-res').innerHTML='<div class="empty">AI กำลังเขียน '+n+' เวอร์ชัน… (ใช้เวลาหน่อย)</div>';
+  const mem=await gatherContext(state.story.id,(await dbAll('chapters')).filter(c=>c.storyId===state.story.id&&c.id!==state.chapter.id));
+  const tones=['หักมุมเดือด ไม่มีใครคาดถึง','ซึ้งกินใจ อารมณ์ลึกซึ้ง','สนุก ตลก ผ่อนคลาย'];
+  const pool=getKeyPool();
+  const tasks=[];
+  for(let i=0;i<n;i++){
+    const tone=tones[i%tones.length];
+    const prompt=`${mem.block}\n\n# เนื้อหาปัจจุบัน (ท้ายสุดคือจุดแตกกิ่ง)\n"""\n${content.slice(-1400)}\n"""
+# ภารกิจ: เขียนต่อจากจุดนี้แบบ "เวอร์ชัน ${i+1}: ${tone}"
+${q?`เงื่อนไข What-if จากผู้เขียน: ${q}`:''}
+ยาว 700-1100 คำไทย จบฉากสมบูรณ์ ห้ามหัวตอน ห้ามอธิบายนอกเนื้อเรื่อง`;
+    tasks.push(aiStream({sys:SYS_WRITER(state.story.lang),prompt,keyOverride:pool.length>1?pool[i%pool.length]:null}).catch(e=>'ERR:'+e.message));}
+  const results=await Promise.all(tasks);
+  $('#br-res').innerHTML=results.map((r,i)=>{
+    const err=String(r).startsWith('ERR:');
+    return`<div class="bcard"><b>🌿 เวอร์ชัน ${i+1} — ${tones[i%tones.length]}</b>
+      ${err?`<p style="color:var(--err)">${esc(String(r).slice(4))}</p>`
+        :`<p style="max-height:180px;overflow-y:auto">${esc(r.trim().slice(0,1200))}${r.length>1200?'…':''}</p>
+      <div class="acts"><button class="btn primary sm" onclick="useBranch(${i})">✅ ใช้เป็นตอนใหม่</button></div>`}</div>`;}).join('');
+  window._branches=results;
+  b.disabled=false;b.textContent='✨ แตกเส้นเรื่อง';}
+async function useBranch(i){
+  const r=window._branches?.[i];
+  if(!r||String(r).startsWith('ERR:'))return;
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id);
+  const num=chaps.reduce((m,c)=>Math.max(m,+c.num||0),0)+1;
+  const ch={id:uid(),storyId:state.story.id,num,title:'เส้นทางเลือก '+String.fromCharCode(65+i),
+    content:`## ตอนที่ ${num}: เส้นทางเลือก ${String.fromCharCode(65+i)}\n\n`+String(r).trim(),
+    summary:'',status:'done',createdAt:Date.now(),updatedAt:Date.now()};
+  ch.words=estWords(ch.content);
+  await dbPut('chapters',ch);
+  closeM('m-branch');
+  toast('เก็บเป็นตอนที่ '+num+' แล้ว 🌿 อย่าลืม 🧾 สรุปความจำ');
+  renderChaps();openEditor(ch.id);}
+function openBranch(){openM('m-branch');$('#br-res').innerHTML='';}
+
+/* ---------- SEARCH ---------- */
+let srTimer=null;
+function openSearch(){openM('m-search');$('#sr-q').value='';
+  $('#sr-res').innerHTML='<div class="empty">พิมพ์คำค้นด้านบน</div>';
+  setTimeout(()=>$('#sr-q').focus(),60);}
+function doSearchDebounced(){clearTimeout(srTimer);srTimer=setTimeout(doSearch,300);}
+async function doSearch(){
+  const q=$('#sr-q').value.trim().toLowerCase();
+  const el=$('#sr-res');
+  if(q.length<2){el.innerHTML='<div class="empty">พิมพ์อย่างน้อย 2 ตัวอักษร</div>';return}
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  const results=[];
+  for(const c of chaps){
+    const idx=c.content.toLowerCase().indexOf(q);
+    if(idx>=0)results.push({c,idx});}
+  const rx=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+  el.innerHTML=results.length?results.slice(0,50).map(r=>{
+    const st=Math.max(0,r.idx-60);
+    const snip=esc(r.c.content.slice(st,st+180)).replace(rx,m=>`<mark>${m}</mark>`);
+    return`<div class="srch-it" onclick="openEditor('${r.c.id}')"><b>ตอนที่ ${r.c.num}${r.c.title?': '+esc(r.c.title):''}</b><br>${snip}…</div>`;}).join('')
+  :'<div class="empty">ไม่พบในเนื้อหาทุกตอน</div>';}
+
+/* ---------- EPUB EXPORT ---------- */
+function download(name,text,mime='text/plain;charset=utf-8'){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+text],{type:mime}));
+  a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
+function stripHeading(t){return String(t||'').split('\n').filter(l=>!/^\s*#{1,3}\s/.test(l)).join('\n').trim()}
+async function exportEpub(){
+  const s=state.story;
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s.id).sort((a,b)=>a.num-b.num);
+  if(!chaps.length)return toast('ยังไม่มีตอน','warn');
+  toast('📦 กำลังประกอบไฟล์ EPUB…');
+  try{
+    await loadJS('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+    const zip=new JSZip();
+    zip.file('mimetype','application/epub+zip',{compression:'STORE'});
+    zip.file('META-INF/container.xml','<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+    let hasCover=false;
+    if(s.cover){try{zip.file('OEBPS/cover.jpeg',s.cover.split(',')[1],{base64:true});hasCover=true;}catch{}}
+    const files=[];
+    chaps.forEach((c,i)=>{
+      const paras=stripHeading(c.content).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join('\n');
+      const fn=`ch${i+1}.xhtml`;files.push(fn);
+      zip.file('OEBPS/'+fn,`<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${esc(c.title||('ตอนที่ '+c.num))}</title></head><body><h2>ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}</h2>${paras}</body></html>`);});
+    zip.file('OEBPS/content.opf',`<?xml version="1.0" encoding="utf-8"?>\n<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bid">urn:uuid:${s.id}</dc:identifier><dc:title>${esc(s.title)}</dc:title><dc:language>th</dc:language><meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d+Z$/,'Z')}</meta>${hasCover?'<meta name="cover" content="cv"/>':''}</metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>${hasCover?'<item id="cv" href="cover.jpeg" media-type="image/jpeg"/>':''}${files.map((f,i)=>`<item id="c${i}" href="${f}" media-type="application/xhtml+xml"/>`).join('')}</manifest><spine>${files.map((f,i)=>`<itemref idref="c${i}"/>`).join('')}</spine></package>`);
+    zip.file('OEBPS/nav.xhtml',`<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>nav</title></head><body><nav epub:type="toc"><ol>${chaps.map((c,i)=>`<li><a href="ch${i+1}.xhtml">ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}</a></li>`).join('')}</ol></nav></body></html>`);
+    const blob=await zip.generateAsync({type:'blob',mimeType:'application/epub+zip'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=s.title+'.epub';a.click();
+    toast('ส่งออก EPUB แล้ว 📚');
+  }catch(e){toast('ทำ EPUB ไม่สำเร็จ: '+e.message,'err');}}
+
+/* ---------- TEMPLATES ---------- */
+const TPL={
+  xianxia:{name:'🀄 เซียน/ย้อนยุคจีน',desc:'ไล่เลเวลยุทธปัญญา ตระกูล นิกาย',
+    outline:'วีรบุรุษหนุ่มไร้แววจากตระกูลเล็ก ถูกเหยียดหยามในงานประชันประจำปี แต่ได้เครื่องรางโบราณจากบรรพบุรุษปลุกพลังสายที่สาบสูญ เริ่มไล่เลเวลผ่านศึกประชัน ความลับตระกูล และแรงกดจากนิกายใหญ่ จนก้าวขึ้นเป็นผู้พลิกชะตาแคว้น',
+    arc:{beginning:'• ตอน 1-3: ชีวิตถูกเหยียด + ได้เครื่องราง\n• 4-6: เปิดดวงตาฝึกปรือ ประชันครั้งแรก\n• จบองก์: นิกายใหญ่เริ่มมองเห็นแวว',middle:'• 7-15: ทดลองป่าหมื่นสัตว์ พบพันธมิตร/คู่แข่ง\n• 16: ความลับเครื่องราง+ตระกูลเปิดเผย\n• 17-22: ถูกนิกายใหญ่กด จุดต่ำสุด',end:'• 23-26: สืบทอดสำนักโบราณ พลังกระโดด\n• 27-29: ศึกชี้ขาดประชันนิกายใหญ่\n• 30: ไขปมบรรพบุรุษ ปิดเรื่อง'},
+    chars:[['หลินเทียน','ตัวเอก','หนุ่มเลือดร้อน ไม่ยอมแพ้ ถูกเหยียดมาตลอด'],['ซูหลิงเอ๋อร์','คนรัก/คู่จิ้น','ทายาทนิกายยา อ่อนโยนแต่แกร่ง'],['หลินหลง','ตัวร้าย','ลุงผู้ทรยศแย่งตำแหน่งประมุข'],['เก๋าโมว','เมนเทอร์/ผู้ใหญ่','วิญญาณในเครื่องราง ปากร้ายใจดี']],
+    lore:[['location','เมืองไท้ชิง','บ้านเกิดตระกูลหลิน ศูนย์กลางเรื่อง'],['location','ป่าหมื่นสัตว์','แหล่งทดลองอันตราย เต็มสัตว์อสูร'],['power','ระดับฝึกปรือ','ฝ่าร่าง → ท่องหลิน → จินตัน → เทพวิญญาณ'],['term','เครื่องรางมังกรหลับ','สมบัติบรรพบุรุษ มีวิญญาณเก๋าโมว'],['technique','เทพมือทำลาย','วิชาเอกสายประชาที่สืบทอด'],['event','งานประชันประจำปี','จุดเริ่มต้นเรื่อง ตอน 1']]},
+  isekai:{name:'🌍 ต่างโลก/แฟนตาซี',desc:'ระบบ กิลด์ ผจญภัย ฮาผสมศึก',
+    outline:'พนักงานออฟฟิศธรรมดาตายเพราะกล่องพัสดุ ตื่นมาในโลกแฟนตาซีพร้อม "ระบบกล่องสุ่ม" ที่ให้ของทั้งเจ๋งทั้งไร้สาระ ผจญภัยหาทางกลับพร้อมก๊วนเพื่อนสุดป่วน แต่ค่อยๆ พบว่ากล่องสุ่มเชื่อมกับปมใหญ่ของโลกนี้',
+    arc:{beginning:'• ตอน 1-3: มาโลกใหม่ + ทดลองกล่องสุ่ม\n• 4-6: ลงทะเบียนกิลด์ ภารกิจแรก เจอก๊วน\n• จบองก์: กล่องสุ่มออกของระดับต้องห้าม',middle:'• 7-15: ภารกิจสะสม ฮาสลับศึกจริง\n• 16: พบว่ากล่องเชื่อมปมราชาอสูร\n• 17-22: ถูกจับกังขา จุดต่ำสุด',end:'• 23-26: รวมก๊วนเตรียมศึก\n• 27-29: บอสราชาอสูร\n• 30: เลือกอยู่หรือกลับ ปิดแบบอุ่นฟีล'},
+    chars:[['ต้นกล้า','ตัวเอก','สายฮา แต่ดวลเดือดเมื่อถึงเวลา'],['ริเร่','เพื่อนซี้','เอลฟ์ยิงธนู ปากคม แคร์ตัวเอกแบบไม่ยอมรับ'],['การ์ด','ตัวรอง','อัศวินหนุ่มซื่อ พึ่งพาได้'],['เวยน์','เมนเทอร์/ผู้ใหญ่','จอมเวทแก่ปริศนา รู้ความลับกล่องสุ่ม']],
+    lore:[['location','กิลด์นักผจญภัยเสริมดาว','ศูนย์รับภารกิจของก๊วน'],['power','ระบบกล่องสุ่ม','สุ่มของระดับ C ถึง SS วันละ 3 ครั้ง'],['term','สกิลกากระดับ S','ของสุ่มไร้สาระที่บังเอิญเจ๋งสุด'],['technique','ดาบเสียบไส้กรอก','ท่าไม้ตายเสียเปล่าที่กลายเป็นของจริง'],['event','มหาศึกราชาอสูร','ปมใหญ่ท้ายเรื่อง']]},
+  romance:{name:'💕 โรแมนต์แคมปัส',desc:'ประธานเป๊ะ × ตัวปัญหา ชวนหัวใจสับสน',
+    outline:'ประธานนักเรียนเป๊ะทุกอย่างถูกครูจับคู่กับตัวปัญหาอันดับหนึ่งมาช่วยงานโรงเรียน จากน้ำมนต์กลายเป็นน้ำผึ้ง แต่อดีตของฝ่ายหนึ่งทำให้กลัวการผูกพัน ต้องกล้าคว้าหัวใจก่อนสิ้นสุดปีการศึกษา',
+    arc:{beginning:'• ตอน 1-3: เจอกันวันแรกแบบระเบิดใส่กัน\n• 4-6: ถูกจับคู่ทำงานสภานักเรียน\n• จบองก์: เริ่มเห็นด้านดีของกันและกัน',middle:'• 7-15: กิจกรรมโรงเรียนใกล้ชิด หวั่นไหว\n• 16: อดีตเจ็บปวดถูกเปิดเผย ห่างกัน\n• 17-22: เข้าใจผิดรุนแรง จุดต่ำสุด',end:'• 23-26: กล้าสารภาพใจ\n• 27-29: พิสูจน์ใจในงานเทศกาลโรงเรียน\n• 30: คำสัญญาใต้ต้นไม้ ปิดหวาน'},
+    chars:[['ภีม','ตัวเอก','ตัวปัญหาหน้าตาดี แก่นใจดี ปิดบังเรื่องครอบครัว'],['ฟ้า','คนรัก/คู่จิ้น','ประธานนักเรียนเป๊ะ กดดันตัวเองสูง'],['มิ้ว','เพื่อนซี้','เพื่อนสนิทประธาน ตัวจุดชนวนความรัก'],['พี่หนึ่ง','ตัวรอง','รุ่นพ้องเก่าที่ยกมาขอฟ้า ตัวกีดขวาง']],
+    lore:[['location','ห้องสภานักเรียน','ที่ทำงานร่วมกัน จุดผูกพัน'],['event','งานเทศกาลโรงเรียน','ฉากชี้ขาดความรักตอน 27-29'],['term','กฎ 3 ข้อของประธาน','ข้อ 3 ห้ามตกหลุมรักในเวลาทำงาน'],['event','คำสัญญาใต้ต้นซากุระ','ปมจากวัยเด็ก'],['location','ดาดฟ้าตึกเรียนเก่า','จุดคุยกันลับๆ']]},
+  mystery:{name:'🕵️ สืบสวนสอบสวน',desc:'ปมเก่า 7 ปี ผีที่ไม่ใช่ผี',
+    outline:'นักข่าวสายลับรับงานสืบ "ผีหลอกคอนโด" แต่พบว่าผีคือคนที่ถูกใช้ปิดปากคดีตกน้ำ 7 ปีก่อน ต้องร่วมมือกับตำรวจสายตรงไขปม ก่อนคนร้ายตัวจริงลบทุกพยานหลัก',
+    arc:{beginning:'• ตอน 1-3: รับงานแปลก เข้าคอนโดครั้งแรก\n• 4-6: เจอเบาะแสขัดกับคำให้การตำรวจ\n• จบองก์: พบสมุดจดของผู้ตาย',middle:'• 7-15: ไล่สัมภาษณ์พยาน ถูกขู่\n• 16: พบว่าตำรวจระดับสูงเกี่ยวข้อง\n• 17-22: พยานหลักถูกฆ่า จุดต่ำสุด',end:'• 23-26: ตั้งกับดักเปิดโปง\n• 27-29: เผชิญหน้าคนร้ายตัวจริง\n• 30: คดีปิด แต่แผลยังอยู่'},
+    chars:[['วิน','ตัวเอก','นักข่าวไฮป์ สายลับ จำเรื่องเก่าเก่ง'],['พันตรีเอก','ตัวรอง','ตำรวจสายตรง ระแวงนักข่าวแต่ค่อยๆ ไว้ใจ'],['คุณยายแก้ว','ตัวรอง','ผู้เช่าห้องเก่า รู้ความจริงบางส่วน'],['ผู้การสุเทพ','ตัวร้าย','เจ้าของคอนโด ปิดปากคดี']],
+    lore:[['location','คอนโดเมอร์เบล','สถานที่เกิดเหตุ ห้อง 713 ต้องสงสัย'],['event','คดีตกน้ำ 7 ปีก่อน','ปมหลักที่ถูกปิด'],['term','สมุดจดของผู้ตาย','หลักฐานชิ้นสำคัญ'],['location','ห้องกล้องวงจรปิดชั้น B','กล้องวันเกิดเหตุหายไป'],['location','ร้านกาแฟประจำ','จุดนัดพบสืบสวน']]},
+  horror:{name:'👻 สยองขวัญ',desc:'หมู่บ้านสุดน่ารักที่มีของ',
+    outline:'หมู่บ้านลับที่ได้รางวัล "หมู่บ้านน่าอยู่" จริงๆ มีพิธีส่งดวงทุก 12 ปี ทีมทำสารคดีเดินทางไปถ่าย แล้วค่อยๆ ถูกเลือกเป็น "ของถวาย" ทีละคน โดยไม่มีใครช่วยได้',
+    arc:{beginning:'• ตอน 1-3: ทีมถึงหมู่บ้าน ทุกอย่างสมบูรณ์แบบผิดธรรมชาติ\n• 4-6: เริ่มเจอสัญญาณแปลก\n• จบองก์: เจอพิธีกลางคืน',middle:'• 7-15: คนในทีมหายทีละคน\n• 16: พบความจริงพิธีส่งดวง\n• 17-22: หนีไม่ออก ถนนวนกลับมาเอง',end:'• 23-26: หาทางทำลายพิธี\n• 27-29: เผชิญหน้าสิ่งที่ถูกบูชา\n• 30: รอดคนเดียว แต่…'},
+    chars:[['เจน','ตัวเอก','ผู้กำกับสารคดี เหตุผลนิยม'],['ปอนด์','เพื่อนซี้','กล้อง ขี้กลัวแต่ภาพเก่ง'],['หมวย','ตัวรอง','พิธีกรสาว สายมู'],['ป้าทอง','ตัวร้าย','หัวหน้าคณะบ้าน รอยยิ้มไม่เคยหาย']],
+    lore:[['location','หมู่บ้านบ้านแค้น','หมู่บ้านน่าอยู่ที่มีของ'],['event','พิธีส่งดวง','ทุก 12 ปี ต้องมีคนนอกรับเป็นของ'],['term','กฎ 3 ข้อของคนนอก','ห้ามออกหลังเสียงแตรค่ำ ห้ามรับของ ห้ามถ่ายรูปศาล'],['location','ศาลเจ้าแม่กลางบ้าน','ศูนย์กลางพลัง'],['term','วิทยุเก่ารับสัญญาณ','ได้ยินเสียงคนที่ยังไม่หาย']]}};
+function openTpl(){
+  const g=$('#tpl-grid');
+  g.innerHTML=Object.values(TPL).map(t=>`<div class="tpl-card" onclick="applyTpl('${t.name}')"><b>${t.name}</b><span>${t.desc}</span></div>`).join('');
+  openM('m-tpl');}
+async function applyTpl(name){
+  const t=Object.values(TPL).find(x=>x.name===name);if(!t)return;
+  if(!confirm(`เติมเทมเพลต "${name}" ใส่เรื่องนี้?\n(โครงเรื่อง/พล็อตจะถูกแทนที่ ตัวละคร+ความจำถูกเพิ่ม)`))return;
+  state.story.outline=t.outline;
+  state.story.arc={beginning:t.arc.beginning,middle:t.arc.middle,end:t.arc.end};
+  state.story.updatedAt=Date.now();
+  await dbPut('stories',state.story);
+  const exC=new Set((await dbAll('characters')).filter(c=>c.storyId===state.story.id).map(c=>c.name));
+  for(const[n,r,bg]of t.chars){if(exC.has(n))continue;
+    await dbPut('characters',{id:uid(),storyId:state.story.id,name:n,role:r,background:bg,createdAt:Date.now()});}
+  for(const[cat,nm,det]of t.lore){
+    await dbPut('lore',{id:uid(),storyId:state.story.id,cat,name:nm,detail:det,createdAt:Date.now()});}
+  closeM('m-tpl');fillOutline();
+  toast('ใส่เทมเพลตแล้ว 🧩 แก้ไขต่อได้ทุกส่วน');}
+
+/* ---------- NAME GENERATOR ---------- */
+function openNames(){$('#names-list').innerHTML='<div class="empty">กดปุ่มด้านบนเพื่อสุ่มชื่อ</div>';openM('m-names');}
+async function genNames(){
+  if(!needKey())return;
+  const b=$('#names-go');b.disabled=true;b.innerHTML='<span class="spin"></span> กำลังสุ่ม…';
+  try{
+    const j=parseJSONLoose(await aiUtil({temp:1,prompt:`สร้างชื่อตัวละครนิยาย 8 ชุด ให้เข้ากับแนวเรื่อง "${state.story.genre||'ทั่วไป'}"
+แต่ละชุด: ชื่อ + คำอธิบายสั้นว่าเหมาะกับตัวละครแบบไหน
+ตอบ JSON: {"names":[{"name":"...","note":"..."}]} ภาษาไทย`}));
+    $('#names-list').innerHTML=(j.names||[]).map(n=>`<div class="name-it"><b>${esc(n.name)}</b><span class="hint">${esc(n.note||'')}</span></div>`).join('')||'<div class="empty">ไม่ได้ผลลัพธ์ ลองใหม่</div>';
+  }catch(e){toast('ผิดพลาด: '+e.message,'err');}
+  b.disabled=false;b.textContent='✨ สุ่มชื่อให้เข้ากับแนวเรื่อง';}
+
+/* ---------- STATS ---------- */
+async function openStats(){
+  const stories=await dbAll('stories');
+  const chaps=(await dbAll('chapters')).filter(c=>stories.some(s=>s.id===c.storyId));
+  const totW=chaps.reduce((n,c)=>n+estWords(c.content),0);
+  const chars=(await dbAll('characters')).length;
+  const loreN=(await dbAll('lore')).length;
+  // นับวันที่เขียน (จาก createdAt ของตอน)
+  const days=new Set(chaps.filter(c=>c.createdAt).map(c=>new Date(c.createdAt).toDateString()));
+  const avg=chaps.length?Math.round(totW/chaps.length):0;
+  $('#stats-body').innerHTML=`
+    <div class="bcard"><b>📈 ภาพรวมทั้งหมด</b>
+    <div class="brow"><span class="bl">นิยาย</span><b>${stories.length} เรื่อง</b></div>
+    <div class="brow"><span class="bl">ตอนทั้งหมด</span><b>${chaps.length} ตอน</b></div>
+    <div class="brow"><span class="bl">คำสะสม</span><b>≈ ${totW.toLocaleString()} คำ</b></div>
+    <div class="brow"><span class="bl">ความยาวเฉลี่ย</span><b>≈ ${avg.toLocaleString()} คำ/ตอน</b></div>
+    <div class="brow"><span class="bl">ตัวละคร</span><b>${chars} คน</b></div>
+    <div class="brow"><span class="bl">คลังความจำ</span><b>${loreN} รายการ</b></div>
+    <div class="brow"><span class="bl">วันที่ลงมือเขียน</span><b>${days.size} วัน</b></div></div>
+    ${chaps.length?'<div class="bcard"><b>📚 ตอนล่าสุด</b>'+chaps.sort((a,b)=>b.updatedAt-a.updatedAt).slice(0,5)
+      .map(c=>`<div class="brow"><span class="bl">ตอน ${c.num}</span><span>≈${estWords(c.content).toLocaleString()} คำ · ${fmtD(c.updatedAt)}</span></div>`).join('')+'</div>':''}`;
+  openM('m-stats');}
+
+/* ---------- COVER TITLE (ชื่อไทยบนปก) ---------- */
+function openCTitle(){
+  if(!state.story.cover)return toast('ต้องมีปกก่อน (อัปโหลดหรือให้ AI วาด)','warn');
+  renderCTitle();openM('m-ctitle');}
+async function renderCTitle(){
+  const cv=$('#ct-prev');const ctx=cv.getContext('2d');
+  const img=new Image();img.src=state.story.cover;await img.decode();
+  ctx.drawImage(img,0,0,240,320);
+  const title=state.story.title;
+  const size=+$('#ct-size').value;
+  ctx.font=`700 ${size/2.4}px Prompt,sans-serif`;
+  ctx.textAlign='center';
+  const y=$('#ct-pos').value==='top'?size/2.4+24:320-24;
+  if($('#ct-stroke').checked){ctx.lineWidth=size/12;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(title,120,y);}
+  ctx.fillStyle=$('#ct-color').value;
+  ctx.fillText(title,120,y);}
+async function applyCTitle(){
+  const c=document.createElement('canvas');c.width=900;c.height=1200;
+  const ctx=c.getContext('2d');
+  const img=new Image();img.src=state.story.cover;await img.decode();
+  ctx.drawImage(img,0,0,900,1200);
+  const scale=900/240;
+  const size=+$('#ct-size').value*scale;
+  ctx.font=`700 ${size/2.4}px Prompt,sans-serif`;
+  ctx.textAlign='center';
+  const y=$('#ct-pos').value==='top'?size/2.4+24*scale:1200-24*scale;
+  if($('#ct-stroke').checked){ctx.lineWidth=size/12;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(state.story.title,450,y);}
+  ctx.fillStyle=$('#ct-color').value;
+  ctx.fillText(state.story.title,450,y);
+  state.story.cover=c.toDataURL('image/jpeg',.85);
+  state.story.updatedAt=Date.now();
+  await dbPut('stories',state.story);
+  renderStoryHead();closeM('m-ctitle');
+  toast('ใส่ชื่อบนปกแล้ว 🔤');}
+
+/* ---------- READ MODE ---------- */
+let readSize=17;
+function readFont(d){readSize=Math.max(13,Math.min(26,readSize+d));$('#read-body').style.fontSize=readSize+'px';}
+async function openRead(){
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  if(!chaps.length)return toast('ยังไม่มีตอน','warn');
+  $('#read-body').innerHTML=`<h1 style="text-align:center;margin-bottom:30px">${esc(state.story.title)}</h1>`
+    +chaps.map(c=>`<h2>ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}</h2>`
+      +stripHeading(c.content).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join('')).join('');
+  $('#readmode').classList.add('show');
+  document.body.style.overflow='hidden';}
+function closeRead(){$('#readmode').classList.remove('show');document.body.style.overflow='';}
+
+/* ---------- IMPORT TXT ---------- */
+async function importTxt(inp){
+  const f=inp.files[0];if(!f)return;
+  try{
+    const text=await f.text();
+    if(text.trim().length<500)return toast('ไฟล์สั้นเกินไป','warn');
+    if(!needKey())return;
+    toast('📥 กำลังนำเข้า… AI จะอ่านและสร้างข้อมูลให้');
+    const title=f.name.replace(/\.txt$/i,'').slice(0,80);
+    const st={id:uid(),title,genre:'',tone:'',desc:'นำเข้าจากไฟล์ '+f.name,lang:'th',cover:null,outline:'',
+      arc:{beginning:'',middle:'',end:''},createdAt:Date.now(),updatedAt:Date.now()};
+    await dbPut('stories',st);
+    // แบ่งตอนอัตโนมัติจากคำว่า "ตอนที่" หรือตัดทีละ ~2500 คำ
+    let parts=text.split(/(?=ตอนที่\s*\d+|บทที่\s*\d+|Chapter\s*\d+)/i).map(s=>s.trim()).filter(s=>s.length>100);
+    if(parts.length<2){parts=[];const words=text.split(/\s+/);
+      for(let i=0;i<words.length;i+=1800)parts.push(words.slice(i,i+1800).join(' '));}
+    let num=1;
+    for(const p of parts.slice(0,100)){
+      const m=/^\s*(?:ตอนที่\s*(\d+)|บทที่\s*(\d+)|Chapter\s*(\d+))\s*[:：\-–]?\s*(.*)/i.exec(p);
+      const t=m?(m[4]||'').split('\n')[0].slice(0,80):'';
+      const n=m?parseInt(m[1]||m[2]||m[3]):num;
+      await dbPut('chapters',{id:uid(),storyId:st.id,num:n,title:t,content:'## ตอนที่ '+n+(t?': '+t:'')+'\n\n'+p,
+        summary:'',status:'done',createdAt:Date.now(),updatedAt:Date.now()});
+      num=n+1;}
+    toast(`นำเข้า ${Math.min(parts.length,100)} ตอนแล้ว — AI กำลังสร้างความจำ… (เปิดเรื่องได้เลย)`);
+    inp.value='';
+    openStory(st.id);
+    // AI สกัดตัวละคร+ความจำจากช่วงต้นเรื่อง
+    try{
+      const sample=parts.slice(0,3).join('\n').slice(0,12000);
+      const j=parseJSONLoose(await aiUtil({temp:.5,json:true,prompt:`อ่านตอนต้นนิยายนี้ สร้างข้อมูลพื้นฐานเป็น JSON:
+{"characters":[{"name","role","note"}],"lore":[{"cat":"location|power|technique|term|event","name","detail"}]}
+characters 3-6 คนหลัก, lore 5-8 รายการสำคัญ, ภาษาไทย
+"""${sample}"""`}));
+      for(const c of(j.characters||[]))if(c.name)
+        await dbPut('characters',{id:uid(),storyId:st.id,name:c.name,role:c.role||'ตัวรอง',background:c.note||'',createdAt:Date.now()});
+      for(const l of(j.lore||[]))if(l.name&&CATS[l.cat])
+        await dbPut('lore',{id:uid(),storyId:st.id,cat:l.cat,name:l.name,detail:l.detail||'',createdAt:Date.now()});
+      toast('AI สร้างตัวละคร+ความจำจากนิยายเดิมแล้ว 🧠');
+      renderChars();
+    }catch(e){}
+  }catch(e){toast('นำเข้าไม่สำเร็จ: '+e.message,'err');}
+  inp.value='';}
 
 /* ---------- AI COVER ---------- */
 let tmpAICover=null;
@@ -1485,8 +1911,7 @@ function openAiCover(ev){
   if(!needKey())return;
   $('#aics-prev').innerHTML='🖼️';$('#aics-actions').hidden=true;tmpAICover=null;
   $('#aics-status').textContent='';
-  openM('m-aicover');
-}
+  openM('m-aicover');}
 async function aiGenCover(){
   if(!needKey())return;
   const title=$('#ns-title').value.trim(),genre=$('#ns-genre').value.trim(),tone=$('#ns-tone').value.trim(),desc=$('#ns-desc').value.trim();
@@ -1504,13 +1929,11 @@ Requirements: striking main character(s) matching the story as focal point, dram
     tmpAICover=cropped;pendingCover=null;
     $('#aics-prev').innerHTML=`<img src="${cropped}">`;
     $('#aics-actions').hidden=false;
-    $('#aics-status').textContent='✅ เสร็จแล้ว! กด "ใช้ปกนี้" เพื่อนำไปใช้ (ถูกบีบอัดเป็น JPEG ~150KB แล้ว)';
+    $('#aics-status').textContent='✅ เสร็จแล้ว! กด "ใช้ปกนี้" (บีบอัด JPEG แล้ว)';
   }catch(e){
     $('#aics-status').textContent='';
-    toast('สร้างปกไม่สำเร็จ: '+e.message,'err');
-  }
-  b.disabled=false;b.innerHTML='✨ สร้างภาพ';
-}
+    toast('สร้างปกไม่สำเร็จ: '+e.message,'err');}
+  b.disabled=false;b.innerHTML='✨ สร้างภาพ';}
 async function applyAICover(){
   if(!tmpAICover)return;
   pendingCover={data:tmpAICover};
@@ -1521,14 +1944,9 @@ async function applyAICover(){
   if(sid){const st=await dbGet('stories',sid);if(st){st.cover=tmpAICover;st.updatedAt=Date.now();await dbPut('stories',st);
     if(state.story&&state.story.id===sid){state.story.cover=tmpAICover;renderStoryHead();}
     toast('บันทึกปกใหม่แล้ว 🎨');}}
-  else toast('ปกพร้อมแล้ว — กด "สร้างเรื่อง" เพื่อเก็บทั้งหมด');
-}
+  else toast('ปกพร้อมแล้ว — กด "สร้างเรื่อง" เพื่อเก็บทั้งหมด');}
 
 /* ---------- EXPORT ---------- */
-function download(name,text,mime='text/plain;charset=utf-8'){
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+text],{type:mime}));
-  a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
-function stripHeading(t){return String(t||'').split('\n').filter(l=>!/^\s*#{1,3}\s/.test(l)).join('\n').trim()}
 async function exportWhole(fmt){
   const s=state.story;
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s.id).sort((a,b)=>a.num-b.num);
@@ -1624,30 +2042,24 @@ async function acctOpen(){
       $('#ac-lastsync').textContent=ls?`ซิงก์ล่าสุด: ${new Date(+ls).toLocaleString('th-TH')}`:'ยังไม่เคยซิงก์';
     }else{
       $('#ac-status').innerHTML='<span class="badge-on">● เชื่อมต่อ Supabase สำเร็จ</span> — ยังไม่ได้ล็อกอิน';
-      $('#ac-form').hidden=false;
-    }
+      $('#ac-form').hidden=false;}
   }catch(e){
-    $('#ac-status').innerHTML=`<span class="badge-off">○ ${esc(e.message)}</span><br><span class="hint">ไปที่ ⚙️ ตั้งค่า เพื่อกรอก Project URL และ anon key</span>`;
-  }
-}
+    $('#ac-status').innerHTML=`<span class="badge-off">○ ${esc(e.message)}</span><br><span class="hint">ไปที่ ⚙️ ตั้งค่า เพื่อกรอก Project URL และ anon key</span>`;}}
 async function acctSignIn(){
   try{const sb=await sbInit();
     const{error}=await sb.auth.signInWithPassword({email:$('#ac-email').value.trim(),password:$('#ac-pass').value});
     if(error)throw error;
     toast('เข้าสู่ระบบแล้ว ✅');acctOpen();
-  }catch(e){toast('เข้าสู่ระบบไม่สำเร็จ: '+e.message,'err');}
-}
+  }catch(e){toast('เข้าสู่ระบบไม่สำเร็จ: '+e.message,'err');}}
 async function acctSignUp(){
   try{const sb=await sbInit();
     const{error}=await sb.auth.signUp({email:$('#ac-email').value.trim(),password:$('#ac-pass').value});
     if(error)throw error;
     toast('สมัครสำเร็จ! ถ้า Supabase ตั้งให้ยืนยันอีเมล ให้ไปกดยืนยันก่อนล็อกอิน 📧');
-  }catch(e){toast('สมัครไม่สำเร็จ: '+e.message,'err');}
-}
+  }catch(e){toast('สมัครไม่สำเร็จ: '+e.message,'err');}}
 async function acctSignOut(){
   try{const sb=await sbInit();await sb.auth.signOut();toast('ออกจากระบบแล้ว');acctOpen();}
-  catch(e){toast(e.message,'err');}
-}
+  catch(e){toast(e.message,'err');}}
 async function collectWorkspace(){
   return{stories:await dbAll('stories'),characters:await dbAll('characters'),
     lore:await dbAll('lore'),chapters:await dbAll('chapters')};}
@@ -1665,8 +2077,7 @@ async function pushCloud(){
   }catch(e){
     if(/does not exist|42P01|relation/i.test(e.message||''))
       toast('ยังไม่มีตารางใน Supabase — รัน SQL ในกล่องด้านล่างก่อน','err');
-    else toast('Push ไม่สำเร็จ: '+(e.message||e),'err');}
-}
+    else toast('Push ไม่สำเร็จ: '+(e.message||e),'err');}}
 async function pullCloud(){
   try{const sb=await sbInit();
     const{data:{session}}=await sb.auth.getSession();
@@ -1676,7 +2087,7 @@ async function pullCloud(){
     if(!data?.data)return toast('บนคลาวด์ยังไม่มีข้อมูล — ลอง Push จากเครื่องเดิมก่อน','warn');
     const d=data.data;
     const total=(d.stories||[]).length+(d.characters||[]).length+(d.lore||[]).length+(d.chapters||[]).length;
-    if(!confirm(`ดึงข้อมูลจากคลาวด์ (${total} รายการ, อัปเดต ${fmtD(data.updated_at)}) มาทับเครื่องนี้ทั้งหมด?`))return;
+    if(!confirm(`ดึงข้อมูลจากคลาวด์ (${total} รายการ) มาทับเครื่องนี้ทั้งหมด?`))return;
     for(const s of['stories','characters','lore','chapters'])await dbClear(s);
     let n=0;
     for(const[k]of Object.entries({stories:1,characters:1,lore:1,chapters:1}))
@@ -1687,8 +2098,7 @@ async function pullCloud(){
   }catch(e){
     if(/does not exist|42P01|relation/i.test(e.message||''))
       toast('ยังไม่มีตารางใน Supabase — รัน SQL ในกล่องด้านล่างก่อน','err');
-    else toast('Pull ไม่สำเร็จ: '+(e.message||e),'err');}
-}
+    else toast('Pull ไม่สำเร็จ: '+(e.message||e),'err');}}
 
 /* ---------- INIT ---------- */
 (async function init(){
