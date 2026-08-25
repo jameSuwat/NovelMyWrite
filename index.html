@@ -386,7 +386,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
       <option value="gemini-2.0-flash">Gemini 2.0 Flash — สำรอง</option>
     </select>
     <label class="f">ความครีเอทีฟ (temperature): <b id="temp-val">0.95</b></label>
-    <input type="range" id="set-temp" min="0" max="1" step="0.05" value="0.95" oninput="$('temp-val').textContent=this.value">
+    <input type="range" id="set-temp" min="0" max="1" step="0.05" value="0.95" oninput="$('#temp-val').textContent=this.value">
     <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (คุณภาพดีขึ้น แต่ช้ากว่า)</label>
     <hr class="sep">
     <b style="font-size:.9rem">☁️ Supabase — เก็บข้อมูลบนคลาวด์ (เขียนข้ามเครื่อง)</b>
@@ -657,7 +657,7 @@ function toggleTheme(){settings.theme=settings.theme==='dark'?'light':'dark';per
 function applyTheme(){document.documentElement.dataset.theme=settings.theme;$('#btn-theme').textContent=settings.theme==='dark'?'🌙':'☀️';}
 function eyeKey(){const i=$('#set-key');i.type=i.type==='password'?'text':'password'}
 function openSettings(){$('#set-key').value=settings.apiKey;$('#set-model').value=settings.model;
-  $('#set-temp').value=settings.temperature;$('temp-val').textContent=settings.temperature;
+  $('#set-temp').value=settings.temperature;$('#temp-val').textContent=settings.temperature;
   $('#set-think').checked=settings.thinking;$('#set-sburl').value=settings.sbUrl;$('#set-sbkey').value=settings.sbKey;
   openM('m-settings');}
 function saveSettings(){settings.apiKey=$('#set-key').value.trim();settings.model=$('#set-model').value;
