@@ -193,6 +193,18 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 #readmode.night #read-body{color:#d8d0c8;line-height:2.2}
 #readmode.night #read-body h2{color:#c0b0ff;border-color:#333}
 #readmode.night #read-nav{border-color:#333}
+#readmode.cream{background:#f5f0e8}
+#readmode.cream #read-sidebar{background:#ede6d8;border-color:#d5ceb8}
+#readmode.cream #read-sidebar h3{color:#5a4e3a;border-color:#d5ceb8}
+#readmode.cream .read-ch-item{color:#7a6e5a}
+#readmode.cream .read-ch-item:hover{background:#e8e0d0;color:#3a2e1a}
+#readmode.cream .read-ch-item.active{color:#3a2e1a;border-left-color:#c8a040;background:rgba(180,140,40,.1)}
+#readmode.cream #read-main{background:#f5f0e8}
+#readmode.cream #read-ctrl{background:rgba(245,240,232,.92);border-color:#d5ceb8}
+#readmode.cream #read-body{color:#3a2e1a;font-family:'Sarabun',serif;line-height:2.2}
+#readmode.cream #read-body h2{color:#4a3e2a;border-color:#d5ceb8}
+#readmode.cream #read-nav{border-color:#d5ceb8}
+#readmode.night #read-nav{border-color:#333}
 .brow{display:flex;gap:8px;align-items:center;font-size:.82rem;margin:5px 0}
 .brow .bl{width:110px;color:var(--tx2);flex-shrink:0}
 .bar{height:10px;border-radius:6px;background:var(--grad);min-width:2px}
@@ -212,7 +224,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 .tpl-card:hover{border-color:var(--ac);transform:translateY(-2px)}
 .tpl-card b{display:block;margin-bottom:4px}
 .tpl-card span{font-size:.78rem;color:var(--tx2)}
-@media(max-width:640px){#read-sidebar{display:none}}
+@media(max-width:640px){#read-sidebar{position:fixed;left:0;top:0;bottom:0;z-index:260;transform:translateX(-100%);transition:.25s;width:260px}#read-sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.4)}#read-sidebar-overlay{display:none;position:fixed;inset:0;z-index:255;background:rgba(0,0,0,.4)}#read-sidebar-overlay.open{display:block}}
 </style>
 </head>
 <body>
@@ -434,15 +446,18 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 
 <!-- reading mode -->
 <div id="readmode">
+  <div id="read-sidebar-overlay" onclick="toggleReadSidebar()"></div>
   <div id="read-sidebar">
-    <h3>📚 สารบัญ</h3>
+    <h3>📚 สารบัญ <button class="x" onclick="toggleReadSidebar()" style="float:right">✕</button></h3>
     <div id="read-ch-list"></div>
   </div>
   <div id="read-main">
     <div id="read-ctrl">
+      <button class="btn ghost sm" onclick="toggleReadSidebar()" id="read-toc-btn">☰ สารบัญ</button>
       <button class="btn ghost sm" onclick="readFont(-2)">A−</button>
       <button class="btn ghost sm" onclick="readFont(2)">A+</button>
-      <button class="btn ghost sm" id="read-night-btn" onclick="toggleReadNight()">🌙 โหมดกลางคืน</button>
+      <button class="btn ghost sm" id="read-night-btn" onclick="toggleReadNight()">🌙 กลางคืน</button>
+      <button class="btn ghost sm" id="read-cream-btn" onclick="toggleReadCream()">📄 ครีม</button>
       <button class="btn ghost sm" onclick="closeRead()">✕ ปิด</button>
     </div>
     <div id="read-body"></div>
@@ -2015,7 +2030,9 @@ async function applyCTitle(){
 /* ---------- READ MODE (Enhanced) ---------- */
 let readSize=17,readChapsList=[],readIdx=0;
 function readFont(d){readSize=Math.max(13,Math.min(26,readSize+d));$('#read-body').style.fontSize=readSize+'px';}
-function toggleReadNight(){$('#readmode').classList.toggle('night');const isNight=$('#readmode').classList.contains('night');$('#read-night-btn').textContent=isNight?'☀️ โหมดสว่าง':'🌙 โหมดกลางคืน';localStorage.setItem('nf_readNight',isNight?'1':'0');}
+function toggleReadNight(){$('#readmode').classList.remove('cream');$('#readmode').classList.toggle('night');const isNight=$('#readmode').classList.contains('night');$('#read-night-btn').textContent=isNight?'☀️ สว่าง':'🌙 กลางคืน';$('#read-cream-btn').textContent='📄 ครีม';localStorage.setItem('nf_readMode',isNight?'night':'normal');}
+function toggleReadCream(){$('#readmode').classList.remove('night');$('#readmode').classList.toggle('cream');const isCream=$('#readmode').classList.contains('cream');$('#read-cream-btn').textContent=isCream?'☀️ สว่าง':'📄 ครีม';$('#read-night-btn').textContent='🌙 กลางคืน';localStorage.setItem('nf_readMode',isCream?'cream':'normal');}
+function toggleReadSidebar(){$('#read-sidebar').classList.toggle('open');$('#read-sidebar-overlay').classList.toggle('open');}
 async function openRead(){
   readChapsList=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
   if(!readChapsList.length)return toast('ยังไม่มีตอน','warn');
@@ -2025,8 +2042,11 @@ async function openRead(){
   renderReadChapter(readIdx);
   $('#readmode').classList.add('show');
   document.body.style.overflow='hidden';
-  // Restore night mode preference
-  if(localStorage.getItem('nf_readNight')==='1'){$('#readmode').classList.add('night');$('#read-night-btn').textContent='☀️ โหมดสว่าง';}else{$('#readmode').classList.remove('night');$('#read-night-btn').textContent='🌙 โหมดกลางคืน';}
+  // Restore read mode preference
+  const rm=localStorage.getItem('nf_readMode')||localStorage.getItem('nf_readNight')==='1'?'night':'normal';
+  $('#readmode').classList.remove('night','cream');$('#read-night-btn').textContent='🌙 กลางคืน';$('#read-cream-btn').textContent='📄 ครีม';
+  if(rm==='night'){$('#readmode').classList.add('night');$('#read-night-btn').textContent='☀️ สว่าง';}
+  else if(rm==='cream'){$('#readmode').classList.add('cream');$('#read-cream-btn').textContent='☀️ สว่าง';}
   // Add keyboard navigation
   document.addEventListener('keydown',readKeyHandler);}
 function closeRead(){$('#readmode').classList.remove('show');document.body.style.overflow='';
@@ -2045,6 +2065,7 @@ function renderReadSidebar(){
       <b style="font-size:.82rem">ตอน ${c.num}</b>${c.title?' '+esc(c.title):''}
     </span></div>`).join('');}
 function readGoTo(i){readIdx=i;renderReadChapter(i);renderReadSidebar();
+  $('#read-sidebar').classList.remove('open');$('#read-sidebar-overlay').classList.remove('open');
   $('#read-main').scrollTop=0;}
 function renderReadChapter(i){
   const c=readChapsList[i];if(!c)return;
