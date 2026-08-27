@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <title>NovelForge AI — เขียนนิยายด้วย AI</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7c6cff">
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0f1117;--panel:#171a23;--panel2:#1d212d;--input:#12141c;--bd:#272c3a;--bd2:#333a4d;--tx:#e9ebf3;--tx2:#9aa3b8;--tx3:#6b7488;--ac:#7c6cff;--ok:#34d399;--warn:#fbbf24;--err:#f87171;--grad:linear-gradient(135deg,#7c6cff,#b06cff);--sh:0 10px 30px rgba(0,0,0,.45)}
@@ -165,12 +167,32 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 .imgstrip .th{position:relative;width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)}
 .imgstrip img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
 .imgstrip .x{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:20px;height:20px;cursor:pointer;font-size:.7rem;line-height:1}
-#readmode{position:fixed;inset:0;z-index:250;background:var(--bg);overflow-y:auto;display:none}
-#readmode.show{display:block}
-#read-ctrl{position:sticky;top:0;display:flex;gap:8px;justify-content:center;padding:10px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);z-index:2}
-#read-body{max-width:760px;margin:0 auto;padding:40px 22px 120px;font-family:'Sarabun',sans-serif;line-height:2.1}
+#readmode{position:fixed;inset:0;z-index:250;background:var(--bg);display:none}
+#readmode.show{display:flex}
+#read-sidebar{width:260px;background:var(--panel);border-right:1px solid var(--bd);overflow-y:auto;flex-shrink:0;padding:14px 0}
+#read-sidebar h3{padding:10px 16px;font-size:.95rem;border-bottom:1px solid var(--bd);margin-bottom:6px}
+.read-ch-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:.85rem;color:var(--tx2);transition:.12s;border-left:3px solid transparent}
+.read-ch-item:hover{background:var(--panel2);color:var(--tx)}
+.read-ch-item.active{color:var(--tx);border-left-color:var(--ac);background:rgba(124,108,255,.08);font-weight:600}
+.read-ch-item .rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--ok)}
+.read-ch-item .rdot.empty{background:var(--tx3)}
+#read-main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+#read-ctrl{position:sticky;top:0;display:flex;gap:8px;justify-content:center;padding:10px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);z-index:2;flex-wrap:wrap;align-items:center}
+#read-body{max-width:760px;margin:0 auto;padding:40px 22px 120px;font-family:'Sarabun',sans-serif;line-height:2.1;flex:1}
 #read-body h2{margin:34px 0 12px;font-size:1.2em;border-bottom:1px solid var(--bd);padding-bottom:6px}
 #read-body p{margin:.5em 0;text-indent:2.5em}
+#read-nav{display:flex;justify-content:space-between;padding:16px 22px;border-top:1px solid var(--bd);gap:10px;flex-wrap:wrap}
+#readmode.night{background:#0a0a0a}
+#readmode.night #read-sidebar{background:#111;border-color:#222}
+#readmode.night #read-sidebar h3{color:#ccc;border-color:#333}
+#readmode.night .read-ch-item{color:#888}
+#readmode.night .read-ch-item:hover{background:#1a1a1a;color:#ccc}
+#readmode.night .read-ch-item.active{color:#e0d0ff;border-left-color:#9070ff;background:rgba(100,80,200,.12)}
+#readmode.night #read-main{background:#0a0a0a}
+#readmode.night #read-ctrl{background:rgba(10,10,10,.9);border-color:#222}
+#readmode.night #read-body{color:#d8d0c8;line-height:2.2}
+#readmode.night #read-body h2{color:#c0b0ff;border-color:#333}
+#readmode.night #read-nav{border-color:#333}
 .brow{display:flex;gap:8px;align-items:center;font-size:.82rem;margin:5px 0}
 .brow .bl{width:110px;color:var(--tx2);flex-shrink:0}
 .bar{height:10px;border-radius:6px;background:var(--grad);min-width:2px}
@@ -190,6 +212,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 .tpl-card:hover{border-color:var(--ac);transform:translateY(-2px)}
 .tpl-card b{display:block;margin-bottom:4px}
 .tpl-card span{font-size:.78rem;color:var(--tx2)}
+@media(max-width:640px){#read-sidebar{display:none}}
 </style>
 </head>
 <body>
@@ -231,6 +254,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
         <div class="rel"><button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button></div>
         <button class="btn ghost sm" onclick="editStoryInfo()">✏️ แก้ไขเรื่อง</button>
         <button class="btn ghost sm" onclick="openSearch()">🔍 ค้นหา</button>
+        <button class="btn ghost sm" onclick="openM('m-findreplace')">🔄 ค้นหา+แทนที่</button>
         <button class="btn ghost sm" onclick="openRead()">📖 อ่านทั้งเรื่อง</button>
         <button class="btn ghost sm" onclick="openCTitle()">🔤 ชื่อบนปก</button>
         <div class="rel">
@@ -254,6 +278,8 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <button data-tab="lore">🧠 คลังความจำ</button>
     <button data-tab="overview">🕸️ ไทม์ไลน์/ความสัมพันธ์</button>
     <button data-tab="chaps">📚 ตอนทั้งหมด</button>
+    <button data-tab="glossary">🗝️ ศัพท์เฉพาะ</button>
+    <button data-tab="smartplot">🧠 วิเคราะห์โครงเรื่อง</button>
   </nav>
 
   <section id="tab-plot">
@@ -346,6 +372,22 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <div class="toolrow"><button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button></div>
     <div id="cp-list"></div>
   </section>
+
+  <section id="tab-glossary" hidden>
+    <div class="toolrow">
+      <button class="btn primary" onclick="glossaryExtract()">🗝️ ดึงศัพท์จากทุกตอน</button>
+      <button class="btn ghost" onclick="glossaryCheck()">🔍 ตรวจสะกดผิด</button>
+      <button class="btn ghost" onclick="glossaryToLore()">💾 บันทึกลงคลังความจำ</button>
+    </div>
+    <div id="gl-list"></div>
+  </section>
+
+  <section id="tab-smartplot" hidden>
+    <div class="toolrow">
+      <button class="btn primary" onclick="smartPlotAnalyze()">🧠 วิเคราะห์โครงเรื่อง</button>
+    </div>
+    <div id="sp-result"></div>
+  </section>
 </main>
 
 <!-- EDITOR -->
@@ -357,6 +399,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <span class="stat-chip" id="ed-stat">≈ 0 คำ</span>
     <button class="btn primary sm" onclick="edSave()">💾 บันทึก</button>
     <button class="btn ghost sm" id="ed-cont-btn" onclick="edContinue()">▶️ เขียนต่อ</button>
+    <button class="btn primary sm" id="ed-next-btn" onclick="edNextChapter()">⏭️ เขียนตอนถัดไป</button>
     <button class="btn ghost sm" id="ed-check-btn" onclick="checkConsistency()">🔍 ตรวจสอดคล้อง</button>
     <button class="btn ghost sm" onclick="runBeta()">🧐 Beta Reader</button>
     <button class="btn ghost sm" id="ed-sum-btn" onclick="sumBtnWrap()">🧾 สรุปเป็นความจำ</button>
@@ -391,12 +434,20 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 
 <!-- reading mode -->
 <div id="readmode">
-  <div id="read-ctrl">
-    <button class="btn ghost sm" onclick="readFont(-2)">A−</button>
-    <button class="btn ghost sm" onclick="readFont(2)">A+</button>
-    <button class="btn ghost sm" onclick="closeRead()">✕ ปิด</button>
+  <div id="read-sidebar">
+    <h3>📚 สารบัญ</h3>
+    <div id="read-ch-list"></div>
   </div>
-  <div id="read-body"></div>
+  <div id="read-main">
+    <div id="read-ctrl">
+      <button class="btn ghost sm" onclick="readFont(-2)">A−</button>
+      <button class="btn ghost sm" onclick="readFont(2)">A+</button>
+      <button class="btn ghost sm" id="read-night-btn" onclick="toggleReadNight()">🌙 โหมดกลางคืน</button>
+      <button class="btn ghost sm" onclick="closeRead()">✕ ปิด</button>
+    </div>
+    <div id="read-body"></div>
+    <div id="read-nav"></div>
+  </div>
 </div>
 
 <!-- SETTINGS MODAL -->
@@ -456,6 +507,17 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <input class="in" id="ns-tone" list="tones">
     <datalist id="tones"><option>ดราม่าเข้มข้น</option><option>ตลกขบขัน อ่านเพลิน</option><option>ดาร์ค โหด สมจริง</option><option>อบอุ่น feel-good</option><option>เท่ๆ จังหวะไว</option><option>โรแมนติกหวาน</option><option>ลึกลับน่าติดตาม</option></datalist>
     <label class="f">ภาษา</label><select class="in" id="ns-lang"><option value="th">ภาษาไทย</option><option value="en">English</option></select>
+    <label class="f">วัฒนธรรม/ประเทศในเรื่อง <span class="hint">(AI จะตั้งชื่อตัวละครให้ตรงวัฒนธรรมอัตโนมัติ)</span></label>
+    <select class="in" id="ns-culture">
+      <option value="auto">🤖 อัตโนมัติ — ให้ AI ตัดสินจากแนวเรื่อง</option>
+      <option value="zh">🇨🇳 จีน (จีนโบราณ/วูเซี่ยง/ปัจจุบัน)</option>
+      <option value="ja">🇯🇵 ญี่ปุ่น (เซ็งโงกุ/เอโดะ/ปัจจุบัน)</option>
+      <option value="ko">🇰🇷 เกาหลี</option>
+      <option value="en">🇬🇧 อังกฤษ/ตะวันตก (ยุคกลาง/วิกตอเรีย/ปัจจุบัน)</option>
+      <option value="th">🇹🇭 ไทย (ยุคปัจจุบัน)</option>
+      <option value="th_old">🏛️ ไทยโบราณ/ย้อนยุค</option>
+      <option value="fantasy">✨ แฟนตาซี/สมมุติโลก</option>
+    </select>
     <label class="f">คำอธิบายเรื่อง</label><textarea class="in" id="ns-desc" rows="3"></textarea>
     <label class="f">หน้าปก (อัปโหลด = บีบอัดอัตโนมัติ / ให้ AI วาด)</label>
     <div style="display:flex;gap:14px;align-items:flex-start">
@@ -555,6 +617,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 <div class="overlay" id="m-aicover" style="z-index:120">
   <div class="modal">
     <h2>🎨 สร้างปกด้วย AI <button class="x" onclick="closeM('m-aicover')">✕</button></h2>
+    <p class="hint" style="margin-bottom:12px;color:var(--warn)">⚠️ ต้องเปิด Billing ใน Google Cloud (Paid Tier) — Free Tier ไม่รองรับการสร้างภาพ (IPM=0) เปิดได้ที่ <a href="https://console.cloud.google.com/billing" target="_blank" style="color:var(--ac)">console.cloud.google.com/billing</a></p>
     <label class="f">สไตล์ภาพ</label>
     <select class="in" id="aics-style">
       <option value="epic anime illustration, vivid colors, dynamic composition">อนิเมะ/การ์ตูนสดใส</option>
@@ -598,6 +661,26 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <h2>🔍 ค้นหาทั้งเรื่อง <button class="x" onclick="closeM('m-search')">✕</button></h2>
     <input class="in" id="sr-q" placeholder="พิมพ์คำค้น เช่น ชื่อวิชา ชื่อคน เหตุการณ์" oninput="doSearchDebounced()">
     <div id="sr-res" style="margin-top:14px;max-height:56vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<div class="overlay" id="m-findreplace">
+  <div class="modal">
+    <h2>🔄 ค้นหาและแทนที่ทั้งเรื่อง <button class="x" onclick="closeM('m-findreplace')">✕</button></h2>
+    <label class="f">ค้นหา</label>
+    <input class="in" id="fr-find" placeholder="คำที่ต้องการค้นหา">
+    <label class="f">แทนที่ด้วย</label>
+    <input class="in" id="fr-replace" placeholder="คำที่ใช้แทน">
+    <div class="row" style="margin-top:10px">
+      <label class="checkline"><input type="checkbox" id="fr-case" style="accent-color:var(--ac)"> ตัวพิมพ์เล็ก/ใหญ่ตรงกัน</label>
+      <label class="checkline"><input type="checkbox" id="fr-whole" style="accent-color:var(--ac)"> ตรงคำทั้งคำ</label>
+    </div>
+    <div id="fr-preview" style="margin-top:14px;max-height:40vh;overflow-y:auto"></div>
+    <div class="mfoot">
+      <button class="btn ghost" onclick="closeM('m-findreplace')">ยกเลิก</button>
+      <button class="btn ghost" onclick="frPreview()">👁️ ดูตัวอย่าง</button>
+      <button class="btn primary" onclick="frReplace()">🔄 แทนที่ทั้งหมด</button>
+    </div>
   </div>
 </div>
 
@@ -810,26 +893,28 @@ function parseJSONLoose(t){let s=String(t).trim().replace(/^```(?:json)?/i,'').r
 
 /* ================= IMAGE CORE ================= */
 const IMG_MODELS=['gemini-3.1-flash-image','gemini-3-pro-image','gemini-3.1-flash-lite-image','gemini-2.5-flash-image'];
-const IMG_CFG_VARIANTS=[{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:'3:4'}},{responseModalities:['TEXT','IMAGE']},{}];
+const IMG_CFG_VARIANTS=[{responseModalities:['TEXT','IMAGE'],imageConfig:{aspectRatio:'3:4'}},{responseModalities:['TEXT','IMAGE']},{responseModalities:['TEXT','IMAGE']}];
 async function generateImage(prompt){
   const pool=getKeyPool();if(!pool.length)throw new Error('ยังไม่ได้ใส่ API Key');
   let lastErr;
+  const triedModels=[];
   for(const model of IMG_MODELS){let skipModel=false;
+    triedModels.push(model);
     for(const gcv of IMG_CFG_VARIANTS){try{
+      const body={contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gcv};
       const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(pool[Math.abs(keyIdx)%pool.length])}`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:gcv})});
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       if(!res.ok){let msg='HTTP '+res.status;try{msg=(await res.json()).error?.message||msg}catch{}
-        if(res.status===429){keyIdx++;throw new Error('429 — รอสักครู่แล้วลองใหม่');}
-        if(res.status===404||/not found|not supported|unsupported/i.test(msg)){lastErr=new Error(msg);skipModel=true;break;}
-        lastErr=new Error(msg);continue;}
+        if(res.status===429){keyIdx++;lastErr=new Error('429 — Free Tier ไม่รองรับการสร้างภาพ (IPM=0) ต้องเปิด Billing ที่ console.cloud.google.com → APIs & Services → Quotas → หา "image"');continue;}
+        if(res.status===404||/not found|not supported|unsupported/i.test(msg)){lastErr=new Error(model+': '+msg);skipModel=true;break;}
+        lastErr=new Error(model+': '+msg);continue;}
       const j=await res.json();
       const img=(j.candidates?.[0]?.content?.parts||[]).find(p=>p.inlineData||p.inline_data);
       if(img){const d=img.inlineData||img.inline_data;return{mime:d.mimeType||d.mime_type||'image/png',data:d.data};}
-      lastErr=new Error('โมเดลไม่ส่งภาพ (อาจโดน safety filter)');break;
+      lastErr=new Error(model+': โมเดลไม่ส่งภาพ');break;
     }catch(e){lastErr=e;}}
     if(skipModel)continue;}
-  throw lastErr||new Error('สร้างภาพไม่สำเร็จ');}
+  throw lastErr||new Error('ลองทุกโมเดลแล้วไม่ได้ ('+triedModels.join(', ')+')');}
 async function cropToCover(src){const img=new Image();img.src=src;await img.decode();
   const tR=3/4;let sw=img.width,sh=img.height,sx=0,sy=0;
   if(sw/sh>tR){const nw=sh*tR;sx=(sw-nw)/2;sw=nw;}else{const nh=sw/tR;sy=(sh-nh)/2;sh=nh;}
@@ -872,7 +957,8 @@ async function renderLibrary(){
     const tot=chaps.reduce((n,c)=>n+estWords(c.content),0);
     const d=document.createElement('div');d.className='card';
     d.innerHTML=(s.cover?`<img class="cov" src="${s.cover}">`:`<div class="ph" style="background:${phColor(s.title)}">${esc(s.title[0]||'📖')}</div>`)
-      +`<div class="lab"><b>${esc(s.title)}</b><span>${esc(s.genre||'ไม่ระบุแนว')} · ${chaps.length} ตอน${tot?` · ≈${tot.toLocaleString()} คำ`:''}</span></div>`;
+      const cultureEmoji={zh:'🇨🇳',ja:'🇯🇵',ko:'🇰🇷',en:'🇬🇧',th:'🇹🇭',th_old:'🏛️',fantasy:'✨',auto:'🤖'};
+      +`<div class="lab"><b>${esc(s.title)}</b><span>${cultureEmoji[s.culture]||''} ${esc(s.genre||'ไม่ระบุแนว')} · ${chaps.length} ตอน${tot?` · ≈${tot.toLocaleString()} คำ`:''}</span></div>`;
     d.onclick=()=>openStory(s.id);g.appendChild(d);}
   if(!list.length){const e=document.createElement('div');e.className='empty';e.style.gridColumn='1/-1';
     e.textContent='ยังไม่มีนิยาย — กด "สร้างนิยายใหม่" หรือ "นำเข้า .txt" เพื่อเริ่ม!';g.appendChild(e);}}
@@ -882,7 +968,7 @@ function openNewStoryModal(edit=null){
   edit=(edit&&edit.id)?edit:null;pendingCover=null;tmpAICover=null;
   $('#ns-id').value=edit?edit.id:'';
   $('#ns-title').value=edit?(edit.title||''):'';$('#ns-genre').value=edit?(edit.genre||''):'';$('#ns-tone').value=edit?(edit.tone||''):'';
-  $('#ns-desc').value=edit?(edit.desc||''):'';$('#ns-lang').value=edit?(edit.lang||'th'):'th';$('#ns-cover').value='';
+  $('#ns-desc').value=edit?(edit.desc||''):'';$('#ns-lang').value=edit?(edit.lang||'th'):'th';$('#ns-culture').value=edit?(edit.culture||'auto'):'auto';$('#ns-cover').value='';
   $('#ns-cinfo').textContent='ยังไม่ได้เลือกรูป';
   $('#ns-prev').innerHTML='🖼️';$('#ns-h').firstChild.textContent=edit?'✏️ แก้ไขข้อมูลเรื่อง ':'✨ สร้างนิยายใหม่ ';
   $('#ns-go').textContent=edit?'บันทึก':'สร้างเรื่อง →';
@@ -899,8 +985,11 @@ async function createStory(){
   const id=$('#ns-id').value;
   let st=id?await dbGet('stories',id):null;const isNew=!st;
   if(!st)st={id:uid(),cover:null,outline:'',arc:{beginning:'',middle:'',end:''},createdAt:Date.now()};
+  const culture=$('#ns-culture').value;
   Object.assign(st,{title,genre:$('#ns-genre').value.trim(),tone:$('#ns-tone').value.trim(),
-    desc:$('#ns-desc').value.trim(),lang:$('#ns-lang').value,updatedAt:Date.now()});
+    desc:$('#ns-desc').value.trim(),lang:$('#ns-lang').value,culture,updatedAt:Date.now()});
+  // Auto-set name style based on culture
+  if(culture&&culture!=='auto'){localStorage.setItem('nmw_nameStyle',culture);}
   if(pendingCover&&!pendingCover.keep)st.cover=pendingCover.data;
   await dbPut('stories',st);closeM('m-newstory');
   toast(isNew?'สร้างเรื่องแล้ว 🎉 ลองใช้เทมเพลตหรือให้ AI วางโครงเรื่อง!':'บันทึกแล้ว ✅');
@@ -915,7 +1004,9 @@ async function openStory(id){state.story=await dbGet('stories',id);
 async function renderStoryHead(){const s=state.story;$('#st-title').textContent=s.title;
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s.id);
   const tot=chaps.reduce((n,c)=>n+estWords(c.content),0);
-  $('#st-meta').innerHTML=[s.genre,s.tone,s.lang==='en'?'EN':'ไทย',`${chaps.length} ตอน`,tot?`≈${tot.toLocaleString()} คำ`:'',`อัปเดต ${fmtD(s.updatedAt)}`].filter(Boolean).map(t=>`<span class="chip">${esc(t)}</span>`).join('');
+  const cultureLabels={auto:'🤖 อัตโนมัติ',zh:'🇨🇳 จีน',ja:'🇯🇵 ญี่ปุ่น',ko:'🇰🇷 เกาหลี',en:'🇬🇧 อังกฤษ',th:'🇹🇭 ไทย',th_old:'🏛️ ไทยโบราณ',fantasy:'✨ แฟนตาซี'};
+  const cultureText=s.culture?cultureLabels[s.culture]||s.culture:'';
+  $('#st-meta').innerHTML=[s.genre,s.tone,cultureText,s.lang==='en'?'EN':'ไทย',`${chaps.length} ตอน`,tot?`≈${tot.toLocaleString()} คำ`:'',`อัปเดต ${fmtD(s.updatedAt)}`].filter(Boolean).map(t=>`<span class="chip acc">${t}</span>`).join('');
   $('#st-desc').textContent=s.desc||'';
   $('#st-cover').innerHTML=s.cover?`<img src="${s.cover}">`:`<span style="background:${phColor(s.title)};width:100%;height:100%;display:flex;align-items:center;justify-content:center">${esc(s.title[0]||'📖')}</span>`;}
 async function deleteStory(){const s=state.story;
@@ -923,11 +1014,11 @@ async function deleteStory(){const s=state.story;
   for(const st of['characters','lore','chapters'])for(const it of(await dbAll(st)).filter(x=>x.storyId===s.id))await dbDel(st,it.id);
   await dbDel('stories',s.id);toast('ลบแล้ว');goHome();}
 $('#tabs')?.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchTab(b.dataset.tab)});
-const TAB_IDS=['plot','arc','chars','lore','overview','chaps'];
+const TAB_IDS=['plot','arc','chars','lore','overview','chaps','glossary','smartplot'];
 function switchTab(t){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   for(const x of TAB_IDS)$('#tab-'+x).hidden=x!==t;
   if(t==='chars')renderChars();if(t==='lore'){initLoreFilters();renderLore();}
-  if(t==='chaps')renderChaps();if(t==='plot')fillOutline();if(t==='arc')fillArc();if(t==='overview')renderOverview();}
+  if(t==='chaps')renderChaps();if(t==='plot')fillOutline();if(t==='arc')fillArc();if(t==='overview')renderOverview();if(t==='glossary')renderGlossary();if(t==='smartplot')renderSmartPlot();}
 
 /* ---------- PLOT ---------- */
 function fillOutline(){if(state.story)$('#ol-text').value=state.story.outline||''}
@@ -1403,11 +1494,11 @@ function enterEditor(ch,{lock=false}={}){
   $('#ed-summary').value=ch.summary||'';
   $('#ed-sum-wrap').open=!!ch.summary;
   renderImgs();
-  if(lock){$('#ed-content').readOnly=true;$('#ed-genbar').hidden=false;$('#ed-cont-btn').disabled=true;}
+  if(lock){$('#ed-content').readOnly=true;$('#ed-genbar').hidden=false;$('#ed-cont-btn').disabled=true;$('#ed-next-btn').disabled=true;}
   else unlockEditor();
   updateStats();show('view-editor');}
 async function openEditor(cid){enterEditor(await dbGet('chapters',cid));}
-function unlockEditor(){$('#ed-content').readOnly=false;$('#ed-genbar').hidden=true;$('#ed-cont-btn').disabled=false;}
+function unlockEditor(){$('#ed-content').readOnly=false;$('#ed-genbar').hidden=true;$('#ed-cont-btn').disabled=false;$('#ed-next-btn').disabled=false;}
 async function closeEditor(){if((generating||batching)&&!confirm('AI กำลังเขียน แน่ใจ?'))return;
   stopGen();try{speechSynthesis.cancel()}catch{}
   await edSaveSilent();state.chapter=null;
@@ -1423,6 +1514,37 @@ $('#ed-content')?.addEventListener('input',()=>{updateStats();clearTimeout(saveT
   saveTimer=setTimeout(()=>{if(!generating&&!batching)edSaveSilent()},900);});
 function updateStats(){const t=$('#ed-content').value;const w=estWords(t);
   $('#ed-stat').textContent=genTarget>0?`≈ ${w.toLocaleString()} / ~${genTarget.toLocaleString()} คำ`:`≈ ${w.toLocaleString()} คำ · ${t.length.toLocaleString()} ตัวอักษร`;}
+
+/* ---------- WRITE NEXT CHAPTER ---------- */
+async function edNextChapter(){
+  if(generating||batching)return;if(!needKey())return;
+  if(!state.chapter)return;
+  // Save current chapter first
+  await edSaveSilent();
+  const currentNum=state.chapter.num;
+  // Auto-summarize before moving on
+  if(state.chapter.content&&state.chapter.content.length>400){
+    setGenLabel('🧾 กำลังสรุปตอน '+currentNum+' ก่อนไปตอนถัดไป…');
+    $('#ed-genbar').hidden=false;
+    $('#ed-content').readOnly=true;
+    await summarizeChapter(state.chapter,true).catch(()=>{});
+    await autoMemoryExtract(state.chapter).catch(()=>{});
+  }
+  // Close editor, go back to story view
+  state.chapter=null;
+  renderChaps();
+  show('view-story');
+  await renderStoryHead();
+  // Now start writing the next chapter directly
+  toast(`⏭️ กำลังเขียนตอนที่ ${currentNum+1} ต่อจากตอนที่ ${currentNum}…`);
+  // Set up new chapter modal with AI mode pre-selected
+  openNewChapterModal();
+  $('input[name=planmode][value=ai]').checked=true;
+  planToggle();
+  $('#nc-title').value='';
+  $('#nc-count').value='1';
+  // Auto-start writing
+  startWriting();}
 
 /* ---------- EXTEND ---------- */
 async function aiExtend(ch,{minAdd=800,maxAdd=1500}={}){
@@ -1507,7 +1629,7 @@ async function sumBtnWrap(){const b=$('#ed-sum-btn');if(!state.chapter)return;
 
 /* ---------- TTS (เสียงบทสนทนาแยกโทน) ---------- */
 let speaking=false;
-function buildSegs(t){const segs=[];const re=/["“]([^"”]+)["”]/g;let last=0,m;
+function buildSegs(t){const segs=[];const re=/["""]([^""]+)["""]/g;let last=0,m;
   while((m=re.exec(t))){if(m.index>last)segs.push({t:t.slice(last,m.index),d:false});segs.push({t:m[1],d:true});last=re.lastIndex;}
   if(last<t.length)segs.push({t:t.slice(last),d:false});
   return segs.filter(s=>s.t.trim());}
@@ -1575,7 +1697,8 @@ strengths 2-3 ข้อ, fixes 3 ข้อ (ชัดเจนทำได้จ
       <div class="score-line"><div class="score-big" style="color:${j.overall>=7?'var(--ok)':j.overall>=5?'var(--warn)':'var(--err)'}">${j.overall??'-'}</div>
       <div class="verdict">คะแนนรวมจากบรรณาธิการ AI</div></div>
       ${bar('จังหวะเรื่อง',j.scores?.pacing??0)}${bar('บทสนทนา',j.scores?.dialogue??0)}
-      ${bar('ตัวละคร',j.scores?.characters??0)}${bar('ภาพ/บรรยาย',j.scores?.imagery??0)}${bar('น่าติดตาม',j.scores?.hook??0)}
+      ${bar('ตัวละคร',j.scores?.characters??0)}${bar('ภาพ/บรรยาย',j.scores?.imagery??0)}
+      ${bar('น่าติดตาม',j.scores?.hook??0)}
       <hr class="sep">
       ${(j.strengths||[]).map(s=>`<div class="issue low"><p>✅ ${esc(s)}</p></div>`).join('')}
       ${(j.fixes||[]).map(s=>`<div class="issue"><p>🔧 ${esc(s)}</p></div>`).join('')}`;
@@ -1700,6 +1823,50 @@ async function doSearch(){
     return`<div class="srch-it" onclick="openEditor('${r.c.id}')"><b>ตอนที่ ${r.c.num}${r.c.title?': '+esc(r.c.title):''}</b><br>${snip}…</div>`;}).join('')
   :'<div class="empty">ไม่พบในเนื้อหาทุกตอน</div>';}
 
+/* ---------- FIND & REPLACE ---------- */
+function frBuildRegex(){
+  const q=$('#fr-find').value;if(!q)return null;
+  let flags='g';if(!$('#fr-case').checked)flags+='i';
+  let pat=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  if($('#fr-whole').checked)pat='\\b'+pat+'\\b';
+  try{return new RegExp(pat,flags)}catch{return null}}
+async function frPreview(){
+  const rx=frBuildRegex();const el=$('#fr-preview');
+  if(!rx){el.innerHTML='<div class="empty">ใส่คำค้นก่อน</div>';return}
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  const replaceWith=$('#fr-replace').value;let totalMatches=0;
+  const rows=chaps.map(c=>{const matches=[...c.content.matchAll(rx)];totalMatches+=matches.length;
+    if(!matches.length)return'';
+    const snip=esc(c.content.slice(Math.max(0,matches[0].index-40),matches[0].index+60)).replace(rx,m=>`<mark>${m}</mark>`);
+    return`<div class="srch-it"><b>ตอนที่ ${c.num}</b> — ${matches.length} จุด<br>${snip}…</div>`;}).filter(Boolean).join('');
+  el.innerHTML=rows?`<p class="hint" style="margin-bottom:8px">พบ ${totalMatches} จุดใน ${chaps.filter(c=>rx.test(c.content)).length} ตอน</p>${rows}`
+    :'<div class="empty">ไม่พบคำที่ต้องการ</div>';
+  // Reset regex lastIndex
+  chaps.forEach(c=>rx.test(c.content));}
+async function frReplace(){
+  const rx=frBuildRegex();if(!rx)return toast('ใส่คำค้นก่อน','warn');
+  const replaceWith=$('#fr-replace').value;const el=$('#fr-preview');
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id);
+  let totalReplaced=0, chaptersModified=0;
+  for(const c of chaps){
+    const newContent=c.content.replace(rx,replaceWith);
+    if(newContent!==c.content){c.content=newContent;c.words=estWords(c.content);c.updatedAt=Date.now();await dbPut('chapters',c);chaptersModified++;}}
+  // Also update outline
+  if(state.story.outline){const newOl=state.story.outline.replace(rx,replaceWith);if(newOl!==state.story.outline){state.story.outline=newOl;await dbPut('stories',state.story);}}
+  // Also update characters
+  const chars=(await dbAll('characters')).filter(c=>c.storyId===state.story.id);
+  for(const c of chars){let changed=false;
+    for(const f of['name','age','appearance','personality','abilities','background','goal','relations']){
+      if(c[f]&&rx.test(c[f])){c[f]=c[f].replace(rx,replaceWith);changed=true;}}
+    if(changed){c.updatedAt=Date.now();await dbPut('characters',c);chaptersModified++;}}
+  // Also update lore
+  const loreItems=(await dbAll('lore')).filter(l=>l.storyId===state.story.id);
+  for(const l of loreItems){let changed=false;
+    for(const f of['name','detail','when']){if(l[f]&&rx.test(l[f])){l[f]=l[f].replace(rx,replaceWith);changed=true;}}
+    if(changed){l.updatedAt=Date.now();await dbPut('lore',l);chaptersModified++;}}
+  toast(`แทนที่เสร็จ! แก้ไข ${chaptersModified} รายการ ✅`);el.innerHTML='';
+  closeM('m-findreplace');}
+
 /* ---------- EPUB EXPORT ---------- */
 function download(name,text,mime='text/plain;charset=utf-8'){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+text],{type:mime}));
@@ -1795,7 +1962,6 @@ async function openStats(){
   const totW=chaps.reduce((n,c)=>n+estWords(c.content),0);
   const chars=(await dbAll('characters')).length;
   const loreN=(await dbAll('lore')).length;
-  // นับวันที่เขียน (จาก createdAt ของตอน)
   const days=new Set(chaps.filter(c=>c.createdAt).map(c=>new Date(c.createdAt).toDateString()));
   const avg=chaps.length?Math.round(totW/chaps.length):0;
   $('#stats-body').innerHTML=`
@@ -1846,18 +2012,54 @@ async function applyCTitle(){
   renderStoryHead();closeM('m-ctitle');
   toast('ใส่ชื่อบนปกแล้ว 🔤');}
 
-/* ---------- READ MODE ---------- */
-let readSize=17;
+/* ---------- READ MODE (Enhanced) ---------- */
+let readSize=17,readChapsList=[],readIdx=0;
 function readFont(d){readSize=Math.max(13,Math.min(26,readSize+d));$('#read-body').style.fontSize=readSize+'px';}
+function toggleReadNight(){$('#readmode').classList.toggle('night');const isNight=$('#readmode').classList.contains('night');$('#read-night-btn').textContent=isNight?'☀️ โหมดสว่าง':'🌙 โหมดกลางคืน';localStorage.setItem('nf_readNight',isNight?'1':'0');}
 async function openRead(){
-  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
-  if(!chaps.length)return toast('ยังไม่มีตอน','warn');
-  $('#read-body').innerHTML=`<h1 style="text-align:center;margin-bottom:30px">${esc(state.story.title)}</h1>`
-    +chaps.map(c=>`<h2>ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}</h2>`
-      +stripHeading(c.content).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join('')).join('');
+  readChapsList=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  if(!readChapsList.length)return toast('ยังไม่มีตอน','warn');
+  renderReadSidebar();
+  // Show first chapter
+  readIdx=0;
+  renderReadChapter(readIdx);
   $('#readmode').classList.add('show');
-  document.body.style.overflow='hidden';}
-function closeRead(){$('#readmode').classList.remove('show');document.body.style.overflow='';}
+  document.body.style.overflow='hidden';
+  // Restore night mode preference
+  if(localStorage.getItem('nf_readNight')==='1'){$('#readmode').classList.add('night');$('#read-night-btn').textContent='☀️ โหมดสว่าง';}else{$('#readmode').classList.remove('night');$('#read-night-btn').textContent='🌙 โหมดกลางคืน';}
+  // Add keyboard navigation
+  document.addEventListener('keydown',readKeyHandler);}
+function closeRead(){$('#readmode').classList.remove('show');document.body.style.overflow='';
+  document.removeEventListener('keydown',readKeyHandler);}
+function readKeyHandler(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();readGoNext();}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();readGoPrev();}
+  if(e.key==='Escape')closeRead();}
+function readGoNext(){if(readIdx<readChapsList.length-1){readIdx++;renderReadChapter(readIdx);renderReadSidebar();}}
+function readGoPrev(){if(readIdx>0){readIdx--;renderReadChapter(readIdx);renderReadSidebar();}}
+function renderReadSidebar(){
+  const el=$('#read-ch-list');
+  el.innerHTML=readChapsList.map((c,i)=>`<div class="read-ch-item${i===readIdx?' active':''}" onclick="readGoTo(${i})">
+    <span class="rdot${c.content?'':' empty'}"></span>
+    <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+      <b style="font-size:.82rem">ตอน ${c.num}</b>${c.title?' '+esc(c.title):''}
+    </span></div>`).join('');}
+function readGoTo(i){readIdx=i;renderReadChapter(i);renderReadSidebar();
+  $('#read-main').scrollTop=0;}
+function renderReadChapter(i){
+  const c=readChapsList[i];if(!c)return;
+  const paras=stripHeading(c.content).split(/\n\s*\n/).filter(Boolean);
+  $('#read-body').innerHTML=`<h2>ตอนที่ ${c.num}${c.title?': '+esc(c.title):''}</h2>`
+    +paras.map(p=>`<p>${esc(p)}</p>`).join('');
+  // Navigation bar
+  const hasPrev=i>0,hasNext=i<readChapsList.length-1;
+  const prevCh=hasPrev?readChapsList[i-1]:null;
+  const nextCh=hasNext?readChapsList[i+1]:null;
+  $('#read-nav').innerHTML=`
+    ${hasPrev?`<button class="btn ghost sm" onclick="readGoPrev()">← ตอนที่ ${prevCh.num}</button>`:'<span></span>'}
+    <span style="font-size:.82rem;color:var(--tx3)">${i+1}/${readChapsList.length}</span>
+    ${hasNext?`<button class="btn ghost sm" onclick="readGoNext()">ตอนที่ ${nextCh.num} →</button>`:'<span></span>'}`;
+  $('#read-main').scrollTop=0;}
 
 /* ---------- IMPORT TXT ---------- */
 async function importTxt(inp){
@@ -1871,7 +2073,6 @@ async function importTxt(inp){
     const st={id:uid(),title,genre:'',tone:'',desc:'นำเข้าจากไฟล์ '+f.name,lang:'th',cover:null,outline:'',
       arc:{beginning:'',middle:'',end:''},createdAt:Date.now(),updatedAt:Date.now()};
     await dbPut('stories',st);
-    // แบ่งตอนอัตโนมัติจากคำว่า "ตอนที่" หรือตัดทีละ ~2500 คำ
     let parts=text.split(/(?=ตอนที่\s*\d+|บทที่\s*\d+|Chapter\s*\d+)/i).map(s=>s.trim()).filter(s=>s.length>100);
     if(parts.length<2){parts=[];const words=text.split(/\s+/);
       for(let i=0;i<words.length;i+=1800)parts.push(words.slice(i,i+1800).join(' '));}
@@ -1886,7 +2087,6 @@ async function importTxt(inp){
     toast(`นำเข้า ${Math.min(parts.length,100)} ตอนแล้ว — AI กำลังสร้างความจำ… (เปิดเรื่องได้เลย)`);
     inp.value='';
     openStory(st.id);
-    // AI สกัดตัวละคร+ความจำจากช่วงต้นเรื่อง
     try{
       const sample=parts.slice(0,3).join('\n').slice(0,12000);
       const j=parseJSONLoose(await aiUtil({temp:.5,json:true,prompt:`อ่านตอนต้นนิยายนี้ สร้างข้อมูลพื้นฐานเป็น JSON:
@@ -1918,7 +2118,7 @@ async function aiGenCover(){
   const style=$('#aics-style').value,extra=$('#aics-extra').value.trim();
   const wantText=$('#aics-textchk').checked;
   const b=$('#aics-go');b.disabled=true;b.innerHTML='<span class="spin"></span> กำลังวาด…';
-  $('#aics-status').textContent='⏳ AI กำลังวาดปก (~10-30 วินาที)';
+  $('#aics-status').textContent='⏳ AI กำลังวาดปก (~15-60 วินาที) — ลองทีละโมเดล';
   const prompt=`Design a professional NOVEL COVER illustration, portrait 3:4 composition, no border.
 Story: "${title}" | Genre: ${genre||'-'} | Tone: ${tone||'-'}. Synopsis: ${desc||'-'}
 Art style: ${style}.${extra?' Extra direction: '+extra+'.':''}
@@ -1931,7 +2131,7 @@ Requirements: striking main character(s) matching the story as focal point, dram
     $('#aics-actions').hidden=false;
     $('#aics-status').textContent='✅ เสร็จแล้ว! กด "ใช้ปกนี้" (บีบอัด JPEG แล้ว)';
   }catch(e){
-    $('#aics-status').textContent='';
+    $('#aics-status').innerHTML='<span style="color:var(--err)">❌ '+esc(e.message)+'</span>';
     toast('สร้างปกไม่สำเร็จ: '+e.message,'err');}
   b.disabled=false;b.innerHTML='✨ สร้างภาพ';}
 async function applyAICover(){
@@ -2107,8 +2307,10 @@ async function pullCloud(){
   initAOEls();
   $('#ns-cover').addEventListener('change',e=>onCoverPick(e.target));
   renderLibrary();
+  // Register Service Worker for PWA
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 })();
-</script><!-- ===== Name Style Pack v1 — บังคับชื่อตัวละครให้ตรงธีม ===== -->
+</script>
 <script>
 (function(){
   const STYLES={
@@ -2124,8 +2326,6 @@ async function pullCloud(){
   const LABELS={auto:"อัตโนมัติ",th:"ไทย",th_old:"ไทยโบราณ",zh:"จีน",ja:"ญี่ปุ่น",ko:"เกาหลี",en:"อังกฤษ/ตะวันตก",fantasy:"แฟนตาซี"};
   const K='nmw_nameStyle';
   const cur=()=>localStorage.getItem(K)||'auto';
-
-  /* 1) ดักทุก request ไป Gemini → แปะกฎชื่อท้าย prompt อัตโนมัติ */
   const _f=window.fetch;
   window.fetch=function(u,o){
     try{
@@ -2145,8 +2345,6 @@ async function pullCloud(){
     }catch(e){}
     return _f.call(this,u,o);
   };
-
-  /* 2) แทรก UI ในหน้าตั้งค่า */
   function inject(){
     const tk=document.getElementById('test-key');
     if(!tk||document.getElementById('set-namestyle'))return;
@@ -2172,8 +2370,6 @@ async function pullCloud(){
     box.querySelector('#fix-names-btn').onclick=fixNames;
   }
   setInterval(inject,800);
-
-  /* 3) ปุ่มแปลงชื่อเก่าให้ตรงธีม + กวาดเปลี่ยนทั่วทั้งเว็บ */
   function findKey(){
     for(let i=0;i<localStorage.length;i++){
       const v=localStorage.getItem(localStorage.key(i))||'';
@@ -2226,6 +2422,91 @@ async function pullCloud(){
   }
 })();
 </script>
-<!-- ===== จบ Name Style Pack ===== -->
+<script>
+/* ---------- GLOSSARY ---------- */
+let glossaryData=[];
+async function renderGlossary(){
+  const el=$('#gl-list');
+  if(!glossaryData.length){el.innerHTML='<div class="empty">กด "🗝️ ดึงศัพท์จากทุกตอน" เพื่อให้ AI วิเคราะห์ศัพท์เฉพาะทั้งเรื่อง</div>';return}
+  el.innerHTML=glossaryData.map(g=>`<div class="bcard" style="border-left:3px solid ${g.type==='person'?'var(--ac)':g.type==='place'?'#4ea1ff':g.type==='technique'?'#34d399':'#b06cff'}">
+    <b>${esc(g.term)}</b> <span class="cat-pill" style="margin-left:6px">${esc(g.typeLabel||g.type)}</span>
+    ${g.note?`<p>${esc(g.note)}</p>`:''}
+    ${g.aliases&&g.aliases.length?`<p class="hint">ชื่ออื่น: ${g.aliases.map(a=>esc(a)).join(', ')}</p>`:''}
+  </div>`).join('')||'<div class="empty">ไม่พบศัพท์เฉพาะ</div>';}
+async function glossaryExtract(){
+  if(!needKey())return;
+  const el=$('#gl-list');el.innerHTML='<div class="empty"><span class="spin"></span> AI กำลังวิเคราะห์ศัพท์จากทุกตอน…</div>';
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  if(!chaps.length){el.innerHTML='<div class="empty">ยังไม่มีตอน</div>';return}
+  const fullText=chaps.map(c=>`[ตอน ${c.num}] ${c.content.slice(0,4000)}`).join('\n\n').slice(0,30000);
+  try{
+    const j=parseJSONLoose(await aiUtil({temp:.3,json:true,prompt:`อ่านนิยายนี้ ดึงศัพท์เฉพาะทั้งหมด ตอบ JSON:
+{"terms":[{"term":"ชื่อศัพท์","type":"person|place|technique|item|concept","typeLabel":"คน|สถานที่|วิชา|ไอเทม|แนวคิด","note":"อธิบายสั้น","aliases":["ชื่อเรียกอื่น"]}]}
+ persons=ตัวละครสำคัญ, places=สถานที่, techniques=วิชา/พลัง, items=ไอเทม/สมบัติ, concepts=แนวคิด/กฎ/ระบบ
+ไทย กระชับ รวมเฉพาะศัพท์สำคัญจริงๆ ไม่เกิน 30 รายการ
+"""${fullText}"""`}));
+    glossaryData=j.terms||[];renderGlossary();
+    toast(`ดึงศัพท์ได้ ${glossaryData.length} รายการ 🗝️`);
+  }catch(e){el.innerHTML='<div class="empty">ผิดพลาด: '+esc(e.message)+'</div>';}}
+
+async function glossaryCheck(){
+  if(!glossaryData.length)return toast('ดึงศัพท์ก่อนแล้วค่อยตรวจ','warn');
+  if(!needKey())return;
+  const el=$('#gl-list');
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
+  const fullText=chaps.map(c=>`[ตอน ${c.num}] ${c.content.slice(0,4000)}`).join('\n\n').slice(0,25000);
+  const knownTerms=glossaryData.map(g=>g.term+(g.aliases?g.aliases.join(','):'')).join(', ');
+  el.innerHTML='<div class="empty"><span class="spin"></span> AI กำลังตรวจสะกดผิด…</div>';
+  try{
+    const j=parseJSONLoose(await aiUtil({temp:.3,json:true,prompt:`ตรวจสะกดผิดในนิยายต่อไปนี้ เทียบกับศัพท์ที่รู้จัก
+ศัพท์ที่ถูกต้อง: ${knownTerms}
+ตอบ JSON: {"issues":[{"chapter":number,"wrong":"คำที่สะกดผิด","correct":"คำที่ถูก","context":"ประโยคที่พบ"}]}
+ไม่พบเลยให้ issues=[] ห้ามเดา ภาษาไทย
+"""${fullText}"""`}));
+    if(j.issues&&j.issues.length){
+      el.innerHTML='<p class="hint" style="margin-bottom:10px">🔍 พบ '+j.issues.length+' จุดที่น่าสงสัย</p>'
+        +j.issues.map(i=>`<div class="issue"><div class="head"><span class="typ">ตอน ${i.chapter||'?'}</span></div>
+          <p>"${esc(i.wrong)}" → ควรเป็น "<b style="color:var(--ok)">${esc(i.correct)}</b>"</p>
+          <p class="hint">${esc(i.context||'')}</p></div>`).join('');
+    }else el.innerHTML='<div class="empty">🎉 ไม่พบสะกดผิด!</div>';
+  }catch(e){el.innerHTML='<div class="empty">ผิดพลาด: '+esc(e.message)+'</div>';}}
+
+/* ---------- SMART PLOT ---------- */
+async function smartPlotAnalyze(){
+  if(!needKey())return;
+  const el=$('#sp-result');el.innerHTML='<div class="empty"><span class="spin"></span> AI กำลังวิเคราะห์โครงเรื่อง…</div>';
+  const mem=await gatherContext(state.story.id);
+  try{
+    const j=parseJSONLoose(await aiUtil({temp:.5,json:true,prompt:`คุณคือบรรณาธิการนิยายมืออาชีพ วิเคราะห์โครงเรื่องนี้แล้วให้คะแนน + ข้อเสนอแนะ
+ตอบ JSON: {"overallScore":0-100,"verdict":"สรุป 1-2 ประโยค","strengths":["จุดแข็ง 2-3 ข้อ"],"weaknesses":["จุดอ่อน 2-3 ข้อ"],"suggestions":["คำแนะนำเฉพาะเจาะจง 3-5 ข้อ ทำได้จริง"],"pacing":"วิเคราะห์จังหวะเรื่อง","charDepth":"วิเคราะห์ความลึกตัวละคร"}
+ภาษาไทย ตรงไปตรงมา สร้างสรรค์
+${mem.block}
+${mem.summaries?`# เรื่องย่อตอนก่อนหน้า\\n${mem.summaries}`:''}`}));
+    const score=Math.max(0,Math.min(100,j.overallScore??0));
+    const col=score>=80?'var(--ok)':score>=60?'var(--warn)':'var(--err)';
+    el.innerHTML=`<div class="panel" style="margin-bottom:14px">
+      <div class="score-line"><div class="score-big" style="color:${col}">${score}</div>
+      <div class="verdict">${esc(j.verdict||'')}</div></div></div>
+      <div class="panel" style="margin-bottom:14px"><b>✅ จุดแข็ง</b>
+        ${(j.strengths||[]).map(s=>`<div class="issue low"><p>✅ ${esc(s)}</p></div>`).join('')||'<p class="hint">-</p>'}</div>
+      <div class="panel" style="margin-bottom:14px"><b>⚠️ จุดอ่อน</b>
+        ${(j.weaknesses||[]).map(s=>`<div class="issue"><p>⚠️ ${esc(s)}</p></div>`).join('')||'<p class="hint">-</p>'}</div>
+      <div class="panel" style="margin-bottom:14px"><b>💡 คำแนะนำ</b>
+        ${(j.suggestions||[]).map(s=>`<div class="issue" style="border-left-color:var(--ac)"><p>💡 ${esc(s)}</p></div>`).join('')||'<p class="hint">-</p>'}</div>
+      ${j.pacing?`<div class="panel" style="margin-bottom:14px"><b>⏱️ จังหวะเรื่อง</b><p style="margin-top:6px;font-size:.88rem;color:var(--tx2)">${esc(j.pacing)}</p></div>`:''}
+      ${j.charDepth?`<div class="panel"><b>👥 ความลึกตัวละคร</b><p style="margin-top:6px;font-size:.88rem;color:var(--tx2)">${esc(j.charDepth)}</p></div>`:''}`;
+  }catch(e){el.innerHTML='<div class="empty">ผิดพลาด: '+esc(e.message)+'</div>';}}
+
+/* ---------- SAVE GLOSSARY TO LORE ---------- */
+async function glossaryToLore(){
+  if(!glossaryData.length)return toast('ดึงศัพท์ก่อน','warn');
+  const typeMap={person:'relation',place:'location',technique:'technique',item:'term',concept:'term'};
+  let n=0;
+  for(const g of glossaryData){
+    const cat=typeMap[g.type]||'term';
+    await dbPut('lore',{id:uid(),storyId:state.story.id,cat,name:g.term,detail:g.note||'',createdAt:Date.now()});n++;}
+  toast(`เพิ่ม ${n} ศัพท์ลงคลังความจำแล้ว 🧠`);}
+
+</script>
 </body>
 </html>
