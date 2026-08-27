@@ -2108,6 +2108,124 @@ async function pullCloud(){
   $('#ns-cover').addEventListener('change',e=>onCoverPick(e.target));
   renderLibrary();
 })();
+</script><!-- ===== Name Style Pack v1 — บังคับชื่อตัวละครให้ตรงธีม ===== -->
+<script>
+(function(){
+  const STYLES={
+    auto:"ก่อนสร้างตัวละคร ให้ระบุให้ชัดว่าฉากอยู่ในประเทศ/วัฒนธรรม/ยุคสมัยใด แล้วตั้งชื่อตามวัฒนธรรมนั้น 100% เช่น จีนโบราณ→ชื่อจีนเท่านั้น ห้ามชื่ออังกฤษ ญี่ปุ่น→ชื่อญี่ปุ่น ยุโรปยุคกลาง→ชื่อตะวันตก",
+    th:"ใช้ชื่อไทยยุคปัจจุบัน ชื่อตั้ง+นามสกุลไทย เช่น ธนกฤต ศรีวิไล, พลอยไพลิน รัตนโชติ",
+    th_old:"ใช้ชื่อไทยโบราณ/ย้อนยุค ไม่มีนามสกุลแบบปัจจุบัน ใช้คำนำหน้าแบบไทยโบราณ เช่น ขุนศรีวิชัย, นางรำเพย, อินทร์, ทับทิม, ท้าวมหาพรหม",
+    zh:"ใช้ชื่อจีนเท่านั้น โครงสร้าง: นามสกุล(姓) 1 พยางค์นำหน้า + ชื่อตั้ง(名) 1-2 พยางค์ เขียนเป็นคำอ่านไทย เช่น หลินเทียน, เซียวหลง, โจวอี้, หวังหยูเหยียน ถ้าฉากเป็นจีนโบราณ/วูเซี่ยง ห้ามใช้ชื่อฝรั่งเด็ดขาด และชื่อต้องให้ความรู้สึกยุคจีนโบราณ",
+    ja:"ใช้ชื่อญี่ปุ่น นามสกุลมาก่อนชื่อ เขียนเป็นคำอ่านไทย เช่น ทากาฮาชิ เร็น, คุโรซาวะ อากิโตะ ปรับให้เข้ากับยุคสมัย (เซ็งโงกุ/เอโดะ/เมจิ/ปัจจุบัน)",
+    ko:"ใช้ชื่อเกาหลี นามสกุล 1 พยางค์ (คิม ลี ชเว พัก จอง) + ชื่อตั้ง เขียนเป็นคำอ่านไทย เช่น คิมมินจุน, อีซอยอน",
+    en:"ใช้ชื่ออังกฤษ/ตะวันตก ชื่อจริง+นามสกุล ปรับให้เข้ากับยุคสมัย (ยุคกลาง/วิกตอเรีย/ปัจจุบัน) เขียนเป็นคำอ่านไทย เช่น วิลเลียม เกรย์, เอเลนอร์ วิทเทกเกอร์",
+    fantasy:"สร้างชื่อแฟนตาซี/สมมุติ สั้น ออกเสียงง่าย สอดคล้องกับเผ่าพันธุ์ แดน และวัฒนธรรมในเรื่อง เช่น เคลเวียน, ซาริเอล, ดรากอส"
+  };
+  const LABELS={auto:"อัตโนมัติ",th:"ไทย",th_old:"ไทยโบราณ",zh:"จีน",ja:"ญี่ปุ่น",ko:"เกาหลี",en:"อังกฤษ/ตะวันตก",fantasy:"แฟนตาซี"};
+  const K='nmw_nameStyle';
+  const cur=()=>localStorage.getItem(K)||'auto';
+
+  /* 1) ดักทุก request ไป Gemini → แปะกฎชื่อท้าย prompt อัตโนมัติ */
+  const _f=window.fetch;
+  window.fetch=function(u,o){
+    try{
+      const url=(typeof u==='string')?u:(u&&u.url)||'';
+      if(url.includes('generativelanguage')&&o&&typeof o.body==='string'){
+        const b=JSON.parse(o.body);
+        const rule='\n\n[กฎบังคับ: การตั้งชื่อตัวละคร] '+(STYLES[cur()]||STYLES.auto)+
+          '\nเขียนชื่อเป็นคำอ่านภาษาไทยเสมอ ใช้สะกดชื่อเดิมตลอดทั้งเรื่อง ห้ามเปลี่ยนสะกดหรือตั้งชื่อขัดกับกฎนี้เด็ดขาด';
+        const si=b.systemInstruction||b.system_instruction;
+        if(si&&si.parts&&si.parts[0]) si.parts[0].text=(si.parts[0].text||'')+rule;
+        else if(Array.isArray(b.contents)&&b.contents.length){
+          const L=b.contents[b.contents.length-1];
+          if(L&&L.parts&&L.parts[0]) L.parts[0].text=(L.parts[0].text||'')+rule;
+        }
+        o=Object.assign({},o,{body:JSON.stringify(b)});
+      }
+    }catch(e){}
+    return _f.call(this,u,o);
+  };
+
+  /* 2) แทรก UI ในหน้าตั้งค่า */
+  function inject(){
+    const tk=document.getElementById('test-key');
+    if(!tk||document.getElementById('set-namestyle'))return;
+    const foot=tk.closest('.mfoot')||tk.parentElement;
+    const box=document.createElement('div');
+    box.innerHTML='<hr class="sep"><b style="font-size:.9rem">🏷️ รูปแบบชื่อตัวละคร (Name Style)</b>'+
+      '<p class="hint" style="margin:6px 0">แปะกฎให้ AI ทุกครั้งที่สร้างอะไรก็ตาม — เช่น ฉากจีนโบราณ = ชื่อจีนเท่านั้น</p>'+
+      '<select class="in" id="set-namestyle" style="width:100%;margin-bottom:8px">'+
+      '<option value="auto">🤖 อัตโนมัติ — AI ดูจากฉาก/ประเทศ/ยุคสมัยของเรื่อง</option>'+
+      '<option value="th">🇹🇭 ไทย (ยุคปัจจุบัน)</option>'+
+      '<option value="th_old">🏛️ ไทยโบราณ/ย้อนยุค</option>'+
+      '<option value="zh">🇨🇳 จีน (รวมจีนโบราณ/วูเซี่ยง)</option>'+
+      '<option value="ja">🇯🇵 ญี่ปุ่น</option>'+
+      '<option value="ko">🇰🇷 เกาหลี</option>'+
+      '<option value="en">🇬🇧 อังกฤษ/ตะวันตก</option>'+
+      '<option value="fantasy">✨ แฟนตาซี/สมมุติ</option></select>'+
+      '<button class="btn ghost sm" id="fix-names-btn" style="margin-bottom:8px">🔧 แปลงชื่อตัวละครเดิมให้ตรงธีม</button>';
+    foot.parentNode.insertBefore(box,foot);
+    const sel=box.querySelector('#set-namestyle');
+    sel.value=cur();
+    sel.onchange=()=>{localStorage.setItem(K,sel.value);
+      alert('บันทึกแล้ว ✅ ต่อจากนี้ AI จะใช้ชื่อแบบ "'+LABELS[sel.value]+'"');};
+    box.querySelector('#fix-names-btn').onclick=fixNames;
+  }
+  setInterval(inject,800);
+
+  /* 3) ปุ่มแปลงชื่อเก่าให้ตรงธีม + กวาดเปลี่ยนทั่วทั้งเว็บ */
+  function findKey(){
+    for(let i=0;i<localStorage.length;i++){
+      const v=localStorage.getItem(localStorage.key(i))||'';
+      const m=v.match(/AIza[0-9A-Za-z_\-]{30,}/);
+      if(m)return m[0];
+    }
+    return null;
+  }
+  async function askGemini(prompt){
+    const key=findKey();
+    if(!key)throw new Error('ไม่เจอ API key — เข้าตั้งค่าใส่ key ก่อน');
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.8}})
+    });
+    const j=await r.json();
+    if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+    return j.candidates[0].content.parts.map(p=>p.text).join('');
+  }
+  async function fixNames(){
+    const s=cur();
+    if(s==='auto'){alert('เลือกสไตล์ชื่อที่เจาะจงก่อน (เช่น จีน) แล้วค่อยกดแปลงชื่อ');return;}
+    const list=prompt('วางชื่อตัวละครปัจจุบัน (บรรทัดละ 1 ชื่อ หรือคั่นด้วย ,):\nเช่น\nJohn Smith\nAlice');
+    if(!list)return;
+    const names=list.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+    if(!names.length)return;
+    const btn=document.getElementById('fix-names-btn');
+    btn.textContent='⏳ กำลังขอชื่อใหม่...';
+    try{
+      const out=await askGemini('เปลี่ยนชื่อตัวละครเหล่านี้ให้เป็นชื่อ'+(LABELS[s]||'')+
+        ' ที่ฟังดูเป็นธรรมชาติ คงเพศและบทบาทของตัวละครเดิม เขียนเป็นคำอ่านภาษาไทย\nกฎ: '+
+        (STYLES[s]||'')+
+        '\nตอบเป็น JSON อย่างเดียว รูปแบบ {"mapping":{"ชื่อเดิม":"ชื่อใหม่"}} ห้ามมีข้อความอื่น\n'+
+        names.map(n=>'- '+n).join('\n'));
+      const m=JSON.parse(out.match(/\{[\s\S]*\}/)[0]).mapping;
+      const pairs=Object.entries(m).sort((a,b)=>b[0].length-a[0].length);
+      const show=pairs.slice(0,20).map(p=>p[0]+'  →  '+p[1]).join('\n')+
+        (pairs.length>20?('\n...และอีก '+(pairs.length-20)+' ชื่อ'):'');
+      if(!confirm('เปลี่ยนชื่อดังนี้ทั่วทั้งเว็บ (ความจำ ตัวละคร ทุกตอนที่เขียนไว้)?\n\n'+show))return;
+      let n=0;
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        let v=localStorage.getItem(k);const old=v;
+        for(const[a,b]of pairs)v=v.split(a).join(b);
+        if(v!==old){localStorage.setItem(k,v);n++;}
+      }
+      alert('เสร็จ ✅ แก้ข้อมูล '+n+' รายการ — กด F5 เพื่อโหลดใหม่');
+    }catch(e){alert('ผิดพลาด: '+e.message);}
+    btn.textContent='🔧 แปลงชื่อตัวละครเดิมให้ตรงธีม';
+  }
+})();
 </script>
+<!-- ===== จบ Name Style Pack ===== -->
 </body>
 </html>
