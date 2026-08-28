@@ -45,6 +45,12 @@ body{font-family:'Prompt',sans-serif;background:var(--bg) radial-gradient(1200px
 .story-head{display:flex;gap:22px;margin:18px 0 22px;flex-wrap:wrap}
 .st-cover{width:172px;height:242px;border-radius:14px;overflow:hidden;flex-shrink:0;border:1px solid var(--bd);box-shadow:var(--sh);display:flex;align-items:center;justify-content:center;font-size:3.4rem;font-weight:700;color:#fff}
 .st-cover img{width:100%;height:100%;object-fit:cover}
+.st-cover.editable{cursor:pointer;position:relative;transition:.15s}
+.st-cover.editable:hover{opacity:.85}
+.st-cover.editable::after{content:'📷 แก้ปก';position:absolute;inset:0;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:500;opacity:0;transition:.15s}
+.st-cover.editable:hover::after{opacity:1}
+#st-title-edit{font-size:1.6rem;font-weight:700;background:var(--input);border:2px solid var(--ac);border-radius:8px;padding:8px 12px;width:100%;color:var(--tx);font-family:inherit}
+#st-title-edit:focus{outline:none}
 .st-info{flex:1;min-width:260px}.st-info h1{font-size:1.6rem;margin-bottom:8px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 10px}
 .chip{font-size:.76rem;padding:.32em .8em;border-radius:99px;background:var(--panel2);border:1px solid var(--bd);color:var(--tx2)}
@@ -259,7 +265,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   <section class="story-head">
     <div class="st-cover" id="st-cover"></div>
     <div class="st-info">
-      <h1 id="st-title"></h1>
+      <h1 id="st-title" ondblclick="quickEditTitle()" style="cursor:pointer" title="ดับเบิลคลิกเพื่อแก้ชื่อ"></h1>
       <div class="chips" id="st-meta"></div>
       <p class="desc" id="st-desc"></p>
       <div class="row">
@@ -282,6 +288,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
       </div>
     </div>
   </section>
+  <input type="file" id="cover-file-input" accept="image/*" hidden onchange="quickCoverPick(this)">
 
   <nav class="tabs" id="tabs">
     <button data-tab="plot" class="active">📖 โครงเรื่อง</button>
@@ -381,7 +388,10 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </section>
 
   <section id="tab-chaps" hidden>
-    <div class="toolrow"><button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button></div>
+    <div class="toolrow">
+      <button class="btn primary" onclick="openNewChapterModal()">✍️ เขียนตอนใหม่ / แบตช์</button>
+      <button class="btn ghost" id="export-txt-btn" onclick="toggleExportMode()">📤 ส่งออก .txt</button>
+    </div>
     <div id="cp-list"></div>
   </section>
 
@@ -419,6 +429,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <button class="btn ghost sm" onclick="genScenes()">🖼️ ภาพฉากเด็ด</button>
     <button class="btn ghost sm" id="ed-speak-btn" onclick="toggleSpeak()">🔊 อ่านออกเสียง</button>
     <button class="btn ghost sm" onclick="openHist()">🕘 ประวัติ</button>
+    <button class="btn ghost sm" onclick="copyAllText()">📋 คัดลอก</button>
     <button class="btn ghost sm" onclick="downloadChapter()">📄 .txt</button>
     <button class="btn ghost sm danger" onclick="edDelete()">🗑</button>
   </div>
@@ -1003,8 +1014,13 @@ async function createStory(){
   const culture=$('#ns-culture').value;
   Object.assign(st,{title,genre:$('#ns-genre').value.trim(),tone:$('#ns-tone').value.trim(),
     desc:$('#ns-desc').value.trim(),lang:$('#ns-lang').value,culture,updatedAt:Date.now()});
-  // Auto-set name style based on culture
-  if(culture&&culture!=='auto'){localStorage.setItem('nmw_nameStyle',culture);}
+  // Auto-set name style + pronouns based on culture
+  if(culture&&culture!=='auto'){
+    localStorage.setItem('nmw_nameStyle',culture);
+    // Auto-set pronouns based on culture
+    const cultureToPronoun={zh:'ancient',ja:'ancient',ko:'formal',en:'modern',th:'modern',th_old:'ancient',fantasy:'fantasy'};
+    if(cultureToPronoun[culture])localStorage.setItem('nmw_pronounStyle',cultureToPronoun[culture]);
+  }
   if(pendingCover&&!pendingCover.keep)st.cover=pendingCover.data;
   await dbPut('stories',st);closeM('m-newstory');
   toast(isNew?'สร้างเรื่องแล้ว 🎉 ลองใช้เทมเพลตหรือให้ AI วางโครงเรื่อง!':'บันทึกแล้ว ✅');
@@ -1023,7 +1039,18 @@ async function renderStoryHead(){const s=state.story;$('#st-title').textContent=
   const cultureText=s.culture?cultureLabels[s.culture]||s.culture:'';
   $('#st-meta').innerHTML=[s.genre,s.tone,cultureText,s.lang==='en'?'EN':'ไทย',`${chaps.length} ตอน`,tot?`≈${tot.toLocaleString()} คำ`:'',`อัปเดต ${fmtD(s.updatedAt)}`].filter(Boolean).map(t=>`<span class="chip acc">${t}</span>`).join('');
   $('#st-desc').textContent=s.desc||'';
-  $('#st-cover').innerHTML=s.cover?`<img src="${s.cover}">`:`<span style="background:${phColor(s.title)};width:100%;height:100%;display:flex;align-items:center;justify-content:center">${esc(s.title[0]||'📖')}</span>`;}
+  const covEl=$('#st-cover');covEl.innerHTML=s.cover?`<img src="${s.cover}">`:`<span style="background:${phColor(s.title)};width:100%;height:100%;display:flex;align-items:center;justify-content:center">${esc(s.title[0]||'📖')}</span>`;
+  covEl.classList.add('editable');covEl.onclick=()=>{document.getElementById('cover-file-input').click()};}
+async function quickCoverPick(inp){const f=inp.files[0];if(!f||!state.story)return;
+  try{const r=await compressImageFile(f);state.story.cover=r.data;state.story.updatedAt=Date.now();
+    await dbPut('stories',state.story);renderStoryHead();toast('เปลี่ยนปกแล้ว ✅');}catch(e){toast('อ่านรูปไม่สำเร็จ','err')}inp.value='';}
+function quickEditTitle(){const el=$('#st-title');const s=state.story;const old=s.title;
+  el.innerHTML=`<input id="st-title-edit" value="${esc(old)}" onkeydown="if(event.key==='Enter')saveQuickTitle()" onblur="saveQuickTitle()">`;
+  document.getElementById('st-title-edit').focus();document.getElementById('st-title-edit').select();}
+async function saveQuickTitle(){const inp=$('#st-title-edit');if(!inp||!state.story)return;
+  const newTitle=inp.value.trim();if(!newTitle||newTitle===state.story.title){renderStoryHead();return}
+  state.story.title=newTitle;state.story.updatedAt=Date.now();
+  await dbPut('stories',state.story);renderStoryHead();toast('เปลี่ยนชื่อแล้ว ✅');}
 async function deleteStory(){const s=state.story;
   if(!confirm(`ลบ "${s.title}" พร้อมทุกตอนและความจำ ถาวร?`))return;
   for(const st of['characters','lore','chapters'])for(const it of(await dbAll(st)).filter(x=>x.storyId===s.id))await dbDel(st,it.id);
@@ -1335,32 +1362,74 @@ async function gatherContext(sid,chaps=null,skipTails=false){
     b+=`\n\n# ${info.label} (ยึดตามนี้ ห้ามแต่งทับ)`;
     for(const i of its)b+=`\n- ${i.name}${i.when?` (${i.when})`:''}: ${i.detail}`;}
   const sorted=(chaps||[]).slice().sort((a,b)=>a.num-b.num);
-  const sums=sorted.filter(c=>c.summary).slice(-12).map(c=>`ตอน ${c.num} «${c.title||''}»: ${c.summary}`).join('\n');
+  const sums=sorted.filter(c=>c.summary).slice(-12).map(c=>`ตอน ${c.num} «${c.title||''}»:\n${c.summary}`).join('\n\n');
+  // Build event log from all chapters
+  const allEvents=sorted.filter(c=>c.eventLog&&c.eventLog.length).flatMap(c=>
+    c.eventLog.map(e=>`[ตอน ${c.num}] ${e.event} (${(e.characters||[]).join(', ')}) — ${e.impact||''}`)
+  ).slice(-30); // keep last 30 events
+  const eventBlock=allEvents.length?`\n\n# 📋 บันทึกเหตุการณ์ทั้งหมด (ห้ามขัดแย้ง)\n${allEvents.join('\n')}`:''
   const last=sorted[sorted.length-1];
-  return{block:b,summaries:sums,
+  return{block:b+eventBlock,summaries:sums,
     lastTail:!skipTails&&last?last.content.replace(/^.*?\n/,'').slice(-1600):'',lastNum:last?.num||0};}
 const SYS_WRITER=lang=>`คุณคือนักเขียนนิยายมืออาชีพ เขียนเรื่องยาวต่อเนื่องได้มีชีวิตชีวาน่าติดตาม
 กฎเหล็ก:
 1. เขียนภาษา${lang==='en'?'อังกฤษ':'ไทย'} สไตล์นิยาย สลับบทสนทนากับบรรยาย เห็นภาพ จับอารมณ์
-2. ยึดชื่อตัวละคร สถานที่ ระดับพลัง วิชา ศัพท์เฉพาะ เหตุการณ์ ความสัมพันธ์ ตามฐานความจำเคร่งครัด ห้ามขัดแย้ง
-3. เดินเรื่องตามพล็อตย่อย 3 องก์ มุ่งสู่จุดจบของเรื่อง
-4. ห้ามคำนำ/ส่งท้าย/อธิบายนอกเนื้อเรื่อง ห้ามบอกว่าเป็น AI
-5. ห้าม markdown อื่นนอกจากหัวตอนที่กำหนด ห้าม bullet
-6. แบ่งย่อหน้า คั่นบรรทัดว่าง บทสนทนาใช้เครื่องหมายคำพูด`;
+2. ยึดชื่อตัวละคร สถานที่ ระดับพลัง วิชา ศัพท์เฉพาะ ตามฐานความจำเคร่งครัด ห้ามขัดแย้ง
+3. ⚠️ ความต่อเนื่องของเหตุการณ์: อ่าน [เหตุการณ์] และ [สถานะตัวละคร] ในเรื่องย่อก่อนหน้าให้ละเอียด ห้ามขัดแย้งกับสิ่งที่เกิดไปแล้ว
+4. เดินเรื่องตามพล็อตย่อย 3 องก์ มุ่งสู่จุดจบของเรื่อง
+5. ห้ามคำนำ/ส่งท้าย/อธิบายนอกเนื้อเรื่อง ห้ามบอกว่าเป็น AI
+6. ห้าม markdown อื่นนอกจากหัวตอนที่กำหนด ห้าม bullet
+7. แบ่งย่อหน้า คั่นบรรทัดว่าง บทสนทนาใช้เครื่องหมายคำพูด
+8. ⚠️ ห้ามคำหยาบคายทุกกรณี: ห้ามใช้ กู, มึง, ไอ้, เอ็ง, ควย, หี, สัตว์, เย็ด, แม่ง, เหี้ย, โคตร ให้ใช้คำสุภาพหรือคำในยุคสมัยแทน
+9. ⚠️ ห้ามภาษาต่างประเทศหลุดมาในเนื้อหาเด็ดขาด: ถ้าเขียนไทย → ห้ามมีตัวอักษรจีน/อังกฤษ/ญี่ปุ่น/เกาหลี ปนมา ให้เขียนเป็นคำอ่านไทยทั้งหมด เช่น หลินเทียน ไม่ใช่ Lin Tian ชื่อตัวละครต้องเขียนเป็นคำอ่านไทยเสมอ ห้ามใส่ตัวอักษรต้นฉบับ ถ้าเขียนอังกฤษ → ห้ามมีตัวอักษรไทย/จีน ปนมา`;
+
+/* ---------- MULTI-CHAPTER EXPORT ---------- */
+let exportMode=false,exportChapMap={};
+function toggleExportMode(){
+  exportMode=!exportMode;
+  const btn=$('#export-txt-btn');
+  if(exportMode){btn.textContent='📤 ดาวน์โหลดที่เลือก';btn.className='btn primary sm';}
+  else{btn.textContent='📤 ส่งออก .txt';btn.className='btn ghost';}
+  renderChaps();
+}
+function exportSelectAll(){const cbs=[...document.querySelectorAll('.exp-cb')];cbs.forEach(cb=>cb.checked=true);}
+function exportDeselectAll(){const cbs=[...document.querySelectorAll('.exp-cb')];cbs.forEach(cb=>cb.checked=false);}
+function exportSelectedTxt(){
+  const checked=[...document.querySelectorAll('.exp-cb:checked')];
+  if(!checked.length)return toast('เลือกตอนที่ต้องการส่งออกก่อน','warn');
+  checked.forEach(cb=>{
+    const id=cb.dataset.id;
+    const ch=exportChapMap[id];
+    if(ch)download(`ตอน${ch.num}-${(ch.title||'ไม่มีชื่อ').slice(0,50)}.txt`,stripHeading(ch.content||''));
+  });
+  toast(`ส่งออก ${checked.length} ไฟล์แล้ว 📤`);
+}
 
 /* ---------- CHAPTERS LIST ---------- */
 async function renderChaps(){
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
   const el=$('#cp-list');el.innerHTML='';
   if(!chaps.length){el.innerHTML='<div class="empty">ยังไม่มีตอน — กด "✍️ เขียนตอนใหม่"</div>';return}
+  if(exportMode){
+    el.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="btn ghost sm" onclick="exportSelectAll()">☑️ เลือกทั้งหมด</button>
+      <button class="btn ghost sm" onclick="exportDeselectAll()">⬜ ยกเลิก</button>
+      <button class="btn primary sm" onclick="exportSelectedTxt()">📤 ดาวน์โหลดที่เลือก (${chaps.length} ตอน)</button>
+    </div>`;}
+  if(exportMode)exportChapMap={};
   for(const c of chaps){const d=document.createElement('div');d.className='cp-row';
-    d.innerHTML=`<div class="numbadge">${c.num}</div>
+    if(exportMode)exportChapMap[c.id]=c;
+    const cb=exportMode?`<label style="cursor:pointer;margin-right:8px"><input type="checkbox" class="exp-cb" data-id="${c.id}"></label>`:'';
+    d.innerHTML=`${cb}<div class="numbadge">${c.num}</div>
       <div class="ti"><b>${c.title?esc(c.title):'(ไม่มีชื่อ)'}</b>
       <span>≈${estWords(c.content).toLocaleString()} คำ · ${fmtD(c.updatedAt)}</span></div>
       ${c.summary?'<span class="chip acc">🧾</span>':''}
       ${(c.images&&c.images.length)?`<span class="chip">🖼️${c.images.length}</span>`:''}
+      ${(c.eventLog&&c.eventLog.length)?`<span class="chip acc">📋${c.eventLog.length}</span>`:''}
       <span class="dot" style="background:${c.content?'var(--ok)':'var(--warn)'}"></span>`;
-    d.onclick=()=>openEditor(c.id);el.appendChild(d);}}
+    if(exportMode){d.style.cursor='default';}
+    else{d.onclick=()=>openEditor(c.id);}
+    el.appendChild(d);}}
 
 /* ---------- NEW CHAPTER MODAL ---------- */
 function getPresets(){try{return JSON.parse(localStorage.getItem('nf_prompts')||'[]')}catch{return[]}}
@@ -1450,14 +1519,14 @@ async function generateOne({plan='',notes='',target=2500,autoSum=true,titleOverr
   const sid=state.story.id;
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===sid);
   const num=numOverride||chaps.reduce((m,c)=>Math.max(m,+c.num||0),0)+1;
-  const ch={id:uid(),storyId:sid,num,title:titleOverride,content:'',summary:'',status:'generating',createdAt:Date.now(),updatedAt:Date.now()};
+  const ch={id:uid(),storyId:sid,num,title:titleOverride,content:'',summary:'',eventLog:[],status:'generating',createdAt:Date.now(),updatedAt:Date.now()};
   await dbPut('chapters',ch);
   let full='';
   if(!silent){state.chapter=ch;genTarget=target;enterEditor(ch,{lock:true});
     if(label)setGenLabel(label);else setGenLabel('AI กำลังเขียน… (ตัวอักษรไหลด้านล่าง)');}
   const mem=await gatherContext(sid,chaps.filter(c=>c.id!==ch.id));
   const contBlock=mem.lastTail?`\n\n# ท้ายตอนที่ ${mem.lastNum} (ดำเนินต่อจากจุดนี้พอดี)\n"""\n${mem.lastTail}\n"""`:'';
-  const sumBlock=mem.summaries?`\n\n# เรื่องย่อตอนก่อนหน้า\n${mem.summaries}`:'';
+  const sumBlock=mem.summaries?`\n\n# ⚠️ ประวัติเหตุการณ์ (ห้ามขัดแย้งเด็ดขาด)\nอ่านส่วนนี้ก่อนเขียนทุกครั้ง ห้ามขัดแย้งกับเหตุการณ์ที่ระบุไว้\n\n${mem.summaries}`:'';
   const mission=plan
     ?`เหตุการณ์หลักที่ต้องเกิดในตอนนี้:\n"""\n${plan}\n"""\nเดินเรื่องให้ครบทุกเหตุการณ์ แต่เล่ามีลูกเล่น`
     :'ไม่มีพล็อตย่อย — เลือกพัฒนาการต่อจากโครงเรื่องที่น่าติดตามที่สุด ก้าวหน้าเรื่องชัดเจน';
@@ -1468,6 +1537,7 @@ async function generateOne({plan='',notes='',target=2500,autoSum=true,titleOverr
 - โน้ตผู้เขียน: ${notes||'(ไม่มี)'}
 - ${titleOverride?`ชื่อตอน: "${titleOverride}"`:'ตั้งชื่อตอนสื่อเหตุการณ์สำคัญ'}
 - ความยาว: ${target.toLocaleString()}-${(target+600).toLocaleString()} คำ${state.story.lang==='en'?' words':'ไทย'} (เขียนให้เต็ม ขยายฉาก/บทสนทนา/อารมณ์ อย่ารีบจบ)
+- ⚠️ ความต่อเนื่อง: อ่านส่วน "ประวัติเหตุการณ์" แล้วยึดตามนั้นเคร่งครัด ห้ามขัดแย้ง เช่น ตัวละครตายแล้วห้ามกลับมา บาดเจ็บก็ยังเจ็บ ไปถึงที่ไหนก็จำว่าอยู่ที่ไหน
 - บรรทัดแรก: "## ตอนที่ ${num}: <ชื่อตอน>" แล้วลงเนื้อทันที
 - จบตอนสมบูรณ์ ปิดฉากสวย + hook ท้ายตอน ห้ามตัดกลางคำ`;
   let error=null;
@@ -1628,9 +1698,24 @@ async function summarizeChapter(ch,silent=false){
   const content=ch.content||$('#ed-content')?.value||'';
   if(content.trim().length<200)return null;
   try{
-    const s=await aiUtil({prompt:`อ่านตอนนี้แล้วสรุปเป็น "ความจำ" สำหรับเขียนตอนถัดไป ไทย 120-220 คำ ย่อหน้าเดียว ครอบคลุม: เหตุการณ์หลัก / ตัวละคร+ความสัมพันธ์ที่เปลี่ยน / สถานที่ / ศัพท์-ไอเทมใหม่ / ปมค้างท้ายตอน
+    const s=await aiUtil({prompt:`อ่านตอนนี้แล้วสรุปเป็น "ความจำ" สำหรับเขียนตอนถัดไป ไทย 150-280 คำ
+
+รูปแบบบังคับ (เคร่งครัด):
+[เหตุการณ์] ระบุเหตุการณ์สำคัญทุกข้อที่เกิดขึ้นในตอนนี้ เช่น "ตัวละครA ถูกเผาตาย", "ตัวละครB ได้ดาบวิเศษ"
+[สถานะตัวละคร] ระบุสถานะปัจจุบันของแต่ละตัวละครที่ปรากฏ เช่น "ตัวละครA: ตายแล้ว", "ตัวละครB: บาดเจ็บ"
+[ความสัมพันธ์] ความสัมพันธ์ที่เปลี่ยนแปลง
+[สถานที่] ตัวละครอยู่ที่ไหนตอนจบตอน
+[ศัพท์/ไอเทม] ชื่อเฉพาะที่ต้องจำ
+[ปมค้าง] อะไรที่ยังไม่จบ
+
+ห้ามเขียนย่อหน้าเดียว ต้องแยกเป็นหัวข้อชัดเจน
 """${content.slice(0,24000)}"""`});
     ch.summary=s.trim();
+    // Extract structured events for event log
+    try{
+      const evResp=await aiUtil({prompt:`อ่านนิยายตอนนี้แล้วดึงเหตุการณ์สำคัญออกมาเป็น JSON array เท่านั้น ไม่มีข้อความอื่น\nรูปแบบ: [{"event":"描述เหตุการณ์สั้นๆ 1 ประโยค","characters":["ชื่อตัวละครที่เกี่ยวข้อง"],"impact":"สถานะที่เปลี่ยน เช่น ตาย/บาดเจ็บ/ได้ของ/เสียของ/ย้ายที่"}]\nระบุเฉพาะเหตุการณ์ที่ส่งผลต่อเนื้อเรื่องจริงๆ ไม่เกิน 8 ข้อ\n\n\"\"\"${content.slice(0,20000)}\"\"\"`,json:true});
+      ch.eventLog=JSON.parse(evResp);
+    }catch(e){ch.eventLog=[]}
     if(state.chapter&&state.chapter.id===ch.id){$('#ed-summary').value=ch.summary;$('#ed-sum-wrap').open=true;}
     await dbPut('chapters',ch);
     if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');
@@ -2181,6 +2266,9 @@ async function exportWhole(fmt){
   download(`${s.title}.${fmt}`,out);toast('ส่งออกทั้งเรื่องแล้ว 📤');}
 function downloadChapter(){const ch=state.chapter;if(!ch)return;
   download(`ตอน${ch.num}-${(ch.title||'').slice(0,40)||'ไม่มีชื่อ'}.txt`,stripHeading($('#ed-content').value));}
+async function copyAllText(){const txt=$('#ed-content').value;
+  if(!txt.trim())return toast('ยังไม่มีเนื้อหา','warn');
+  try{await navigator.clipboard.writeText(txt);toast('คัดลอกแล้ว ✅');}catch(e){navigator.clipboard.writeText(txt);toast('คัดลอกแล้ว ✅');}}
 async function printBook(){
   const s=state.story;
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s.id).sort((a,b)=>a.num-b.num);
@@ -2338,13 +2426,22 @@ async function pullCloud(){
     auto:"ก่อนสร้างตัวละคร ให้ระบุให้ชัดว่าฉากอยู่ในประเทศ/วัฒนธรรม/ยุคสมัยใด แล้วตั้งชื่อตามวัฒนธรรมนั้น 100% เช่น จีนโบราณ→ชื่อจีนเท่านั้น ห้ามชื่ออังกฤษ ญี่ปุ่น→ชื่อญี่ปุ่น ยุโรปยุคกลาง→ชื่อตะวันตก",
     th:"ใช้ชื่อไทยยุคปัจจุบัน ชื่อตั้ง+นามสกุลไทย เช่น ธนกฤต ศรีวิไล, พลอยไพลิน รัตนโชติ",
     th_old:"ใช้ชื่อไทยโบราณ/ย้อนยุค ไม่มีนามสกุลแบบปัจจุบัน ใช้คำนำหน้าแบบไทยโบราณ เช่น ขุนศรีวิชัย, นางรำเพย, อินทร์, ทับทิม, ท้าวมหาพรหม",
-    zh:"ใช้ชื่อจีนเท่านั้น โครงสร้าง: นามสกุล(姓) 1 พยางค์นำหน้า + ชื่อตั้ง(名) 1-2 พยางค์ เขียนเป็นคำอ่านไทย เช่น หลินเทียน, เซียวหลง, โจวอี้, หวังหยูเหยียน ถ้าฉากเป็นจีนโบราณ/วูเซี่ยง ห้ามใช้ชื่อฝรั่งเด็ดขาด และชื่อต้องให้ความรู้สึกยุคจีนโบราณ",
-    ja:"ใช้ชื่อญี่ปุ่น นามสกุลมาก่อนชื่อ เขียนเป็นคำอ่านไทย เช่น ทากาฮาชิ เร็น, คุโรซาวะ อากิโตะ ปรับให้เข้ากับยุคสมัย (เซ็งโงกุ/เอโดะ/เมจิ/ปัจจุบัน)",
-    ko:"ใช้ชื่อเกาหลี นามสกุล 1 พยางค์ (คิม ลี ชเว พัก จอง) + ชื่อตั้ง เขียนเป็นคำอ่านไทย เช่น คิมมินจุน, อีซอยอน",
-    en:"ใช้ชื่ออังกฤษ/ตะวันตก ชื่อจริง+นามสกุล ปรับให้เข้ากับยุคสมัย (ยุคกลาง/วิกตอเรีย/ปัจจุบัน) เขียนเป็นคำอ่านไทย เช่น วิลเลียม เกรย์, เอเลนอร์ วิทเทกเกอร์",
-    fantasy:"สร้างชื่อแฟนตาซี/สมมุติ สั้น ออกเสียงง่าย สอดคล้องกับเผ่าพันธุ์ แดน และวัฒนธรรมในเรื่อง เช่น เคลเวียน, ซาริเอล, ดรากอส"
+    zh:"ใช้ชื่อจีนเท่านั้น โครงสร้าง: นามสกุล(姓) 1 พยางค์นำหน้า + ชื่อตั้ง(名) 1-2 พยางค์ เขียนเป็นคำอ่านไทย เช่น หลินเทียน, เซียวหลง",
+    ja:"ใช้ชื่อญี่ปุ่น นามสกุลมาก่อนชื่อ เขียนเป็นคำอ่านไทย เช่น ทากาฮาชิ เร็น",
+    ko:"ใช้ชื่อเกาหลี นามสกุล 1 พยางค์ + ชื่อตั้ง เขียนเป็นคำอ่านไทย เช่น คิมมินจุน",
+    en:"ใช้ชื่ออังกฤษ/ตะวันตก ชื่อจริง+นามสกุล เขียนเป็นคำอ่านไทย เช่น วิลเลียม เกรย์",
+    fantasy:"สร้างชื่อแฟนตาซี/สมมุติ สั้น ออกเสียงง่าย เช่น เคลเวียน, ซาริเอล, ดรากอส"
   };
+  const PRONOUN_STYLES={
+    modern:"สรรพนามยุคปัจจุบัน: ใช้ ฉัน/ผม/ดิฉัน สำหรับตัวเอง, คุณ/พี่ สำหรับคู่สนทนา, เขา/เธอ สำหรับบุคคลที่สาม ห้ามใช้ ข้า/เจ้า/นาง/กู/มึง",
+    ancient:"สรรพนามย้อนยุค/จีนโบราณ/ญี่ปุ่นโบราณ: ใช้ ข้า/ข้าพเจ้า สำหรับตัวเอง, เจ้า/ท่าน สำหรับคู่สนทนา, นาง/เขา/แม่นาง สำหรับบุคคลที่สาม ห้ามใช้ ฉัน/คุณ/กู/มึง",
+    formal:"สรรพนามสุภาพ/ทางการ: ใช้ ผม/ดิฉัน สำหรับตัวเอง, ท่าน/คุณ สำหรับคู่สนทนา, ท่าน/เขา สำหรับบุคคลที่สาม ห้ามใช้ กู/มึง/ไอ้/เอ็ง",
+    fantasy:"สรรพนามแฟนตาซี: ใช้ ข้า/กู (เฉพาะตัวละครหยาบ) สำหรับตัวเอง, เจ้า/ท่าน สำหรับคู่สนทนา ปรับตามเผ่าพันธุ์ เช่น เอลฟ์สุภาพ คนป่าหยาบ"
+  };
+  const PRONOUN_LABELS={modern:"ปัจจุบัน (ฉัน/คุณ/เขา)",ancient:"ย้อนยุค (ข้า/เจ้า/นาง)",formal:"สุภาพ (ผม/ท่าน)",fantasy:"แฟนตาซี"};
   const LABELS={auto:"อัตโนมัติ",th:"ไทย",th_old:"ไทยโบราณ",zh:"จีน",ja:"ญี่ปุ่น",ko:"เกาหลี",en:"อังกฤษ/ตะวันตก",fantasy:"แฟนตาซี"};
+  const K_PRONOUN='nmw_pronounStyle';
+  const curPronoun=()=>localStorage.getItem(K_PRONOUN)||'modern';
   const K='nmw_nameStyle';
   const cur=()=>localStorage.getItem(K)||'auto';
   const _f=window.fetch;
@@ -2354,7 +2451,10 @@ async function pullCloud(){
       if(url.includes('generativelanguage')&&o&&typeof o.body==='string'){
         const b=JSON.parse(o.body);
         const rule='\n\n[กฎบังคับ: การตั้งชื่อตัวละคร] '+(STYLES[cur()]||STYLES.auto)+
-          '\nเขียนชื่อเป็นคำอ่านภาษาไทยเสมอ ใช้สะกดชื่อเดิมตลอดทั้งเรื่อง ห้ามเปลี่ยนสะกดหรือตั้งชื่อขัดกับกฎนี้เด็ดขาด';
+          '\nเขียนชื่อเป็นคำอ่านภาษาไทยเสมอ ใช้สะกดชื่อเดิมตลอดทั้งเรื่อง ห้ามเปลี่ยนสะกดหรือตั้งชื่อขัดกับกฎนี้เด็ดขาด'
+          +'\n\n[กฎบังคับ: ห้ามภาษาต่างประเทศ] ห้ามมีตัวอักษรจีน/อังกฤษ/ญี่ปุ่น/เกาหลี หลุดมาในเนื้อหาเด็ดขาด ให้เขียนเป็นคำอ่านไทยทั้งหมด เช่น หลินเทียน ไม่ใช่ 林天 หรือ Lin Tian'
+          +'\n\n[กฎบังคับ: สรรพนาม] '+(PRONOUN_STYLES[curPronoun()]||PRONOUN_STYLES.modern)+
+          '\n\n[กฎบังคับ: ห้ามคำหยาบ] ห้ามใช้คำหยาบคายทุกกรณี เช่น กู, มึง, ไอ้, เอ็ง, ควย, หี, สัตว์, เย็ด, แม่ง ให้ใช้คำสุภาพหรือคำในยุคสมัยแทน'
         const si=b.systemInstruction||b.system_instruction;
         if(si&&si.parts&&si.parts[0]) si.parts[0].text=(si.parts[0].text||'')+rule;
         else if(Array.isArray(b.contents)&&b.contents.length){
@@ -2372,22 +2472,34 @@ async function pullCloud(){
     const foot=tk.closest('.mfoot')||tk.parentElement;
     const box=document.createElement('div');
     box.innerHTML='<hr class="sep"><b style="font-size:.9rem">🏷️ รูปแบบชื่อตัวละคร (Name Style)</b>'+
-      '<p class="hint" style="margin:6px 0">แปะกฎให้ AI ทุกครั้งที่สร้างอะไรก็ตาม — เช่น ฉากจีนโบราณ = ชื่อจีนเท่านั้น</p>'+
+      '<p class="hint" style="margin:6px 0">แปะกฎให้ AI ทุกครั้งที่สร้างอะไรก็ตาม</p>'+
       '<select class="in" id="set-namestyle" style="width:100%;margin-bottom:8px">'+
-      '<option value="auto">🤖 อัตโนมัติ — AI ดูจากฉาก/ประเทศ/ยุคสมัยของเรื่อง</option>'+
-      '<option value="th">🇹🇭 ไทย (ยุคปัจจุบัน)</option>'+
-      '<option value="th_old">🏛️ ไทยโบราณ/ย้อนยุค</option>'+
-      '<option value="zh">🇨🇳 จีน (รวมจีนโบราณ/วูเซี่ยง)</option>'+
+      '<option value="auto">🤖 อัตโนมัติ</option>'+
+      '<option value="th">🇹🇭 ไทย</option>'+
+      '<option value="th_old">🏛️ ไทยโบราณ</option>'+
+      '<option value="zh">🇨🇳 จีน</option>'+
       '<option value="ja">🇯🇵 ญี่ปุ่น</option>'+
       '<option value="ko">🇰🇷 เกาหลี</option>'+
-      '<option value="en">🇬🇧 อังกฤษ/ตะวันตก</option>'+
-      '<option value="fantasy">✨ แฟนตาซี/สมมุติ</option></select>'+
-      '<button class="btn ghost sm" id="fix-names-btn" style="margin-bottom:8px">🔧 แปลงชื่อตัวละครเดิมให้ตรงธีม</button>';
+      '<option value="en">🇬🇧 อังกฤษ</option>'+
+      '<option value="fantasy">✨ แฟนตาซี</option></select>'+
+      '<b style="font-size:.9rem;margin-top:10px;display:block">🗣️ สรรพนาม (Pronoun Style)</b>'+
+      '<p class="hint" style="margin:6px 0">เลือกสรรพนามให้ตรงยุคสมัย — ป้องกันหลุดคำหยาบ</p>'+
+      '<select class="in" id="set-pronoun" style="width:100%;margin-bottom:8px">'+
+      '<option value="modern">ปัจจุบัน (ฉัน/คุณ/เขา)</option>'+
+      '<option value="ancient">ย้อนยุค (ข้า/เจ้า/นาง)</option>'+
+      '<option value="formal">สุภาพ (ผม/ท่าน)</option>'+
+      '<option value="fantasy">แฟนตาซี (ข้า/เจ้า)</option></select>'+
+      '<button class="btn ghost sm" id="fix-names-btn" style="margin-bottom:8px">🔧 แปลงชื่อตัวละครเดิม</button>';
     foot.parentNode.insertBefore(box,foot);
     const sel=box.querySelector('#set-namestyle');
     sel.value=cur();
     sel.onchange=()=>{localStorage.setItem(K,sel.value);
       alert('บันทึกแล้ว ✅ ต่อจากนี้ AI จะใช้ชื่อแบบ "'+LABELS[sel.value]+'"');};
+    // Pronoun style
+    const pronSel=box.querySelector('#set-pronoun');
+    pronSel.value=curPronoun();
+    pronSel.onchange=()=>{localStorage.setItem(K_PRONOUN,pronSel.value);
+      alert('บันทึกแล้ว ✅ สรรพนาม: "'+PRONOUN_LABELS[pronSel.value]+'"');};
     box.querySelector('#fix-names-btn').onclick=fixNames;
   }
   setInterval(inject,800);
