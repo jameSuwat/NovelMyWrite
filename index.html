@@ -1873,6 +1873,15 @@ async function closeEditor(){if((generating||batching)&&!confirm('AI กำล�
   stopGen();try{speechSynthesis.cancel()}catch{}
   await edSaveSilent();state.chapter=null;
   renderChaps();show('view-story');renderStoryHead();}
+async function edDelete(){
+  const ch=state.chapter;if(!ch)return;
+  if(generating||batching)return toast('AI กำลังเขียน — รอให้เสร็จก่อนลบ','warn');
+  if(!confirm(`ลบตอนที่ ${ch.num}${ch.title?': '+ch.title:''} ถาวร? (กู้คืนไม่ได้)`))return;
+  stopGen();try{speechSynthesis.cancel()}catch{}
+  await dbDel('chapters',ch.id);
+  state.chapter=null;
+  renderChaps();show('view-story');renderStoryHead();
+  toast('ลบตอนแล้ว 🗑');}
 async function edSaveSilent(){if(!state.chapter)return;const ch=state.chapter;
   ch.num=Math.max(1,parseInt($('#ed-num').value)||ch.num);ch.title=$('#ed-title').value.trim();
   ch.content=$('#ed-content').value;ch.summary=$('#ed-summary').value;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
