@@ -1158,7 +1158,7 @@ async function renderPlan(){
   const nSup=chars.length-nMain-nVill;
   const pl=s.plan||{};
   const beats=(pl.beats||[]),thr=(pl.threads||[]),rules=(pl.rules||[]);
-  const hasO=!!(s.outline&&s.outline.trim()),hasA=!!(s.arc&&(s.arc.beginning||s.arc.middle||s.arc.end));
+  const hasO=!!(s.outline&&s.outline.trim()),hasA=!!(s.arc&&s.arc.beginning&&String(s.arc.beginning).trim()&&s.arc.middle&&String(s.arc.middle).trim()&&s.arc.end&&String(s.arc.end).trim());
   const chip=(ok,lab)=>'<span class="chip" style="'+(ok?'border-color:#34d399;color:#34d399':'border-color:#f87171;color:#f87171')+'">'+(ok?'✔':'✘')+' '+esc(lab)+'</span>';
   const parts=[chip(hasO,'📖 โครงเรื่องคร่าว'),chip(hasA,'🧭 พล็อต 3 องก์'),
     chip(chars.length>0,'👥 ตัวละคร: หลัก '+nMain+' · รอง '+nSup+' · ร้าย '+nVill),
@@ -1172,15 +1172,16 @@ async function renderPlan(){
     if(rules.length)rows.push('<b>⚖️ เงื่อนไขกรอบ (ห้ามหลุด) <button class="btn ghost sm" data-pa="rule" style="margin-left:6px">＋ เพิ่ม</button></b>'+rules.map((r,i)=>'<div class="dt" style="margin-top:3px">• '+(i+1)+'. '+esc(r)+' <button class="ibtn e" data-pe="rule" data-idx="'+i+'">✏️</button><button class="ibtn dl" data-pd="rule" data-idx="'+i+'">🗑</button></div>').join(''));
     det='<details style="margin-top:10px"><summary>📋 ดูรายละเอียดแผน ('+beats.length+' เหตุการณ์ · '+thr.length+' ปม · '+rules.length+' เงื่อนไข)</summary><div style="margin-top:8px;display:grid;gap:10px">'+rows.join('')+'</div></details>';}
   const ready=hasO&&hasA&&chars.length>=3&&beats.length>0&&thr.length>0&&rules.length>0;
-  const locked=!hasO;
+  const locked=!hasO||!hasA;
   const hintTxt=!hasO
-    ?'① เขียนโครงเรื่องให้เสร็จก่อน (พิมพ์เองในช่องด้านซ้ายแล้ว 💾 บันทึก หรือกด ✨ สร้างโครงเรื่องด้วย AI) — เมื่อโครงเรื่องตกลงแล้ว ปุ่มชุดเตรียมก่อนเขียนจะปลดล็อก เพื่อให้ตัวละคร/เหตุการณ์/ปมทั้งหมดอ้างอิงโครงเรื่องเดียวกัน'
-    :(ready?'✅ ชุดครบแล้ว — ไป 📚 ตอนทั้งหมด แล้วกด ✍️ เขียนตอนได้เลย (แผนนี้ถูกส่งให้ AI ยึดทุกตอน)'
-           :'⚠️ โครงเรื่องพร้อมแล้ว แต่ชุดยังไม่ครบ — กดสร้างชุดเดียว: AI จะวาง 3 องก์ + ตัวละคร(หลัก/รอง/ร้าย) + เหตุการณ์สำคัญ + ปม + เงื่อนไขกรอบ อ้างอิงโครงเรื่องที่ตกลงไว้ให้ครบ');
+    ?'① เขียนโครงเรื่องให้เสร็จก่อน (พิมพ์เองในช่องด้านซ้ายแล้ว 💾 บันทึก หรือกด ✨ สร้างโครงเรื่องด้วย AI) — เนื้อเรื่องต้องตกลงก่อน'
+    :(!hasA?'② ต่อด้วยวาง พล็อตย่อย 3 องก์ ให้ครบทั้ง 3 (🌅 องก์1 · ⚔️ องก์2 · 🔥 องก์3) ในแท็บ 🧭 พล็อตย่อย (3 องก์) — เขียนเองหรือกด ✨ ให้ AI วาง 3 องก์ให้ แล้ว 💾 บันทึกพล็อตย่อย เมื่อครบ ปุ่มชุดเตรียมก่อนเขียนจะปลดล็อก เพื่อให้ตัวละคร/เหตุการณ์/ปมอ้างอิงโครงเรื่องและองก์เดียวกัน'
+          :(ready?'✅ ชุดครบแล้ว — ไป 📚 ตอนทั้งหมด แล้วกด ✍️ เขียนตอนได้เลย (แผนนี้ถูกส่งให้ AI ยึดทุกตอน)'
+                 :'⚠️ โครงเรื่อง + 3 องก์พร้อมแล้ว แต่ชุดยังไม่ครบ — กดสร้างชุดเดียว: AI จะวางตัวละคร(หลัก/รอง/ร้าย) + เหตุการณ์สำคัญ + ปม + เงื่อนไขกรอบ อ้างอิงโครงเรื่องและองก์ที่ตกลงไว้ให้ครบ'));
   box.innerHTML='<div class="toolrow" style="justify-content:space-between;flex-wrap:wrap;gap:8px">'
     +'<b style="font-size:.98rem">🎬 ชุดเตรียมก่อนเขียน</b>'
     +(locked
-      ?'<button class="btn sm" id="plan-gen" disabled style="opacity:.55;cursor:not-allowed" title="ต้องวางโครงเรื่องให้เสร็จก่อน (โครงเรื่อง → บันทึก)">🔒 รอวางโครงเรื่องก่อน</button>'
+      ?'<button class="btn sm" id="plan-gen" disabled style="opacity:.55;cursor:not-allowed" title="ต้องวางโครงเรื่อง + พล็อตย่อย 3 องก์ให้ครบก่อน">🔒 รอโครงเรื่อง+3 องก์ก่อน</button>'
       :'<button class="btn primary sm" id="plan-gen" onclick="buildStoryPlan()">'+(beats.length||pl.outline?'🔄 สร้าง/ปรับชุดใหม่':'✨ สร้างชุดให้ครบก่อนเขียน')+'</button>')+'</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;line-height:2">'+parts.join('')+'</div>'
     +'<p class="hint" style="margin:8px 0 0">'+hintTxt+'</p>'
@@ -1199,37 +1200,32 @@ async function buildStoryPlan(){
     const epsEl=$('#ao-eps'),ideaEl=$('#ao-idea');
     const eps=parseInt((epsEl&&epsEl.value)||'')||30;
     const idea=((ideaEl&&ideaEl.value.trim())||s.desc||'').trim();
-    if(!s.outline||!s.outline.trim()){toast('ต้องวางโครงเรื่องให้เสร็จก่อน (เขียนเองหรือกด ✨ สร้างโครงเรื่องด้วย AI แล้ว 💾 บันทึก) — ชุดเตรียมก่อนเขียนจะอ้างอิงโครงเรื่องนี้','warn');await renderPlan();fin();return}
-    if((s.arc&&(s.arc.beginning||s.arc.middle||s.arc.end))||(s.plan&&((s.plan.beats&&s.plan.beats.length)||(s.plan.threads&&s.plan.threads.length)||(s.plan.rules&&s.plan.rules.length)))){
-      if(!confirm('มี 3 องก์/แผนเดิมอยู่ — จะถูกสร้างใหม่จากโครงเรื่องที่ตกลงไว้ (โครงเรื่องของคุณคงไว้ ตัวละครเดิมคงไว้ เพิ่มเฉพาะชื่อที่ยังไม่มี) ดำเนินการต่อ?')){fin();return}}
+    if(!s.outline||!s.outline.trim()||!s.arc||!String(s.arc.beginning||'').trim()||!String(s.arc.middle||'').trim()||!String(s.arc.end||'').trim()){toast('ต้องวางโครงเรื่อง + พล็อตย่อย 3 องก์ (🌅 องก์1 · ⚔️ องก์2 · 🔥 องก์3) ให้ครบก่อน — ชุดเตรียมก่อนเขียนจะอ้างอิงทั้งโครงเรื่องและองก์','warn');await renderPlan();fin();return}
+    if(s.plan&&((s.plan.beats&&s.plan.beats.length)||(s.plan.threads&&s.plan.threads.length)||(s.plan.rules&&s.plan.rules.length))){
+      if(!confirm('มีแผนเดิมอยู่ (เหตุการณ์/ปม/เงื่อนไข) — จะถูกสร้างใหม่จากโครงเรื่อง + 3 องก์ที่ตกลงไว้ (โครงเรื่อง/องก์/ตัวละครเดิมของคุณคงไว้ เพิ่มเฉพาะชื่อที่ยังไม่มี) ดำเนินการต่อ?')){fin();return}}
     const chapN=(await dbAll('chapters')).filter(c=>c.storyId===s.id).length;
-    const p1='คุณคือ head writer ต่อยอดจาก "โครงเรื่องฉบับตกลงแล้ว" ด้านล่าง สร้างชุดวางเรื่องให้ครบก่อนเขียน (ยึดโครงเรื่องนี้เท่านั้น ห้ามเพิ่มเส้นเรื่อง/ตัวละคร/เหตุการณ์นอกโครงเรื่อง ห้ามขัดชื่อที่ระบุไว้):\n'
-      +'# โครงเรื่องฉบับตกลงแล้ว (ยึดตามนี้เท่านั้น):\n'+String(s.outline||'').slice(0,6000)+'\n'
+    const p1='คุณคือ head writer ต่อยอดจาก "โครงเรื่อง + พล็อตย่อย 3 องก์ฉบับตกลงแล้ว" ด้านล่าง สร้างชุดวางเรื่องให้ครบก่อนเขียน (ยึดทั้งสองอย่างนี้เท่านั้น ห้ามเพิ่มเส้นเรื่อง/ตัวละคร/เหตุการณ์นอกกรอบ ห้ามขัดชื่อหรือช่วงตอนที่ระบุ):\n'
+      +'# โครงเรื่องฉบับตกลงแล้ว (ยึดตามนี้เท่านั้น):\n'+String(s.outline||'').slice(0,5000)+'\n'
+      +'# พล็อตย่อย 3 องก์ฉบับตกลงแล้ว (ยึดช่วงตอนตามนี้):\n[องก์ 1]\n'+(s.arc.beginning||'')+'\n[องก์ 2]\n'+(s.arc.middle||'')+'\n[องก์ 3]\n'+(s.arc.end||'')+'\n'
       +'# รายละเอียดเรื่อง:\n'
       +'ชื่อ: '+s.title+' | แนว: '+(s.genre||'ไม่ระบุ')+' | โทน: '+(s.tone||'ไม่ระบุ')+' | ภาษา: '+(s.lang==='en'?'อังกฤษ':'ไทย')+'\n'
       +'เป้าหมาย: ~'+eps+' ตอน'+(chapN?' (เขียนไปแล้ว '+chapN+' ตอน — แผนช่วงที่เหลือต่อจากนั้น ห้ามขัดตอนที่เขียนไป)':'')+'\n'
       +'ตอบ JSON เท่านั้น:\n'
-      +'{"arc":{"beginning":"องก์1 (เติมเฉพาะที่ว่าง)","middle":"องก์2","end":"องก์3"},"beats":[{"at":"ช่วงตอน","title":"ชื่อเหตุการณ์","desc":"รายละเอียดสั้น"}],"threads":[{"thread":"ปมที่วาง","payoff":"จะจ่ายตอนไหน/อย่างไร"}],"rules":["เงื่อนไขกรอบที่เขียนต้องไม่หลุด"]}\n'
+      +'{"beats":[{"at":"ช่วงตอน","title":"ชื่อเหตุการณ์","desc":"รายละเอียดสั้น"}],"threads":[{"thread":"ปมที่วาง","payoff":"จะจ่ายตอนไหน/อย่างไร"}],"rules":["เงื่อนไขกรอบที่เขียนต้องไม่หลุด"]}\n'
       +'กฎ:\n'
-      +'- arc: เฉพาะฟิลด์ที่ยังว่าง (ที่กรอกไว้แล้วห้ามแก้) bullet "• " ระบุช่วงตอน (ฟิลด์ละ 80-180 คำ): 1=โลก+ตัวเอก+เหตุการณ์เริ่ม+เป้าหมาย, 2=อุปสรรค+หักมุมกลาง+จุดต่ำสุด, 3=ลุกขึ้น+ศึกชี้ขาด+ไขปม+บทสรุป\n'
-      +'- beats: 8-14 เหตุการณ์สำคัญ เรียงตามช่วงตอนครบ 3 องก์ อ้างชื่อตัวละคร/สถานที่/ปมจากโครงเรื่องนี้โดยตรง\n'
+      +'- beats: 8-14 เหตุการณ์สำคัญ เรียงตามช่วงตอนให้ตรงกับองก์ข้างบน อ้างชื่อตัวละคร/สถานที่/ปมจากโครงเรื่อง+องก์นี้โดยตรง\n'
       +'- threads: 5-8 ปม (ปมหลัก 1-2 + ปมรอง) แต่ละปมระบุวิธีจ่าย\n'
       +'- rules: 4-7 เงื่อนไขกรอบ เช่น กฎระบบพลัง/การตายของตัวเอก/ความสัมพันธ์ต้องเปลี่ยนอย่างมีเหตุผล/อะไรห้ามเกิดก่อนตอนไหน — นักเขียนห้ามเขียนหลุดกรอบ\n'
       +'- ภาษาไทย';
     const j1=parseJSONLoose(await aiStream({prompt:p1,temp:.85,json:true,think:'low'}));
     if(!j1)throw new Error('AI ไม่ได้คืนข้อมูล');
-    const arc=j1.arc||{};
-    const curA=s.arc||{};
-    s.arc={beginning:(curA.beginning&&String(curA.beginning).trim())?String(curA.beginning).trim():String(arc.beginning||'').trim(),
-      middle:(curA.middle&&String(curA.middle).trim())?String(curA.middle).trim():String(arc.middle||'').trim(),
-      end:(curA.end&&String(curA.end).trim())?String(curA.end).trim():String(arc.end||'').trim()};
     s.plan={beats:(j1.beats||[]).filter(x=>x&&(x.title||x.desc)).map(x=>({at:String(x.at||'').trim().slice(0,60),title:String(x.title||'').trim().slice(0,160),desc:String(x.desc||'').trim().slice(0,400)})).slice(0,16),
       threads:(j1.threads||[]).filter(x=>x&&(x.thread||x.payoff)).map(x=>({thread:String(x.thread||'').trim().slice(0,240),payoff:String(x.payoff||'').trim().slice(0,260)})).slice(0,10),
       rules:(j1.rules||[]).map(x=>String(x||'').trim()).filter(Boolean).slice(0,10)};
     s.updatedAt=Date.now();
     await dbPut('stories',s);
     const exC=(await dbAll('characters')).filter(c=>c.storyId===s.id).map(c=>c.name);
-    const p2='จากโครงเรื่องฉบับตกลงแล้วนี้ จงสร้าง "นักแสดง" ให้ครบถ้วน ตอบ JSON เท่านั้น (ยึดโครงเรื่องนี้เท่านั้น ห้ามเพิ่มเส้นเรื่อง/ตัวละครนอกกรอบ):\n'
+    const p2='จากโครงเรื่อง + พล็อตย่อย 3 องก์ฉบับตกลงแล้วนี้ จงสร้าง "นักแสดง" ให้ครบถ้วน ตอบ JSON เท่านั้น (ยึดทั้งโครงเรื่องและองก์ ห้ามเพิ่มเส้นเรื่อง/ตัวละครนอกกรอบ):\n'
       +'{"characters":[{"name","role","age","appearance","personality","abilities","background","goal","relations"}]}\n'
       +'# โครงเรื่อง:\n'+String(s.outline||'').slice(0,3500)+'\n'
       +'# องก์:\n'+[s.arc.beginning,s.arc.middle,s.arc.end].filter(Boolean).join('\n').slice(0,2000)+'\n'
