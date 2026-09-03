@@ -1255,13 +1255,14 @@ async function memStatePanel(){
   const fmtMs=v=>v==null?'-':(v<1?'<1':String(Math.round(v)));
   const stat=(icon,label,val)=>`<span class="hint" style="margin-right:12px;white-space:nowrap">${icon} ${esc(label)}: <b style="color:var(--tx)">${esc(val)}</b></span>`;
   const health=`<div style="margin:8px 0 2px;line-height:1.9">${stat('📚','ครอบคลุม',cov?('ถึงตอน '+cov):'ยังไม่มี')}${stat('🧾','สรุปใน prompt',unfolded+' ตอน')}${stat('🗂️','ยุค',erasN)}${stat('📜','โบราณ',grandTxt?('ถึงตอน '+st.longMem.until):'ยังไม่มี')}${stat('🪝','ปม',`เปิด ${ths.length} · ปิด ${allTh.length-ths.length}`)}${stat('👥','สถานะ',cs.length)}${stat('⏱️','Prompt',fmtMs(promptMs)+' ms')}</div>`;
-  let list='';
-  if(cs.length){list+='<b style="font-size:.9rem">📍 สถานะตัวละครปัจจุบัน</b>';
-    for(const[nm,x]of cs.slice(0,25))list+=`<div class="lr-item" style="border-left-color:#34d399;margin-top:7px"><div style="min-width:0"><b>${esc(nm)}</b>${x.at?` <span class="whenchip">${esc(x.at)}</span>`:''}<div class="dt">${esc([x.where&&('📍 '+x.where),x.status&&('🧭 '+x.status),x.items&&('🎒 '+x.items),x.goal&&('🎯 '+x.goal)].filter(Boolean).join(' · ')||'-')}</div></div></div>`;}
+  let list=st&&st.progress&&st.progress.text?`<p class="hint" style="margin:4px 0 0">🧭 จุดที่เรื่องไปถึง (ตอน ${st.progress.at||0}): ${esc(st.progress.text)}</p>`:'';
+  if(cs.length){cs.sort((a,b)=>(memIsGone(a[1])?0:1)-(memIsGone(b[1])?0:1)||((b[1].num||0)-(a[1].num||0)));
+    list+='<b style="font-size:.9rem">📍 สถานะตัวละครปัจจุบัน</b>';
+    for(const[nm,x]of cs.slice(0,30))list+=`<div class="lr-item" style="border-left-color:#34d399;margin-top:7px"><div style="min-width:0"><b>${esc(nm)}</b>${x.at?` <span class="whenchip">${esc(x.at)}</span>`:''}<div class="dt">${esc([x.where&&('📍 '+x.where),x.status&&('🧭 '+x.status),x.items&&('🎒 '+x.items),x.goal&&('🎯 '+x.goal)].filter(Boolean).join(' · ')||'-')}</div></div></div>`;}
   if(ths.length){list+='<b style="font-size:.9rem;display:block;margin:12px 0 2px">🪝 ปมค้างที่ยังไม่จบ ('+ths.length+')</b>';
-    for(const t of ths.slice(0,15))list+=`<div class="lr-item" style="border-left-color:#fbbf24"><div style="min-width:0"><b>🪝</b> <span class="whenchip">เปิด ${esc(t.since)}</span><div class="dt">${esc(t.thread)}</div></div></div>`;}
-  if(!cs.length&&!ths.length)list='<p class="hint">ยังไม่มีสถานะ/ปม — เขียนจบตอนแล้วกด 🧾 "สรุปตอนนี้เป็นความจำ" AI จะบันทึกสถานะตัวละคร + ปมค้าง + ความทรงจำระยะยาวให้อัตโนมัติ</p>';
-  const openAttr=cs.length||ths.length?' open':'';
+    for(const t of ths.slice(0,20))list+=`<div class="lr-item" style="border-left-color:#fbbf24"><div style="min-width:0"><b>🪝</b> <span class="whenchip">เปิด ${esc(t.since)}</span><div class="dt">${esc(t.thread)}</div></div></div>`;}
+  if(!cs.length&&!ths.length&&!list)list='<p class="hint">ยังไม่มีสถานะ/ปม — เขียนจบตอนแล้วกด 🧾 "สรุปตอนนี้เป็นความจำ" AI จะบันทึกสถานะตัวละคร + ปมค้าง + ความทรงจำระยะยาวให้อัตโนมัติ</p>';
+  const openAttr=(cs.length||ths.length||list)?' open':'';
   return '<details class="sum"'+openAttr+'><summary>📌 สถานะตัวละคร & ปมค้าง <span class="hint">AI อัปเดตอัตโนมัติหลัง 🧾 สรุปตอน — ดูได้อย่างเดียว แก้โดยสรุปตอนใหม่</span></summary>'+health+(list?'<div style="margin-top:6px">'+list+'</div>':'')+'</details>';}
 function openLoreModal(l){
   $('#lf-h').firstChild.textContent=(l?'✏️ แก้ไข ':'＋ เพิ่มความจำ ');
@@ -1406,11 +1407,14 @@ async function gatherContext(sid,chaps=null,skipTails=false){
   const eventBlock=allEvents.length?`\n\n# 📋 บันทึกเหตุการณ์ทั้งหมด (ห้ามขัดแย้ง)\n${allEvents.join('\n')}`:''
   if(longMem.text)b+=`\n\n# 📜 ความทรงจำโบราณ (ตอน 1-${longMem.until} — เรื่องเก่ามาก ผ่านไปนานแล้ว ใช้อ้างอิง ห้ามขัดแย้ง)\n${longMem.text}`;
   for(const er of eras)b+=`\n\n# 🗂️ ความทรงจำยุคที่ผ่านมา (ตอน ${er.from}-${er.to})\n${er.text}`;
-  const csE=Object.entries(st.charState||{}).slice(0,20);
+  if(st.progress&&st.progress.text)b+=`\n\n# 🧭 จุดที่เรื่องไปถึง (เทียบโครงเรื่อง/3 องก์ — เดินเรื่องให้ตรงแผนนี้)\n${st.progress.text}`;
+  const csA=Object.entries(st.charState||{});
+  csA.sort((a,b)=>(memIsGone(a[1])?0:1)-(memIsGone(b[1])?0:1)||((b[1].num||0)-(a[1].num||0)));   // ตาย/จากไปมาก่อนเสมอ แล้วเรียงคนล่าสุดก่อน
+  const csE=csA.slice(0,30);
   if(csE.length){b+=`\n\n# 📍 สถานะตัวละครปัจจุบัน (อัปเดตล่าสุดตามเลขตอน — ตาย/จากไปแล้วห้ามฟื้นคืนมา บาดเจ็บต้องมีฉากรักษาก่อนหาย)\n`;
     for(const[nm,x]of csE){const ps=[x.where&&('ที่อยู่: '+x.where),x.status&&('สภาพ: '+x.status),x.items&&('ของติดตัว: '+x.items),x.goal&&('เป้าหมาย: '+x.goal),x.at&&('อัปเดต: '+x.at)].filter(Boolean);
       b+=`- ${nm}${ps.length?': '+ps.join(' | '):''}\n`;}}
-  const openT=(st.openThreads||[]).filter(t=>t.status==='open').slice(0,12);
+  const openT=(st.openThreads||[]).filter(t=>t.status==='open').sort((a,b)=>(a.sinceNum||chNumStr(a.since))-(b.sinceNum||chNumStr(b.since))).slice(0,20);
   if(openT.length){b+=`\n# 🪝 ปมค้างที่ยังไม่จบ (เก็บไว้จ่ายเป็นฉากในตอนหลัง)\n`;
     for(const t of openT)b+=`- [เปิดตอน ${t.since}] ${t.thread}\n`;}
   const last=sorted[sorted.length-1];
@@ -1773,15 +1777,17 @@ const MEM_UNFOLD_KEEP=12,MEM_FOLD_TRIG=16,MEM_ERA_MAX=25,MEM_KEEP_ERAS=2,MEM_ACT
 let memQueues={};
 function memQueue(sid,fn){const prev=memQueues[sid]||Promise.resolve();
   const p=prev.then(fn,fn);memQueues[sid]=p.catch(()=>{});return p;}
-function storyState(st){st=st||{};if(!st.state)st.state={v:2,charState:{},openThreads:[],longMem:{until:0,text:''},eras:[]};
+function storyState(st){st=st||{};if(!st.state)st.state={v:3,charState:{},openThreads:[],longMem:{until:0,text:''},eras:[],progress:{at:0,text:''}};
   const S=st.state;
   if(!S.charState)S.charState={};if(!S.openThreads)S.openThreads=[];
   if(!S.longMem)S.longMem={until:0,text:''};if(!Array.isArray(S.eras))S.eras=[];
+  if(!S.progress)S.progress={at:0,text:''};
   return S;}
 function memCovered(st){const S=(st&&st.state)||st||{};const e=S.eras||[];
   return Math.max(S.longMem?S.longMem.until:0,e.length?e[e.length-1].to:0);}
 function chNumStr(t){const m=String(t||'').match(/ตอน\s*(\d+)/);return m?+m[1]:0;}
 function memIsGone(x){return/ตาย|เสียชีวิต|มรณภาพ|ถูกฆ่า/.test(x&&x.status?x.status:'');}
+function memProgLine(txt){const ls=String(txt||'').split('\n').map(s=>s.trim());const hit=ls.filter(l=>/^⏩|ความคืบหน้า/.test(l));const last=hit[hit.length-1]||'';return last.replace(/^[-⏩\s]*/,'').replace(/^ความคืบหน้า[:：]?\s*/,'').trim();}
 async function refreshMemPanel(){
   const el=$('#lr-list');if(!el||!state.story)return;
   const tl=document.getElementById('tab-lore');
@@ -1804,6 +1810,7 @@ async function runStoryMemory(ch){
   try{
     const story=await dbGet('stories',ch.storyId);if(!story||!ch.summary)return;
     const st=storyState(story);const ss=st.charState,ots=st.openThreads;
+    const exNames=new Set((await dbAll('characters')).filter(c=>c.storyId===story.id).map(c=>c.name));   // ตัวหลักที่ลงทะเบียนแล้ว ห้ามตัดออก
     const sheetPrev=Object.entries(ss).map(([nm,x])=>`- ${nm}${x.at?` (${x.at})`:''}: ${[x.where&&('ที่ '+x.where),x.status,x.items&&('ถือ '+x.items),x.goal&&('อยาก '+x.goal)].filter(Boolean).join(', ')||'-'}`).join('\n');
     const thPrev=ots.filter(t=>t.status==='open').map(t=>`- [${t.since}] ${t.thread}`).join('\n');
     const j=parseJSONLoose(await aiUtil({temp:.2,json:true,prompt:`คุณคือผู้ดูแล \"ความทรงจำนิยาย\" อัปเดตจากสรุปตอนที่ ${ch.num} ล่าสุด
@@ -1811,17 +1818,20 @@ async function runStoryMemory(ch){
 ${sheetPrev||'(ว่าง)'}
 # ปมค้างที่ยังเปิดอยู่ (เดิม)
 ${thPrev||'(ว่าง)'}
+# ตัวละครหลักที่ลงทะเบียนแล้ว (ห้ามตัดออกจากชีต)
+${exNames.size?[...exNames].join(', '):'(ยังไม่มี)'}
 # สรุปตอนที่ ${ch.num}
 ${ch.summary}
 # เหตุการณ์สำคัญ (JSON)
 ${JSON.stringify((ch.eventLog||[]).slice(0,10))}
 ตอบ JSON เท่านั้น ไม่มีข้อความอื่น
-{\"charState\":[{\"name\":\"ชื่อตัวละคร\",\"where\":\"อยู่ที่ไหนตอนจบตอนนี้\",\"status\":\"สภาพ/สถานะปัจจุบัน เช่น ตาย/บาดเจ็บ/สุขภาพดี\",\"items\":\"ของสำคัญที่ถืออยู่ตอนนี้\",\"goal\":\"เป้าหมายปัจจุบัน\"}],\"openThreads\":[{\"thread\":\"ปมที่ยังค้างหรือถูกปิดในตอนนี้\",\"since\":\"ตอนที่เปิด\",\"status\":\"open|closed\"}]}
-กฎ: 1) charState ต้องมีครบทุกตัวที่ยังมีบทบาทในเรื่อง (ของเดิม + ใหม่จากตอนนี้) สูงสุด 25 คน ถ้าตาย/จากไปให้บอกใน status ห้ามลบออก 2) เปลี่ยนเฉพาะที่เปลี่ยนจริง 3) ปมเดิมที่จบแล้ว status=closed แต่ยังต้องส่งกลับมาด้วย 4) ภาษาไทย กระชับ`}));
+{\"charState\":[{\"name\":\"ชื่อตัวละคร\",\"where\":\"อยู่ที่ไหนตอนจบตอนนี้\",\"status\":\"สภาพ/สถานะปัจจุบัน เช่น ตาย/บาดเจ็บ/สุขภาพดี\",\"items\":\"ของสำคัญที่ถืออยู่ตอนนี้\",\"goal\":\"เป้าหมายปัจจุบัน\"}],\"openThreads\":[{\"thread\":\"ปมที่ยังค้างหรือถูกปิดในตอนนี้\",\"since\":\"ตอนที่เปิด\",\"status\":\"open|closed\","irrelevant":["ชื่อตัวประกอบที่ควรเอาออกจากชีต"]}]}
+กฎ: 1) charState ต้องมีเฉพาะตัวที่มีผลต่อเนื้อเรื่องจริง (ของเดิม + ใหม่จากตอนนี้) สูงสุด 25 คน ตัวประกอบที่โผล่แค่ฉาก/ตอนเดียว ไม่มีผลต่อเนื้อเรื่อง ห้ามเพิ่มเข้า charState 2) เปลี่ยนเฉพาะที่เปลี่ยนจริง 3) ปมเดิมที่จบแล้ว status=closed แต่ยังต้องส่งกลับมาด้วย 4) ภาษาไทย กระชับ 5) ตัวในชีตเดิมที่กลายเป็นตัวประกอบไร้ผลต่อเนื้อเรื่องแล้ว — รวมที่ตาย/จากไปแบบไม่มีนัยสำคัญ — ให้ใส่ชื่อใน "irrelevant" เพื่อเอาออกจากชีต ตัวละครหลัก (รายชื่อข้างบน) กับผู้ที่ตายแบบมีนัยสำคัญหรือเกี่ยวข้องกับปมค้าง ห้ามใส่ใน irrelevant 6) ตัวหลักที่ตาย/จากไป ให้คงไว้ใน charState พร้อม status บอกชัดเจน`}));
     const list=j.charState||j.charStates||[];
     const fresh={};for(const x of list){if(!x||!x.name)continue;const nm=x.name.trim();
       fresh[nm]={where:String(x.where||'').trim().slice(0,160),status:String(x.status||'').trim().slice(0,160),items:String(x.items||'').trim().slice(0,160),goal:String(x.goal||'').trim().slice(0,160),at:'ตอน '+ch.num,num:ch.num};}
     for(const[nm,x]of Object.entries(fresh)){const old=ss[nm];ss[nm]=old?Object.assign(old,x):x;}
+    for(const nm of(j.irrelevant||[])){const nm2=String(nm||'').trim();if(!nm2||exNames.has(nm2)||!ss[nm2])continue;delete ss[nm2];}   // ตัดตัวประกอบไร้ผลออก ไม่แตะตัวหลัก
     const ks=Object.keys(ss);if(ks.length>MEM_STATES_MAX){const keep=ks.filter(nm=>memIsGone(ss[nm])||(ss[nm].num||0)>=ch.num-MEM_ACTIVE_WIN);
       if(keep.length>MEM_STATES_MAX){keep.sort((a,b)=>(ss[b].num||0)-(ss[a].num||0));keep.length=MEM_STATES_MAX;}
       for(const nm of ks)if(!keep.includes(nm))delete ss[nm];}
@@ -1831,11 +1841,13 @@ ${JSON.stringify((ch.eventLog||[]).slice(0,10))}
       if(hit){if(closed){if(hit.status==='open'){hit.status='closed';hit.closedAt='ตอน '+ch.num;hit.closedNum=ch.num;}}
         else{if(hit.status==='closed'){hit.status='open';hit.closedAt='';hit.closedNum=0;}hit.thread=txt;hit.since=(t.since&&t.since.trim())||hit.since;}}
       else if(!closed){ots.push({thread:txt,since:(t.since&&t.since.trim())||('ตอน '+ch.num),sinceNum:ch.num,status:'open',closedAt:'',closedNum:0});}}
-    if(ots.length>40){ots.sort((a,b)=>{const ao=a.status==='open',bo=b.status==='open';if(ao!==bo)return ao?-1:1;
-      const an=Math.max(a.sinceNum||chNumStr(a.since),a.closedNum||chNumStr(a.closedAt));
-      const bn=Math.max(b.sinceNum||chNumStr(b.since),b.closedNum||chNumStr(b.closedAt));return bn-an;});
-      ots.length=40;}
+    if(ots.length>40){const op=ots.filter(t=>t.status==='open');const cl=ots.filter(t=>t.status!=='open');
+      if(op.length>60){op.sort((a,b)=>(b.sinceNum||chNumStr(b.since))-(a.sinceNum||chNumStr(a.since)));op.length=60;}   // กันปมเปิดไม่ให้หลุด (ตัดเฉพาะเมื่อเกิน 60)
+      cl.sort((a,b)=>(b.closedNum||b.sinceNum||chNumStr(b.closedAt)||chNumStr(b.since))-(a.closedNum||a.sinceNum||chNumStr(a.closedAt)||chNumStr(a.since)));
+      if(cl.length>25)cl.length=25;
+      ots.length=0;ots.push(...op,...cl);}
     const all=(await dbAll('chapters')).filter(c=>c.storyId===story.id&&c.summary&&c.num>memCovered(st)).sort((a,b)=>a.num-b.num);
+    const planTxt=(String(story.outline||'')+' องก์: '+(story.arc?(story.arc.beginning||'')+' / '+(story.arc.middle||'')+' / '+(story.arc.end||''):'')).slice(0,900);
     if(all.length>MEM_FOLD_TRIG){
       const take=Math.min(all.length-MEM_UNFOLD_KEEP,MEM_ERA_MAX);
       const fold=all.slice(0,take);const fr=fold[0].num,to=fold[take-1].num;
@@ -1846,12 +1858,16 @@ ${JSON.stringify((ch.eventLog||[]).slice(0,10))}
 ${era.text}
 # สรุปรายตอนเพิ่ม (ตอน ${fr}-${to})
 ${fold.map(c=>`[ตอน ${c.num}] ${(c.summary||'').slice(0,1800)}`).join('\n\n')}
-เขียนสรุปยุคใหม่รวมทั้งหมด ภาษาไทย 180-280 คำ เก็บ: เหตุการณ์/สถานะ/ของสำคัญที่ยังค้าง ความสัมพันธ์ที่เปลี่ยน ปมย่อยในยุคนี้ ตัดรายละเอียดย่อย`});
+# โครงเรื่องที่วางไว้ (ใช้วัดว่าตอนนี้ไปถึงไหน)
+${planTxt}
+เขียนสรุปยุคใหม่รวมทั้งหมด ภาษาไทย 180-280 คำ เก็บ: เหตุการณ์/สถานะ/ของสำคัญที่ยังค้าง ความสัมพันธ์ที่เปลี่ยน ปมย่อยในยุคนี้ ตัดรายละเอียดย่อย แล้วปิดท้ายด้วยบรรทัด ⏩ ความคืบหน้า: <ตอนนี้เรื่องไปถึงจุดไหนของ 3 องก์/โครงเรื่อง>`});
         era.text=dg.trim();era.to=to;
       }else{
         dg=await aiUtil({temp:.25,prompt:`สรุป \"ยุค\" หนึ่งของนิยายเรื่องนี้ (ตอน ${fr}-${to}) — ระดับกลาง ละเอียดกว่าสรุปโบราณรวม แต่สั้นกว่าสรุปรายตอน
 ${fold.map(c=>`[ตอน ${c.num}] ${(c.summary||'').slice(0,1800)}`).join('\n\n')}
-เขียนสรุปยุค ภาษาไทย 180-280 คำ เก็บ: เหตุการณ์หลัก/สถานะตัวละคร/ของสำคัญที่ยังค้าง/ปมย่อย ตัดรายละเอียดย่อย อ่านแล้วเข้าใจทั้งยุค`});
+# โครงเรื่องที่วางไว้ (ใช้วัดว่าตอนนี้ไปถึงไหน)
+${planTxt}
+เขียนสรุปยุค ภาษาไทย 180-280 คำ เก็บ: เหตุการณ์หลัก/สถานะตัวละคร/ของสำคัญที่ยังค้าง/ปมย่อย ตัดรายละเอียดย่อย อ่านแล้วเข้าใจทั้งยุค แล้วปิดท้ายด้วยบรรทัด ⏩ ความคืบหน้า: <ตอนนี้เรื่องไปถึงจุดไหนของ 3 องก์/โครงเรื่อง>`});
         st.eras.push({from:fr,to,text:dg.trim(),at:Date.now()});}
       while(st.eras.length>MEM_KEEP_ERAS){
         const e=st.eras.shift();
@@ -1862,6 +1878,8 @@ ${e.text}
 เขียนสรุปโบราณรวมทั้งหมดใหม่ ภาษาไทย 250-350 คำ เก็บ: ปมใหญ่ที่ยังต้องจ่าย / ตัวละครที่ตายหรือจากไปแบบสำคัญ / ข้อเท็จจริงถาวรของโลก ตัดรายละเอียดย่อย`});
         st.longMem={until:e.to,text:dg2.trim()};}
       }
+      const le=st.eras[st.eras.length-1];
+      if(le){const pl=memProgLine(le.text);if(pl)st.progress={at:le.to,text:pl};}
     await dbPut('stories',story);
     if(state.story&&state.story.id===story.id)Object.assign(state.story,story);
   }catch(e){}}
