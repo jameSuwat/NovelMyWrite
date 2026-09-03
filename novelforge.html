@@ -1379,13 +1379,16 @@ async function gatherContext(sid,chaps=null,skipTails=false){
   const sorted=(chaps||[]).slice().sort((a,b)=>a.num-b.num);
   const st=storyState(s);
   const longMem=st.longMem&&st.longMem.text?st.longMem:{until:0,text:''};
-  const sums=sorted.filter(c=>c.summary&&c.num>longMem.until).slice(-12).map(c=>`ตอน ${c.num} «${c.title||''}»:\n${c.summary}`).join('\n\n');
+  const eras=st.eras||[];
+  const covNow=Math.max(longMem.until,eras.length?eras[eras.length-1].to:0);
+  const sums=sorted.filter(c=>c.summary&&c.num>covNow).slice(-12).map(c=>`ตอน ${c.num} «${c.title||''}»:\n${c.summary}`).join('\n\n');
   // Build event log from all chapters
   const allEvents=sorted.filter(c=>c.eventLog&&c.eventLog.length).flatMap(c=>
     c.eventLog.map(e=>`[ตอน ${c.num}] ${e.event} (${(e.characters||[]).join(', ')}) — ${e.impact||''}`)
   ).slice(-30); // keep last 30 events
   const eventBlock=allEvents.length?`\n\n# 📋 บันทึกเหตุการณ์ทั้งหมด (ห้ามขัดแย้ง)\n${allEvents.join('\n')}`:''
-  if(longMem.text)b+=`\n\n# 📜 ความทรงจำระยะยาว (ตอน 1-${longMem.until} — ผ่านไปแล้ว ใช้อ้างอิงได้ ห้ามขัดแย้ง)\n${longMem.text}`;
+  if(longMem.text)b+=`\n\n# 📜 ความทรงจำโบราณ (ตอน 1-${longMem.until} — เรื่องเก่ามาก ผ่านไปนานแล้ว ใช้อ้างอิง ห้ามขัดแย้ง)\n${longMem.text}`;
+  for(const er of eras)b+=`\n\n# 🗂️ ความทรงจำยุคที่ผ่านมา (ตอน ${er.from}-${er.to})\n${er.text}`;
   const csE=Object.entries(st.charState||{}).slice(0,20);
   if(csE.length){b+=`\n\n# 📍 สถานะตัวละครปัจจุบัน (อัปเดตล่าสุดตามเลขตอน — ตาย/จากไปแล้วห้ามฟื้นคืนมา บาดเจ็บต้องมีฉากรักษาก่อนหาย)\n`;
     for(const[nm,x]of csE){const ps=[x.where&&('ที่อยู่: '+x.where),x.status&&('สภาพ: '+x.status),x.items&&('ของติดตัว: '+x.items),x.goal&&('เป้าหมาย: '+x.goal),x.at&&('อัปเดต: '+x.at)].filter(Boolean);
@@ -1748,13 +1751,20 @@ async function summarizeChapter(ch,silent=false){
     return ch.summary;
   }catch(e){return null;}}
 
-/* ---------- ROLLING STORY MEMORY: ความทรงจำระยะยาว + สถานะตัวละคร + ปมค้าง ---------- */
+/* ---------- ROLLING STORY MEMORY: ความทรงจำ 2 ชั้น (ยุค + โบราณ) + สถานะตัวละคร + ปมค้าง ---------- */
+const MEM_UNFOLD_KEEP=12,MEM_FOLD_TRIG=16,MEM_ERA_MAX=25,MEM_KEEP_ERAS=2,MEM_ACTIVE_WIN=60,MEM_STATES_MAX=120;
 let memQueues={};
 function memQueue(sid,fn){const prev=memQueues[sid]||Promise.resolve();
   const p=prev.then(fn,fn);memQueues[sid]=p.catch(()=>{});return p;}
-function storyState(st){st=st||{};if(!st.state)st.state={v:1,charState:{},openThreads:[],longMem:{until:0,text:''}};
-  if(!st.state.charState)st.state.charState={};if(!st.state.openThreads)st.state.openThreads=[];
-  if(!st.state.longMem)st.state.longMem={until:0,text:''};return st.state;}
+function storyState(st){st=st||{};if(!st.state)st.state={v:2,charState:{},openThreads:[],longMem:{until:0,text:''},eras:[]};
+  const S=st.state;
+  if(!S.charState)S.charState={};if(!S.openThreads)S.openThreads=[];
+  if(!S.longMem)S.longMem={until:0,text:''};if(!Array.isArray(S.eras))S.eras=[];
+  return S;}
+function memCovered(st){const S=(st&&st.state)||{};const e=S.eras||[];
+  return Math.max(S.longMem?S.longMem.until:0,e.length?e[e.length-1].to:0);}
+function chNumStr(t){const m=String(t||'').match(/ตอน\s*(\d+)/);return m?+m[1]:0;}
+function memIsGone(x){return/ตาย|เสียชีวิต|มรณภาพ|ถูกฆ่า/.test(x&&x.status?x.status:'');}
 async function runStoryMemory(ch){
   try{
     const story=await dbGet('stories',ch.storyId);if(!story||!ch.summary)return;
@@ -1777,25 +1787,80 @@ ${JSON.stringify((ch.eventLog||[]).slice(0,10))}
     const fresh={};for(const x of list){if(!x||!x.name)continue;const nm=x.name.trim();
       fresh[nm]={where:String(x.where||'').trim().slice(0,160),status:String(x.status||'').trim().slice(0,160),items:String(x.items||'').trim().slice(0,160),goal:String(x.goal||'').trim().slice(0,160),at:'ตอน '+ch.num,num:ch.num};}
     for(const[nm,x]of Object.entries(fresh)){const old=ss[nm];ss[nm]=old?Object.assign(old,x):x;}
-    const ks=Object.keys(ss);if(ks.length>60){ks.sort((a,b)=>(ss[b].num||0)-(ss[a].num||0));for(const nm of ks.slice(60))delete ss[nm];}
+    const ks=Object.keys(ss);if(ks.length>MEM_STATES_MAX){const keep=ks.filter(nm=>memIsGone(ss[nm])||(ss[nm].num||0)>=ch.num-MEM_ACTIVE_WIN);
+      if(keep.length>MEM_STATES_MAX){keep.sort((a,b)=>(ss[b].num||0)-(ss[a].num||0));keep.length=MEM_STATES_MAX;}
+      for(const nm of ks)if(!keep.includes(nm))delete ss[nm];}
     for(const t of(j.openThreads||[])){if(!t||!t.thread)continue;const txt=t.thread.trim();if(!txt)continue;
       const closed=t.status==='closed';let hit=null;
       for(const o of ots){if(o.thread===txt||o.thread.includes(txt)||txt.includes(o.thread)){hit=o;break;}}
-      if(hit){if(closed){if(hit.status==='open'){hit.status='closed';hit.closedAt='ตอน '+ch.num;}}
-        else{if(hit.status==='closed'){hit.status='open';hit.closedAt='';}hit.thread=txt;hit.since=(t.since&&t.since.trim())||hit.since;}}
-      else if(!closed){ots.push({thread:txt,since:(t.since&&t.since.trim())||('ตอน '+ch.num),status:'open',closedAt:''});}}
-    if(ots.length>40){ots.sort((a,b)=>(b.closedAt||b.since||'').localeCompare(a.closedAt||a.since||''));ots.length=40;}
-    const all=(await dbAll('chapters')).filter(c=>c.storyId===story.id&&c.summary&&c.num>st.longMem.until).sort((a,b)=>a.num-b.num);
-    if(all.length>16){const fold=all.slice(0,Math.min(all.length-12,10));   // รวมสรุปเก่าครั้งละ ≤10 ตอน กันคิวค้างนาน
-      const dg=await aiUtil({temp:.25,prompt:`รวม \"ความทรงจำระยะยาว\" ของนิยายเรื่องนี้
-${st.longMem.text?`# ความทรงจำเดิม (ตอน 1-${st.longMem.until})\n${st.longMem.text}\n`:''}
-# สรุปตอนที่จะรวม (ตอน ${fold[0].num}-${fold[fold.length-1].num})
-${fold.map(c=>`[ตอน ${c.num}] ${(c.summary||'').slice(0,2000)}`).join('\n\n')}
-เขียนความทรงจำระยะยาวรวมทั้งหมดใหม่ ภาษาไทย 150-250 คำ เก็บ: เหตุการณ์ที่ยังส่งผลถึงปัจจุบัน / ของหรือสถานะสำคัญที่ยังค้าง / ความสัมพันธ์ที่เปลี่ยน / ปมใหญ่ ตัดรายละเอียดย่อย อ่านแล้วเข้าใจตอนเก่าโดยไม่งง`});
-      st.longMem={until:fold[fold.length-1].num,text:dg.trim()};}
+      if(hit){if(closed){if(hit.status==='open'){hit.status='closed';hit.closedAt='ตอน '+ch.num;hit.closedNum=ch.num;}}
+        else{if(hit.status==='closed'){hit.status='open';hit.closedAt='';hit.closedNum=0;}hit.thread=txt;hit.since=(t.since&&t.since.trim())||hit.since;}}
+      else if(!closed){ots.push({thread:txt,since:(t.since&&t.since.trim())||('ตอน '+ch.num),sinceNum:ch.num,status:'open',closedAt:'',closedNum:0});}}
+    if(ots.length>40){ots.sort((a,b)=>{const ao=a.status==='open',bo=b.status==='open';if(ao!==bo)return ao?-1:1;
+      const an=Math.max(a.sinceNum||chNumStr(a.since),a.closedNum||chNumStr(a.closedAt));
+      const bn=Math.max(b.sinceNum||chNumStr(b.since),b.closedNum||chNumStr(b.closedAt));return bn-an;});
+      ots.length=40;}
+    const all=(await dbAll('chapters')).filter(c=>c.storyId===story.id&&c.summary&&c.num>memCovered(st)).sort((a,b)=>a.num-b.num);
+    if(all.length>MEM_FOLD_TRIG){
+      const take=Math.min(all.length-MEM_UNFOLD_KEEP,MEM_ERA_MAX);
+      const fold=all.slice(0,take);const fr=fold[0].num,to=fold[take-1].num;
+      let era=st.eras[st.eras.length-1];let dg;
+      if(era&&era.to+1===fr&&(era.to-era.from+1)<MEM_ERA_MAX){
+        dg=await aiUtil({temp:.25,prompt:`ขยายสรุป \"ยุค\" (ตอน ${era.from}-${to}) ของนิยายเรื่องนี้
+# สรุปยุคเดิม (ตอน ${era.from}-${era.to})
+${era.text}
+# สรุปรายตอนเพิ่ม (ตอน ${fr}-${to})
+${fold.map(c=>`[ตอน ${c.num}] ${(c.summary||'').slice(0,1800)}`).join('\n\n')}
+เขียนสรุปยุคใหม่รวมทั้งหมด ภาษาไทย 180-280 คำ เก็บ: เหตุการณ์/สถานะ/ของสำคัญที่ยังค้าง ความสัมพันธ์ที่เปลี่ยน ปมย่อยในยุคนี้ ตัดรายละเอียดย่อย`});
+        era.text=dg.trim();era.to=to;
+      }else{
+        dg=await aiUtil({temp:.25,prompt:`สรุป \"ยุค\" หนึ่งของนิยายเรื่องนี้ (ตอน ${fr}-${to}) — ระดับกลาง ละเอียดกว่าสรุปโบราณรวม แต่สั้นกว่าสรุปรายตอน
+${fold.map(c=>`[ตอน ${c.num}] ${(c.summary||'').slice(0,1800)}`).join('\n\n')}
+เขียนสรุปยุค ภาษาไทย 180-280 คำ เก็บ: เหตุการณ์หลัก/สถานะตัวละคร/ของสำคัญที่ยังค้าง/ปมย่อย ตัดรายละเอียดย่อย อ่านแล้วเข้าใจทั้งยุค`});
+        st.eras.push({from:fr,to,text:dg.trim(),at:Date.now()});}
+      while(st.eras.length>MEM_KEEP_ERAS){
+        const e=st.eras.shift();
+        const dg2=await aiUtil({temp:.25,prompt:`รวมสรุป \"โบราณ\" ของนิยายเรื่องนี้ (ทุกอย่างก่อนยุคที่ยังแสดงอยู่)
+${st.longMem.text?`# สรุปโบราณเดิม (ตอน 1-${st.longMem.until})\n${st.longMem.text}\n`:''}
+# สรุปยุคที่จะเก็บเข้ากองโบราณ (ตอน ${e.from}-${e.to})
+${e.text}
+เขียนสรุปโบราณรวมทั้งหมดใหม่ ภาษาไทย 250-350 คำ เก็บ: ปมใหญ่ที่ยังต้องจ่าย / ตัวละครที่ตายหรือจากไปแบบสำคัญ / ข้อเท็จจริงถาวรของโลก ตัดรายละเอียดย่อย`});
+        st.longMem={until:e.to,text:dg2.trim()};}
+      }
     await dbPut('stories',story);
     if(state.story&&state.story.id===story.id)Object.assign(state.story,story);
   }catch(e){}}
+
+/* ---------- LOCAL KEYWORD SEARCH (BM25-style, on-device) ---------- */
+const memPunct=/[.,!?;:()"'«»\[\]{}<>/#@$%^&*_=+\|~`·—–-]/g;
+function memLower(t){return String(t||'').toLowerCase();}
+async function storySearch(sid,terms,limit=10){
+  const q=[...new Set(terms.map(t=>String(t).trim().toLowerCase()).filter(Boolean))];
+  if(!q.length)return [];
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===sid&&c.content);
+  const docs=[];for(const c of chaps){const s=String(c.content);if(s.length<10)continue;docs.push({c,n:memLower(s),len:s.length});}
+  const N=docs.length;if(!N)return [];
+  const df={};for(const t of q)df[t]=0;
+  for(const d of docs)for(const t of q){if(d.n.includes(t))df[t]++;}
+  const avg=N?docs.reduce((s,d)=>s+d.len,0)/N:0;
+  const k1=1.2,b=.75,res=[];
+  for(const d of docs){let score=0,bestIdx=-1;
+    for(const t of q){if(!d.n.includes(t))continue;
+      const p=d.n.indexOf(t);if(bestIdx<0||(p>=0&&p<bestIdx))bestIdx=p;
+      const f=d.n.split(t).length-1;
+      const idf=Math.log(1+(N-df[t]+.5)/(df[t]+.5));
+      score+=idf*f*(k1+1)/(f+k1*(1-b+b*d.len/avg));}
+    if(score>0){const a=Math.max(0,bestIdx-45),z=Math.min(d.n.length,bestIdx+85);
+      res.push({num:d.c.num,title:d.c.title,score,snip:(a>0?'…':'')+d.n.slice(a,z)+(z<d.n.length?'…':'')});}}
+  res.sort((a,b)=>b.score-a.score);
+  return res.slice(0,limit);}
+async function memEvidence(sid,currentText){
+  const cur=String(currentText||'');
+  const chars=(await dbAll('characters')).filter(c=>c.storyId===sid&&c.name&&cur.includes(c.name)).map(c=>c.name).sort((a,b)=>b.length-a.length).slice(0,5);
+  if(!chars.length)return '';
+  const hits=await storySearch(sid,chars,10);
+  if(!hits.length)return '';
+  return hits.map(h=>`[ตอน ${h.num}${h.title?` «${h.title}»`:''}] ${h.snip}`).join('\n');}
 async function sumBtnWrap(){const b=$('#ed-sum-btn');if(!state.chapter)return;
   const ch=state.chapter;ch.content=$('#ed-content').value;
   b.disabled=true;b.textContent='...';
@@ -1832,8 +1897,9 @@ async function checkConsistency(){
   try{
     const others=(await dbAll('chapters')).filter(c=>c.storyId===ch.storyId&&c.id!==ch.id);
     const mem=await gatherContext(ch.storyId,others);
+    const evid=await memEvidence(ch.storyId,content.slice(0,26000));
     const prompt=`${mem.block}
-${mem.summaries?`# เรื่องย่อก่อนหน้า\n${mem.summaries}\n`:''}# ตอนที่ตรวจ (ตอนที่ ${ch.num})
+${mem.summaries?`# เรื่องย่อก่อนหน้า\n${mem.summaries}\n`:''}${evid?`# 🔎 หลักฐานจากเนื้อหาตอนก่อนหน้า (ค้นหาชื่อตัวละครในตอนนี้เจอในตอนเก่า — ห้ามขัดแย้งกับชื่อ/เหตุการณ์/สถานที่/สถานะที่เคยปรากฏ)\n${evid}\n`:''}# ตอนที่ตรวจ (ตอนที่ ${ch.num})
 """${content.slice(0,26000)}"""
 ตรวจขัดแย้ง: 1)ชื่อตัวละคร 2)นิสัย/ลักษณะ 3)พลัง/กฎ/วิชา 4)สถานที่ 5)เหตุการณ์ก่อนหน้า 6)ความสัมพันธ์ 7)ไทม์ไลน์
 ตอบ JSON: {"score":0-100,"verdict":"สรุป 1-2 ประโยค","issues":[{"severity":"สูง|กลาง|ต่ำ","type":"ตัวละคร|พลัง/กฎ|สถานที่|เหตุการณ์|ความสัมพันธ์|ไทม์ไลน์|อื่นๆ","detail":"...","suggestion":"..."}]}
