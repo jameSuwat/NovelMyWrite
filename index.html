@@ -603,6 +603,29 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </div>
 </div>
 
+<!-- PLAN ITEM MODAL -->
+<div class="overlay" id="m-pi">
+  <div class="modal">
+    <h2 id="pi-h">✏️ แผน <button class="x" onclick="closeM('m-pi')">✕</button></h2>
+    <div id="pi-g-beat">
+      <label class="f">ช่วงตอน (เหตุการณ์)</label><input class="in" id="pi-at" placeholder="เช่น ตอน 1-5">
+      <label class="f">ชื่อเหตุการณ์ *</label><input class="in" id="pi-title">
+      <label class="f">รายละเอียด</label><textarea class="in" id="pi-desc" rows="3"></textarea>
+    </div>
+    <div id="pi-g-thread" style="display:none">
+      <label class="f">ปมที่วาง *</label><textarea class="in" id="pi-thread" rows="2"></textarea>
+      <label class="f">จะจ่ายตอนไหน/อย่างไร</label><input class="in" id="pi-payoff" placeholder="เช่น ตอน 20 — เจอดาบที่หายไป">
+    </div>
+    <div id="pi-g-rule" style="display:none">
+      <label class="f">เงื่อนไขกรอบ *</label><textarea class="in" id="pi-rule" rows="3"></textarea>
+    </div>
+    <div class="mfoot">
+      <button class="btn ghost" onclick="closeM('m-pi')">ยกเลิก</button>
+      <button class="btn primary" onclick="savePlanItem()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
 <!-- NEW CHAPTER MODAL -->
 <div class="overlay" id="m-newchap">
   <div class="modal">
@@ -1144,9 +1167,9 @@ async function renderPlan(){
   let det='';
   if(beats.length||thr.length||rules.length){
     const rows=[];
-    if(beats.length)rows.push('<b>🗓️ เหตุการณ์สำคัญ (เรียงตามช่วงตอน)</b>'+beats.map(x=>'<div class="dt" style="margin-top:3px">• ['+esc(x.at)+'] <b>'+esc(x.title)+'</b>'+(x.desc?' — '+esc(x.desc):'')+'</div>').join(''));
-    if(thr.length)rows.push('<b>🪝 ปมที่วางแผนไว้</b>'+thr.map(x=>'<div class="dt" style="margin-top:3px">• '+esc(x.thread)+(x.payoff?' <span class="hint">→ จ่าย: '+esc(x.payoff)+'</span>':'')+'</div>').join(''));
-    if(rules.length)rows.push('<b>⚖️ เงื่อนไขกรอบ (ห้ามหลุด)</b>'+rules.map((r,i)=>'<div class="dt" style="margin-top:3px">• '+(i+1)+'. '+esc(r)+'</div>').join(''));
+    if(beats.length)rows.push('<b>🗓️ เหตุการณ์สำคัญ (เรียงตามช่วงตอน) <button class="btn ghost sm" data-pa="beat" style="margin-left:6px">＋ เพิ่ม</button></b>'+beats.map((x,i)=>'<div class="dt" style="margin-top:3px">• ['+esc(x.at)+'] <b>'+esc(x.title)+'</b>'+(x.desc?' — '+esc(x.desc):'')+' <button class="ibtn e" data-pe="beat" data-idx="'+i+'">✏️</button><button class="ibtn dl" data-pd="beat" data-idx="'+i+'">🗑</button></div>').join(''));
+    if(thr.length)rows.push('<b>🪝 ปมที่วางแผนไว้ <button class="btn ghost sm" data-pa="thread" style="margin-left:6px">＋ เพิ่ม</button></b>'+thr.map((x,i)=>'<div class="dt" style="margin-top:3px">• '+esc(x.thread)+(x.payoff?' <span class="hint">→ จ่าย: '+esc(x.payoff)+'</span>':'')+' <button class="ibtn e" data-pe="thread" data-idx="'+i+'">✏️</button><button class="ibtn dl" data-pd="thread" data-idx="'+i+'">🗑</button></div>').join(''));
+    if(rules.length)rows.push('<b>⚖️ เงื่อนไขกรอบ (ห้ามหลุด) <button class="btn ghost sm" data-pa="rule" style="margin-left:6px">＋ เพิ่ม</button></b>'+rules.map((r,i)=>'<div class="dt" style="margin-top:3px">• '+(i+1)+'. '+esc(r)+' <button class="ibtn e" data-pe="rule" data-idx="'+i+'">✏️</button><button class="ibtn dl" data-pd="rule" data-idx="'+i+'">🗑</button></div>').join(''));
     det='<details style="margin-top:10px"><summary>📋 ดูรายละเอียดแผน ('+beats.length+' เหตุการณ์ · '+thr.length+' ปม · '+rules.length+' เงื่อนไข)</summary><div style="margin-top:8px;display:grid;gap:10px">'+rows.join('')+'</div></details>';}
   const ready=hasO&&hasA&&chars.length>=3&&beats.length>0&&thr.length>0&&rules.length>0;
   box.innerHTML='<div class="toolrow" style="justify-content:space-between;flex-wrap:wrap;gap:8px">'
@@ -1156,6 +1179,9 @@ async function renderPlan(){
     +(ready?'<p class="hint" style="margin:8px 0 0">✅ ชุดครบแล้ว — ไป 📚 ตอนทั้งหมด แล้วกด ✍️ เขียนตอนได้เลย (แผนนี้ถูกส่งให้ AI ยึดทุกตอน)</p>'
             :'<p class="hint" style="margin:8px 0 0">⚠️ ยังไม่ครบ — กดสร้างชุดเดียว: AI จะวางโครงเรื่องคร่าว + 3 องก์ + ตัวละคร(หลัก/รอง/ร้าย) + เหตุการณ์สำคัญ + ปม + เงื่อนไขกรอบให้พร้อมกัน</p>')
     +det;
+  box.querySelectorAll('[data-pe]').forEach(el=>el.onclick=()=>openPlanItem(el.dataset.pe,+el.dataset.idx));
+  box.querySelectorAll('[data-pd]').forEach(el=>el.onclick=()=>delPlanItem(el.dataset.pd,+el.dataset.idx));
+  box.querySelectorAll('[data-pa]').forEach(el=>el.onclick=()=>openPlanItem(el.dataset.pa,-1));
 }
 async function buildStoryPlan(){
   if(!needKey())return;
@@ -1221,6 +1247,56 @@ async function buildStoryPlan(){
   await renderPlan();
   fin();
 }
+let piCtx={type:'beat',idx:-1};
+function ensurePlan(){const s=state.story;if(s&&!s.plan)s.plan={beats:[],threads:[],rules:[]};return s? s.plan:null}
+function planArrOf(p,type){return p[type==='beat'?'beats':type==='thread'?'threads':'rules']}
+function openPlanItem(type,idx){
+  if(!state.story)return;
+  const p=ensurePlan();if(!p)return;
+  piCtx={type,idx};
+  const arr=planArrOf(p,type);const it=idx>=0&&arr[idx]?arr[idx]:null;
+  $('#pi-h').firstChild.textContent=(idx>=0?'✏️ แก้ไข ':'＋ เพิ่ม ')+'แผน: '+(type==='beat'?'เหตุการณ์สำคัญ':type==='thread'?'ปม':'เงื่อนไขกรอบ')+'  ';
+  $('#pi-g-beat').style.display=type==='beat'?'':'none';
+  $('#pi-g-thread').style.display=type==='thread'?'':'none';
+  $('#pi-g-rule').style.display=type==='rule'?'':'none';
+  $('#pi-at').value=it&&it.at||'';$('#pi-title').value=it&&it.title||'';$('#pi-desc').value=it&&it.desc||'';
+  $('#pi-thread').value=type==='thread'?(it&&it.thread||''):'';$('#pi-payoff').value=type==='thread'?(it&&it.payoff||''):'';
+  $('#pi-rule').value=type==='rule'?(it||''):'';
+  openM('m-pi');
+  const f=type==='beat'?'pi-title':type==='thread'?'pi-thread':'pi-rule';
+  setTimeout(()=>$('#'+f).focus(),50);
+}
+async function savePlanItem(){
+  const s=state.story;if(!s)return;
+  const p=ensurePlan();if(!p)return;
+  const arr=planArrOf(p,piCtx.type);
+  if(piCtx.type==='beat'){
+    const title=$('#pi-title').value.trim();if(!title)return toast('ใส่ชื่อเหตุการณ์ก่อน','warn');
+    const it={at:$('#pi-at').value.trim(),title,desc:$('#pi-desc').value.trim()};
+    if(piCtx.idx>=0&&arr[piCtx.idx])arr[piCtx.idx]=it;else arr.push(it);
+  }else if(piCtx.type==='thread'){
+    const thread=$('#pi-thread').value.trim();if(!thread)return toast('ใส่ปมก่อน','warn');
+    const it={thread,payoff:$('#pi-payoff').value.trim()};
+    if(piCtx.idx>=0&&arr[piCtx.idx])arr[piCtx.idx]=it;else arr.push(it);
+  }else{
+    const rule=$('#pi-rule').value.trim();if(!rule)return toast('ใส่เงื่อนไขก่อน','warn');
+    if(piCtx.idx>=0&&arr[piCtx.idx])arr[piCtx.idx]=rule;else arr.push(rule);
+  }
+  s.updatedAt=Date.now();await dbPut('stories',s);
+  if(state.story&&state.story.id===s.id)Object.assign(state.story,s);
+  closeM('m-pi');await renderPlan();toast('บันทึกแผนแล้ว ✏️');
+}
+async function delPlanItem(type,idx){
+  const s=state.story;if(!s)return;
+  if(!confirm('ลบรายการนี้จากแผน?'))return;
+  const p=ensurePlan();if(!p)return;
+  const arr=planArrOf(p,type);
+  if(idx>=0&&arr[idx])arr.splice(idx,1);
+  s.updatedAt=Date.now();await dbPut('stories',s);
+  if(state.story&&state.story.id===s.id)Object.assign(state.story,s);
+  await renderPlan();toast('ลบแล้ว 🗑');
+}
+
 
 /* ---------- ARC ---------- */
 function fillArc(){const a=state.story.arc||{};$('#arc-b').value=a.beginning||'';$('#arc-m').value=a.middle||'';$('#arc-e').value=a.end||'';}
