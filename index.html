@@ -1235,17 +1235,31 @@ async function renderLore(){
     el.appendChild(d);}}
 async function memStatePanel(){
   const s0=state.story;if(!s0)return '';
+  const t0=performance.now();
   const s=await dbGet('stories',s0.id);
+  const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s0.id);
   const st=s&&s.state?s.state:null;
   const cs=st&&st.charState?Object.entries(st.charState):[];
-  const ths=st&&st.openThreads?st.openThreads.filter(t=>t.status==='open'):[];
-  if(!cs.length&&!ths.length)return '<details class="sum"><summary>📌 สถานะตัวละคร & ปมค้าง <span class="hint">(อัตโนมัติ)</span></summary><p class="hint" style="margin:10px 0 4px">ยังไม่มี — เขียนจบตอนแล้วกด 🧾 \"สรุปตอนนี้เป็นความจำ\" AI จะบันทึกสถานะตัวละคร + ปมค้าง + ความทรงจำระยะยาวให้อัตโนมัติ</p></details>';
-  let h='<details class="sum" open><summary>📌 สถานะตัวละคร & ปมค้าง <span class="hint">AI อัปเดตอัตโนมัติหลัง 🧾 สรุปตอน — ดูได้อย่างเดียว แก้โดยสรุปตอนใหม่</span></summary><div style="margin-top:8px">';
-  if(cs.length){h+='<b style="font-size:.9rem">📍 สถานะตัวละครปัจจุบัน</b>';
-    for(const[nm,x]of cs.slice(0,25))h+=`<div class="lr-item" style="border-left-color:#34d399;margin-top:7px"><div style="min-width:0"><b>${esc(nm)}</b>${x.at?` <span class="whenchip">${esc(x.at)}</span>`:''}<div class="dt">${esc([x.where&&('📍 '+x.where),x.status&&('🧭 '+x.status),x.items&&('🎒 '+x.items),x.goal&&('🎯 '+x.goal)].filter(Boolean).join(' · ')||'-')}</div></div></div>`;}
-  if(ths.length){h+='<b style="font-size:.9rem;display:block;margin:12px 0 2px">🪝 ปมค้างที่ยังไม่จบ ('+ths.length+')</b>';
-    for(const t of ths.slice(0,15))h+=`<div class="lr-item" style="border-left-color:#fbbf24"><div style="min-width:0"><b>🪝</b> <span class="whenchip">เปิด ${esc(t.since)}</span><div class="dt">${esc(t.thread)}</div></div></div>`;}
-  return h+'</div></details>';}
+  const allTh=st&&st.openThreads?st.openThreads:[];
+  const ths=allTh.filter(t=>t.status==='open');
+  const totalCh=chaps.length;
+  const cov=st?memCovered(s):0;
+  const unfolded=chaps.filter(c=>c.summary&&c.num>cov).length;
+  const erasN=st&&st.eras?st.eras.length:0;
+  const grandTxt=st&&st.longMem&&st.longMem.text;
+  let promptMs=null;
+  try{const p0=performance.now();await gatherContext(s0.id,chaps,true);promptMs=performance.now()-p0;}catch(e){promptMs=null;}
+  const fmtMs=v=>v==null?'-':(v<1?'<1':String(Math.round(v)));
+  const stat=(icon,label,val)=>`<span class="hint" style="margin-right:12px;white-space:nowrap">${icon} ${esc(label)}: <b style="color:var(--tx)">${esc(val)}</b></span>`;
+  const health=`<div style="margin:8px 0 2px;line-height:1.9">${stat('📚','ครอบคลุม',cov?('ถึงตอน '+cov):'ยังไม่มี')}${stat('🧾','สรุปใน prompt',unfolded+' ตอน')}${stat('🗂️','ยุค',erasN)}${stat('📜','โบราณ',grandTxt?('ถึงตอน '+st.longMem.until):'ยังไม่มี')}${stat('🪝','ปม',`เปิด ${ths.length} · ปิด ${allTh.length-ths.length}`)}${stat('👥','สถานะ',cs.length)}${stat('⏱️','Prompt',fmtMs(promptMs)+' ms')}</div>`;
+  let list='';
+  if(cs.length){list+='<b style="font-size:.9rem">📍 สถานะตัวละครปัจจุบัน</b>';
+    for(const[nm,x]of cs.slice(0,25))list+=`<div class="lr-item" style="border-left-color:#34d399;margin-top:7px"><div style="min-width:0"><b>${esc(nm)}</b>${x.at?` <span class="whenchip">${esc(x.at)}</span>`:''}<div class="dt">${esc([x.where&&('📍 '+x.where),x.status&&('🧭 '+x.status),x.items&&('🎒 '+x.items),x.goal&&('🎯 '+x.goal)].filter(Boolean).join(' · ')||'-')}</div></div></div>`;}
+  if(ths.length){list+='<b style="font-size:.9rem;display:block;margin:12px 0 2px">🪝 ปมค้างที่ยังไม่จบ ('+ths.length+')</b>';
+    for(const t of ths.slice(0,15))list+=`<div class="lr-item" style="border-left-color:#fbbf24"><div style="min-width:0"><b>🪝</b> <span class="whenchip">เปิด ${esc(t.since)}</span><div class="dt">${esc(t.thread)}</div></div></div>`;}
+  if(!cs.length&&!ths.length)list='<p class="hint">ยังไม่มีสถานะ/ปม — เขียนจบตอนแล้วกด 🧾 "สรุปตอนนี้เป็นความจำ" AI จะบันทึกสถานะตัวละคร + ปมค้าง + ความทรงจำระยะยาวให้อัตโนมัติ</p>';
+  const openAttr=cs.length||ths.length?' open':'';
+  return '<details class="sum"'+openAttr+'><summary>📌 สถานะตัวละคร & ปมค้าง <span class="hint">AI อัปเดตอัตโนมัติหลัง 🧾 สรุปตอน — ดูได้อย่างเดียว แก้โดยสรุปตอนใหม่</span></summary>'+health+(list?'<div style="margin-top:6px">'+list+'</div>':'')+'</details>';}
 function openLoreModal(l){
   $('#lf-h').firstChild.textContent=(l?'✏️ แก้ไข ':'＋ เพิ่มความจำ ');
   $('#lf-id').value=l?.id||'';$('#lf-cat').value=l?.cat||'location';
@@ -1761,7 +1775,7 @@ function storyState(st){st=st||{};if(!st.state)st.state={v:2,charState:{},openTh
   if(!S.charState)S.charState={};if(!S.openThreads)S.openThreads=[];
   if(!S.longMem)S.longMem={until:0,text:''};if(!Array.isArray(S.eras))S.eras=[];
   return S;}
-function memCovered(st){const S=(st&&st.state)||{};const e=S.eras||[];
+function memCovered(st){const S=(st&&st.state)||st||{};const e=S.eras||[];
   return Math.max(S.longMem?S.longMem.until:0,e.length?e[e.length-1].to:0);}
 function chNumStr(t){const m=String(t||'').match(/ตอน\s*(\d+)/);return m?+m[1]:0;}
 function memIsGone(x){return/ตาย|เสียชีวิต|มรณภาพ|ถูกฆ่า/.test(x&&x.status?x.status:'');}
