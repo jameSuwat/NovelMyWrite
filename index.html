@@ -1173,11 +1173,15 @@ async function renderPlan(){
     det='<details style="margin-top:10px"><summary>📋 ดูรายละเอียดแผน ('+beats.length+' เหตุการณ์ · '+thr.length+' ปม · '+rules.length+' เงื่อนไข)</summary><div style="margin-top:8px;display:grid;gap:10px">'+rows.join('')+'</div></details>';}
   const ready=hasO&&hasA&&chars.length>=3&&beats.length>0&&thr.length>0&&rules.length>0;
   const locked=!hasO||!hasA;
-  const hintTxt=!hasO
+  const drift=!!(s.plan&&s.planRef&&(s.planRef.o!==s.outline||JSON.stringify(s.planRef.a)!==JSON.stringify(s.arc||{})));
+  const fc=s.frameCheck;
+  const fcBox=fc?('<div style="margin-top:10px;border:1px solid '+(fc.notes&&fc.notes.length?'#fbbf24':'#34d399')+';border-radius:10px;padding:8px 12px"><b style="font-size:.9rem">🔎 ตรวจกรอบ (ล่าสุดตอน '+(fc.ch||0)+')</b> '+(fc.notes&&fc.notes.length?'<span class="hint">พบ '+fc.notes.length+' ข้อเตือน</span><div class="dt" style="margin-top:4px">'+fc.notes.map(n=>'• '+esc(n)).join('<br>')+'</div>':'<span class="hint">ผ่าน ไม่พบข้อเตือน ✅</span>')+'<div style="margin-top:7px"><button class="btn ghost sm" id="fc-btn" onclick="frameCheckNow()">🔍 ตรวจกรอบตอนล่าสุด</button></div></div>'):'';
+  let hintTxt=!hasO
     ?'① เขียนโครงเรื่องให้เสร็จก่อน (พิมพ์เองในช่องด้านซ้ายแล้ว 💾 บันทึก หรือกด ✨ สร้างโครงเรื่องด้วย AI) — เนื้อเรื่องต้องตกลงก่อน'
     :(!hasA?'② ต่อด้วยวาง พล็อตย่อย 3 องก์ ให้ครบทั้ง 3 (🌅 องก์1 · ⚔️ องก์2 · 🔥 องก์3) ในแท็บ 🧭 พล็อตย่อย (3 องก์) — เขียนเองหรือกด ✨ ให้ AI วาง 3 องก์ให้ แล้ว 💾 บันทึกพล็อตย่อย เมื่อครบ ปุ่มชุดเตรียมก่อนเขียนจะปลดล็อก เพื่อให้ตัวละคร/เหตุการณ์/ปมอ้างอิงโครงเรื่องและองก์เดียวกัน'
           :(ready?'✅ ชุดครบแล้ว — ไป 📚 ตอนทั้งหมด แล้วกด ✍️ เขียนตอนได้เลย (แผนนี้ถูกส่งให้ AI ยึดทุกตอน)'
                  :'⚠️ โครงเรื่อง + 3 องก์พร้อมแล้ว แต่ชุดยังไม่ครบ — กดสร้างชุดเดียว: AI จะวางตัวละคร(หลัก/รอง/ร้าย) + เหตุการณ์สำคัญ + ปม + เงื่อนไขกรอบ อ้างอิงโครงเรื่องและองก์ที่ตกลงไว้ให้ครบ'));
+  if(drift&&!locked)hintTxt='⚠️ โครงเรื่อง/องก์ถูกแก้ไปหลังสร้างแผน — แผนอาจไม่ตรงกับกรอบปัจจุบันแล้ว กด "🔄 สร้าง/ปรับชุดใหม่" เพื่อซิงก์ใหม่';
   box.innerHTML='<div class="toolrow" style="justify-content:space-between;flex-wrap:wrap;gap:8px">'
     +'<b style="font-size:.98rem">🎬 ชุดเตรียมก่อนเขียน</b>'
     +(locked
@@ -1185,7 +1189,9 @@ async function renderPlan(){
       :'<button class="btn primary sm" id="plan-gen" onclick="buildStoryPlan()">'+(beats.length||pl.outline?'🔄 สร้าง/ปรับชุดใหม่':'✨ สร้างชุดให้ครบก่อนเขียน')+'</button>')+'</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;line-height:2">'+parts.join('')+'</div>'
     +'<p class="hint" style="margin:8px 0 0">'+hintTxt+'</p>'
-    +det;
+    +(locked&&hasO&&!hasA?'<button class="btn ghost sm" onclick="switchTab(\'arc\')" style="margin-top:10px">ไปแท็บ 🧭 พล็อตย่อย (3 องก์) →</button>':'')
+    +det
+    +fcBox;
   box.querySelectorAll('[data-pe]').forEach(el=>el.onclick=()=>openPlanItem(el.dataset.pe,+el.dataset.idx));
   box.querySelectorAll('[data-pd]').forEach(el=>el.onclick=()=>delPlanItem(el.dataset.pd,+el.dataset.idx));
   box.querySelectorAll('[data-pa]').forEach(el=>el.onclick=()=>openPlanItem(el.dataset.pa,-1));
@@ -1197,9 +1203,8 @@ async function buildStoryPlan(){
   const fin=()=>{if(b){b.disabled=false;b.textContent=orig;}};
   if(b){b.disabled=true;b.innerHTML='<span class="spin"></span> กำลังสร้างชุด (2 ขั้นตอน)…';}
   try{
-    const epsEl=$('#ao-eps'),ideaEl=$('#ao-idea');
+    const epsEl=$('#ao-eps');
     const eps=parseInt((epsEl&&epsEl.value)||'')||30;
-    const idea=((ideaEl&&ideaEl.value.trim())||s.desc||'').trim();
     if(!s.outline||!s.outline.trim()||!s.arc||!String(s.arc.beginning||'').trim()||!String(s.arc.middle||'').trim()||!String(s.arc.end||'').trim()){toast('ต้องวางโครงเรื่อง + พล็อตย่อย 3 องก์ (🌅 องก์1 · ⚔️ องก์2 · 🔥 องก์3) ให้ครบก่อน — ชุดเตรียมก่อนเขียนจะอ้างอิงทั้งโครงเรื่องและองก์','warn');await renderPlan();fin();return}
     if(s.plan&&((s.plan.beats&&s.plan.beats.length)||(s.plan.threads&&s.plan.threads.length)||(s.plan.rules&&s.plan.rules.length))){
       if(!confirm('มีแผนเดิมอยู่ (เหตุการณ์/ปม/เงื่อนไข) — จะถูกสร้างใหม่จากโครงเรื่อง + 3 องก์ที่ตกลงไว้ (โครงเรื่อง/องก์/ตัวละครเดิมของคุณคงไว้ เพิ่มเฉพาะชื่อที่ยังไม่มี) ดำเนินการต่อ?')){fin();return}}
@@ -1222,6 +1227,7 @@ async function buildStoryPlan(){
     s.plan={beats:(j1.beats||[]).filter(x=>x&&(x.title||x.desc)).map(x=>({at:String(x.at||'').trim().slice(0,60),title:String(x.title||'').trim().slice(0,160),desc:String(x.desc||'').trim().slice(0,400)})).slice(0,16),
       threads:(j1.threads||[]).filter(x=>x&&(x.thread||x.payoff)).map(x=>({thread:String(x.thread||'').trim().slice(0,240),payoff:String(x.payoff||'').trim().slice(0,260)})).slice(0,10),
       rules:(j1.rules||[]).map(x=>String(x||'').trim()).filter(Boolean).slice(0,10)};
+    s.planRef={o:s.outline,a:s.arc? s.arc:null};   // snapshot เช็คว่าโครงเรื่อง/องก์ถูกแก้หลังสร้างแผนหรือยัง
     s.updatedAt=Date.now();
     await dbPut('stories',s);
     const exC=(await dbAll('characters')).filter(c=>c.storyId===s.id).map(c=>c.name);
@@ -1301,6 +1307,47 @@ async function delPlanItem(type,idx){
   if(state.story&&state.story.id===s.id)Object.assign(state.story,s);
   await renderPlan();toast('ลบแล้ว 🗑');
 }
+async function runFrameCheck(sid,chNum,force){
+  try{
+    const s=await dbGet('stories',sid);if(!s||!s.plan)return;
+    const p=s.plan;
+    if(!((p.beats&&p.beats.length)||(p.threads&&p.threads.length)||(p.rules&&p.rules.length)))return;
+    const all=(await dbAll('chapters')).filter(c=>c.storyId===sid&&c.num<=chNum).sort((a,b)=>a.num-b.num);
+    const sumN=all.filter(c=>c.summary).length;
+    const last=s.frameCheck?(s.frameCheck.sumN||0):0;
+    if(!force&&sumN-last<10)return;
+    const sums=all.filter(c=>c.summary).slice(-8).map(c=>'[ตอน '+c.num+'] '+(c.title||'')+'\n'+String(c.summary).slice(0,900)).join('\n\n');
+    const lastc=all[all.length-1];
+    const tail=lastc?String(lastc.content).slice(-1500):'';
+    const rulesTxt=(p.rules||[]).map((r,i)=>(i+1)+'. '+r).join('\n');
+    const beatsTxt=(p.beats||[]).filter(b=>b&&b.at).map(b=>'['+b.at+'] '+b.title+(b.desc?': '+b.desc:'')).join('\n');
+    const thrTxt=(p.threads||[]).map(t=>'ปม: '+(t.thread||'')+(t.payoff?' → จ่าย: '+t.payoff:'')).join('\n');
+    const j=parseJSONLoose(await aiUtil({temp:.15,json:true,prompt:'คุณคือบรรณาธิการตรวจ "กรอบเรื่อง": เทียบเนื้อหาที่เขียนไปแล้วกับแผนที่ตกลงไว้ หาเฉพาะจุดที่หลุดกรอบหรือค้างเกินกำหนดจริง (ต้องมีหลักฐานในเนื้อหาข้างล่าง อ้างตอนที่เห็น)\n'
+      +'# เงื่อนไขกรอบ (rules)\n'+(rulesTxt||'(ไม่มี)')+'\n'
+      +'# แผนเหตุการณ์สำคัญ\n'+(beatsTxt||'(ไม่มี)')+'\n'
+      +'# ปมที่วางแผนไว้\n'+(thrTxt||'(ไม่มี)')+'\n'
+      +'# สรุปรายตอนล่าสุด\n'+(sums||'(ยังไม่มี)')+'\n'
+      +'# ท้ายตอนล่าสุด\n'+(tail||'')+'\n'
+      +'ตอบ JSON เท่านั้น: {"notes":["ข้อเตือนสั้นๆ เช่น ตอน 12: เงื่อนไขข้อ 1 ถูกละเมิด..."]}\n'
+      +'กฎ: ระบุเฉพาะปัญหาจริงที่ยืนยันจากเนื้อหาข้างบน อย่าเดา ถ้าไม่มีให้ [] ไม่เกิน 6 ข้อ ภาษาไทย'}));
+    const notes=(j&&Array.isArray(j.notes)?j.notes:[]).map(n=>String(n).trim().slice(0,400)).filter(Boolean).slice(0,6);
+    s.frameCheck={at:Date.now(),ch:chNum,sumN,notes};
+    await dbPut('stories',s);
+    if(state.story&&state.story.id===sid)Object.assign(state.story,s);
+  }catch(e){}
+}
+async function frameCheckNow(){
+  const s=state.story;if(!s)return;
+  const all=(await dbAll('chapters')).filter(c=>c.storyId===s.id);
+  if(!all.length)return toast('ยังไม่มีตอนให้ตรวจ','warn');
+  const last=all.reduce((m,c)=>Math.max(m,c.num||0),0);
+  const b=$('#fc-btn');
+  if(b){b.disabled=true;b.textContent='ตรวจ…';}
+  await runFrameCheck(s.id,last,true);
+  if(b){b.disabled=false;b.textContent='🔍 ตรวจกรอบตอนล่าสุด';}
+  await renderPlan();
+}
+
 
 
 /* ---------- ARC ---------- */
@@ -1438,9 +1485,9 @@ async function memStatePanel(){
   const stat=(icon,label,val)=>`<span class="hint" style="margin-right:12px;white-space:nowrap">${icon} ${esc(label)}: <b style="color:var(--tx)">${esc(val)}</b></span>`;
   const health=`<div style="margin:8px 0 2px;line-height:1.9">${stat('📚','ครอบคลุม',cov?('ถึงตอน '+cov):'ยังไม่มี')}${stat('🧾','สรุปใน prompt',unfolded+' ตอน')}${stat('🗂️','ยุค',erasN)}${stat('📜','โบราณ',grandTxt?('ถึงตอน '+st.longMem.until):'ยังไม่มี')}${stat('🪝','ปม',`เปิด ${ths.length} · ปิด ${allTh.length-ths.length}`)}${stat('👥','สถานะ',cs.length)}${stat('⏱️','Prompt',fmtMs(promptMs)+' ms')}</div>`;
   let list=st&&st.progress&&st.progress.text?`<p class="hint" style="margin:4px 0 0">🧭 จุดที่เรื่องไปถึง (ตอน ${st.progress.at||0}): ${esc(st.progress.text)}</p>`:'';
-  if(cs.length){cs.sort((a,b)=>(memIsGone(a[1])?0:1)-(memIsGone(b[1])?0:1)||((b[1].num||0)-(a[1].num||0)));
+  if(cs.length){const pick=memStatePick(cs,30);
     list+='<b style="font-size:.9rem">📍 สถานะตัวละครปัจจุบัน</b>';
-    for(const[nm,x]of cs.slice(0,30))list+=`<div class="lr-item" style="border-left-color:#34d399;margin-top:7px"><div style="min-width:0"><b>${esc(nm)}</b>${x.at?` <span class="whenchip">${esc(x.at)}</span>`:''}<div class="dt">${esc([x.where&&('📍 '+x.where),x.status&&('🧭 '+x.status),x.items&&('🎒 '+x.items),x.goal&&('🎯 '+x.goal)].filter(Boolean).join(' · ')||'-')}</div></div></div>`;}
+    for(const[nm,x]of pick)list+=`<div class="lr-item" style="border-left-color:#34d399;margin-top:7px"><div style="min-width:0"><b>${esc(nm)}</b>${x.at?` <span class="whenchip">${esc(x.at)}</span>`:''}<div class="dt">${esc([x.where&&('📍 '+x.where),x.status&&('🧭 '+x.status),x.items&&('🎒 '+x.items),x.goal&&('🎯 '+x.goal)].filter(Boolean).join(' · ')||'-')}</div></div></div>`;}
   if(ths.length){list+='<b style="font-size:.9rem;display:block;margin:12px 0 2px">🪝 ปมค้างที่ยังไม่จบ ('+ths.length+')</b>';
     for(const t of ths.slice(0,20))list+=`<div class="lr-item" style="border-left-color:#fbbf24"><div style="min-width:0"><b>🪝</b> <span class="whenchip">เปิด ${esc(t.since)}</span><div class="dt">${esc(t.thread)}</div></div></div>`;}
   if(!cs.length&&!ths.length&&!list)list='<p class="hint">ยังไม่มีสถานะ/ปม — เขียนจบตอนแล้วกด 🧾 "สรุปตอนนี้เป็นความจำ" AI จะบันทึกสถานะตัวละคร + ปมค้าง + ความทรงจำระยะยาวให้อัตโนมัติ</p>';
@@ -1571,7 +1618,8 @@ async function gatherContext(sid,chaps=null,skipTails=false){
     if(planB.rules&&planB.rules.length)b+=`\n\n# ⚖️ เงื่อนไขกรอบเรื่อง (ตั้งไว้ก่อนเริ่มเขียน — ห้ามเขียนขัดเงื่อนไขเหล่านี้เด็ดขาด)\n${planB.rules.map(r=>'- '+r).join('\n')}`;
     if(planB.beats&&planB.beats.length)b+=`\n\n# 🗓️ แผนเหตุการณ์สำคัญ (เดินเรื่องให้ถึงจุดเหล่านี้ตามช่วงที่กำหนด)\n${planB.beats.map(x=>'- ['+x.at+'] '+x.title+(x.desc?': '+x.desc:'')).join('\n')}`;
     if(planB.threads&&planB.threads.length)b+=`\n\n# 🪝 ปมที่วางแผนไว้ (ต้องเปิดปมให้เกิดขึ้นในเรื่องและจ่ายให้ครบตามแผน)\n${planB.threads.map(x=>'- ปม: '+x.thread+(x.payoff?' → จ่าย: '+x.payoff:'')).join('\n')}`;}
-  if(chars.length){b+=`\n\n# ตัวละคร (ยึดเคร่งครัด)`;
+  if(s.frameCheck&&s.frameCheck.notes&&s.frameCheck.notes.length)b+=`\n\n# ⚠️ ข้อเตือนจากตัวตรวจกรอบ (ล่าสุดตอน ${s.frameCheck.ch}) — ตอนต่อๆ ไปต้องปิดข้อเตือนเหล่านี้ ห้ามเพิกเฉย\n${s.frameCheck.notes.map(n=>'- '+n).join('\n')}`;
+if(chars.length){b+=`\n\n# ตัวละคร (ยึดเคร่งครัด)`;
     for(const c of chars){let ln=`- ${c.name} [${c.role||'-'}]${c.age?' | '+c.age:''}`;
       const dd=[];if(c.appearance)dd.push('หน้าตา: '+c.appearance);if(c.personality)dd.push('นิสัย: '+c.personality);
       if(c.abilities)dd.push('พลัง/วิชา: '+c.abilities);if(c.background)dd.push('ประวัติ: '+c.background);
@@ -1596,8 +1644,7 @@ async function gatherContext(sid,chaps=null,skipTails=false){
   for(const er of eras)b+=`\n\n# 🗂️ ความทรงจำยุคที่ผ่านมา (ตอน ${er.from}-${er.to})\n${er.text}`;
   if(st.progress&&st.progress.text)b+=`\n\n# 🧭 จุดที่เรื่องไปถึง (เทียบโครงเรื่อง/3 องก์ — เดินเรื่องให้ตรงแผนนี้)\n${st.progress.text}`;
   const csA=Object.entries(st.charState||{});
-  csA.sort((a,b)=>(memIsGone(a[1])?0:1)-(memIsGone(b[1])?0:1)||((b[1].num||0)-(a[1].num||0)));   // ตาย/จากไปมาก่อนเสมอ แล้วเรียงคนล่าสุดก่อน
-  const csE=csA.slice(0,30);
+  const csE=memStatePick(csA,30);   // ศพไม่เกิน 8 อันดับแรก ที่เหลือเป็นคนเป็นล่าสุด
   if(csE.length){b+=`\n\n# 📍 สถานะตัวละครปัจจุบัน (อัปเดตล่าสุดตามเลขตอน — ตาย/จากไปแล้วห้ามฟื้นคืนมา บาดเจ็บต้องมีฉากรักษาก่อนหาย)\n`;
     for(const[nm,x]of csE){const ps=[x.where&&('ที่อยู่: '+x.where),x.status&&('สภาพ: '+x.status),x.items&&('ของติดตัว: '+x.items),x.goal&&('เป้าหมาย: '+x.goal),x.at&&('อัปเดต: '+x.at)].filter(Boolean);
       b+=`- ${nm}${ps.length?': '+ps.join(' | '):''}\n`;}}
@@ -1954,7 +2001,7 @@ async function summarizeChapter(ch,silent=false){
     }catch(e){ch.eventLog=[]}
     if(state.chapter&&state.chapter.id===ch.id){$('#ed-summary').value=ch.summary;$('#ed-sum-wrap').open=true;}
     await dbPut('chapters',ch);
-    memQueue(ch.storyId,()=>runStoryMemory(ch)).then(()=>refreshMemPanel()).catch(()=>{});   // อัปเดตความจำ + รีเฟรชแผงสุขภาพอัตโนมัติ
+    memQueue(ch.storyId,()=>runStoryMemory(ch)).then(()=>{refreshMemPanel();if(ch.num)runFrameCheck(ch.storyId,ch.num,false).catch(()=>{});}).catch(()=>{});   // อัปเดตความจำ + รีเฟรชแผงสุขภาพ + ตรวจกรอบอัตโนมัติ (ทุก ~10 ตอนที่สรุปเพิ่ม เมื่อมีแผน)
     if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');
     return ch.summary;
   }catch(e){return null;}}
@@ -1974,6 +2021,11 @@ function memCovered(st){const S=(st&&st.state)||st||{};const e=S.eras||[];
   return Math.max(S.longMem?S.longMem.until:0,e.length?e[e.length-1].to:0);}
 function chNumStr(t){const m=String(t||'').match(/ตอน\s*(\d+)/);return m?+m[1]:0;}
 function memIsGone(x){return/ตาย|เสียชีวิต|มรณภาพ|ถูกฆ่า/.test(x&&x.status?x.status:'');}
+function memStatePick(cs,limit){const G=Math.min(8,limit||30);
+  const g=cs.filter(([,x])=>memIsGone(x)).sort((a,b)=>(b[1].num||0)-(a[1].num||0)).slice(0,G);
+  const l=cs.filter(([,x])=>!memIsGone(x)).sort((a,b)=>(b[1].num||0)-(a[1].num||0)).slice(0,(limit||30)-g.length);
+  return g.concat(l);}
+
 function memProgLine(txt){const ls=String(txt||'').split('\n').map(s=>s.trim());const hit=ls.filter(l=>/^⏩|ความคืบหน้า/.test(l));const last=hit[hit.length-1]||'';return last.replace(/^[-⏩\s]*/,'').replace(/^ความคืบหน้า[:：]?\s*/,'').trim();}
 async function refreshMemPanel(){
   const el=$('#lr-list');if(!el||!state.story)return;
@@ -2069,6 +2121,7 @@ ${e.text}
       if(le){const pl=memProgLine(le.text);if(pl)st.progress={at:le.to,text:pl};}
     await dbPut('stories',story);
     if(state.story&&state.story.id===story.id)Object.assign(state.story,story);
+    if(story.plan&&((story.plan.beats&&story.plan.beats.length)||(story.plan.threads&&story.plan.threads.length)||(story.plan.rules&&story.plan.rules.length)))await runFrameCheck(story.id,ch.num);
   }catch(e){}}
 
 /* ---------- LOCAL KEYWORD SEARCH (BM25-style, on-device) ---------- */
