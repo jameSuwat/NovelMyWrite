@@ -243,7 +243,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   <div class="brand" onclick="goHome()"><img src="icon-192.png" alt="NovelMyWrite" style="width:24px;height:24px;border-radius:6px;object-fit:cover;vertical-align:-5px;margin-right:7px">Novel<em>MyWrite</em></div>
   <div class="top-actions">
     <button class="btn ghost sm" id="btn-theme" onclick="toggleTheme()">🌙</button>
-    <button class="btn ghost sm" onclick="acctOpen()">👤 คลาวด์</button>
+    <button class="btn ghost sm" id="btn-acct" onclick="acctOpen()">👤 คลาวด์</button>
     <button class="btn ghost sm" onclick="openSettings()">⚙️ ตั้งค่า / API Key</button>
   </div>
 </header>
@@ -507,9 +507,10 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <input type="range" id="set-temp" min="0" max="1" step="0.05" value="0.95" oninput="$('#temp-val').textContent=this.value">
     <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (ดีขึ้นแต่ช้ามาก)</label>
     <hr class="sep">
-    <b style="font-size:.9rem">☁️ Supabase — คลาวด์ข้ามเครื่อง</b>
-    <label class="f">Project URL</label><input class="in" id="set-sburl" placeholder="https://xxxx.supabase.co">
-    <label class="f">anon public key</label><input class="in" id="set-sbkey" placeholder="eyJ...">
+    <b style="font-size:.9rem">🔥 Firebase — คลาวด์ข้ามเครื่อง (Auth + Firestore)</b>
+    <label class="f">Firebase Config (JSON) <span class="hint">Firebase Console → Project settings → Your apps → เลือก Web (ไอคอน Web) → Config — วางทั้งก้อนที่นี่ ไม่ต้องมีโค้ด</span></label>
+    <textarea class="in" id="set-fbcfg" rows="5" style="font-family:monospace;font-size:.78rem" placeholder='{"apiKey":"AIza...","authDomain":"xxx.firebaseapp.com","projectId":"xxx","appId":"1:xxx"}'></textarea>
+    <p class="hint">ยังไม่เคยสร้างโปรเจกต์? เปิด "คู่มือตั้งค่า Firebase" ใน 👤 คลาวด์ (หลังบันทึก)</p>
     <div class="mfoot">
       <button class="btn ghost" id="test-key" onclick="testKey()">🔌 ทดสอบคีย์</button>
       <button class="btn primary" onclick="saveSettings()">บันทึก</button>
@@ -808,17 +809,19 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 
 <div class="overlay" id="m-account">
   <div class="modal">
-    <h2>👤 คลาวด์ (Supabase) <button class="x" onclick="closeM('m-account')">✕</button></h2>
+    <h2>👤 คลาวด์ (Firebase) <button class="x" onclick="closeM('m-account')">✕</button></h2>
     <div id="ac-status">กำลังตรวจสอบ…</div>
     <div id="ac-form" hidden>
       <label class="f">อีเมล</label><input class="in" id="ac-email" type="email">
       <label class="f">รหัสผ่าน</label><input class="in" id="ac-pass" type="password">
       <div class="acct-row"><button class="btn primary sm" onclick="acctSignIn()">เข้าสู่ระบบ</button>
         <button class="btn ghost sm" onclick="acctSignUp()">สมัครสมาชิก</button></div>
+      <div class="acct-row" style="margin-top:8px"><button class="btn ghost sm" onclick="acctGoogle()" style="flex:1">🔵 เข้าสู่ระบบด้วย Google</button></div>
     </div>
     <div id="ac-signedin" hidden>
       <div class="acct-row"><span class="badge-on">●</span> <b id="ac-user"></b>
         <button class="btn ghost sm" onclick="acctSignOut()" style="margin-left:auto">ออกจากระบบ</button></div>
+      <label class="checkline" style="margin-top:10px"><input type="checkbox" id="ac-auto" onchange="acctAuto()"> อัปขึ้นคลาวด์อัตโนมัติหลังแก้/ลบตอน</label>
       <hr class="sep">
       <div class="acct-row">
         <button class="btn primary sm" onclick="pushCloud()">⬆️ Push ขึ้นคลาวด์</button>
@@ -827,9 +830,18 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
       <p class="hint" id="ac-lastsync"></p>
     </div>
     <details style="margin-top:16px">
-      <summary style="cursor:pointer;font-size:.85rem;color:var(--tx2)">🛠️ รัน SQL นี้ใน Supabase 1 ครั้ง</summary>
-      <div class="sql-box" id="sql-box"></div>
-      <button class="btn ghost sm" style="margin-top:8px" onclick="copySql()">📋 คัดลอก SQL</button>
+      <summary style="cursor:pointer;font-size:.85rem;color:var(--tx2)">🔥 คู่มือตั้งค่า Firebase (ครั้งแรก ~5 นาที)</summary>
+      <ol style="margin:10px 0 0 18px;padding:0;line-height:1.9;font-size:.85rem">
+        <li>ไป <b>console.firebase.google.com</b> → Add project (ชื่ออะไรก็ได้ เช่น NovelMyWrite)</li>
+        <li>เมนู <b>Build → Authentication → Get started</b> → เปิด <b>Email/Password</b> และ <b>Google</b> → Save</li>
+        <li>Authentication → <b>Settings → Authorized domains</b>: เพิ่มโดเมนที่ใช้โฮสต์แอป (เช่น jamesuwat.github.io) ไม่งั้น Google ป๊อปอัปถูกบล็อก</li>
+        <li>เมนู <b>Build → Firestore Database → Create database</b> (mode อะไรก็ได้ เพราะใช้ Rules กันเอง)</li>
+        <li>ใน Firestore → แท็บ <b>Rules</b>: วางกฎในกล่องข้างล่างแทนกฎเดิม → <b>Publish</b></li>
+        <li>⚙️ Project settings → <b>Your apps</b> → กดไอคอน Web (ไอคอน Web) → ก็อป <b>Config</b> ทั้งก้อนไปวางใน ⚙️ ตั้งค่า ของแอป แล้วบันทึก</li>
+        <li>กลับมา 👤 คลาวด์ → สมัครสมาชิก / เข้าสู่ระบบ → กด ⬆️ Push</li>
+      </ol>
+      <div class="sql-box" id="sql-box" style="margin-top:8px"></div>
+      <button class="btn ghost sm" style="margin-top:8px" onclick="copySql()">📋 คัดลอก Security Rules</button>
     </details>
   </div>
 </div>
@@ -867,7 +879,7 @@ const dbAll=s=>new Promise((res,rej)=>{const r=txo(s,'readonly').getAll();r.onsu
 const dbClear=s=>new Promise((res,rej)=>{const r=txo(s,'readwrite').clear();r.onsuccess=res;r.onerror=()=>rej(r.error)});
 
 /* ================= SETTINGS ================= */
-let settings={apiKey:'',keys:'',model:'gemini-3.6-flash',modelUtil:'gemini-3.5-flash-lite',temperature:.95,thinking:false,theme:'dark',sbUrl:'',sbKey:''};
+let settings={apiKey:'',keys:'',model:'gemini-3.6-flash',modelUtil:'gemini-3.5-flash-lite',temperature:.95,thinking:false,theme:'dark',sbUrl:'',sbKey:'',fbCfg:'',fbAuto:false};
 const MODEL_MIGRATE={'gemini-2.5-flash':'gemini-3.6-flash','gemini-2.5-pro':'gemini-3.1-pro-preview','gemini-2.5-flash-lite':'gemini-3.5-flash-lite','gemini-2.0-flash':'gemini-3.6-flash'};
 function loadSettings(){try{Object.assign(settings,JSON.parse(localStorage.getItem('nf_settings')||'{}'))}catch{}
   if(!settings.keys&&settings.apiKey)settings.keys=settings.apiKey;
@@ -878,14 +890,14 @@ function applyTheme(){document.documentElement.dataset.theme=settings.theme;$('#
 function openSettings(){$('#set-keys').value=settings.keys||settings.apiKey||'';
   $('#set-model').value=settings.model;$('#set-model-util').value=settings.modelUtil||'gemini-3.5-flash-lite';
   $('#set-temp').value=settings.temperature;$('#temp-val').textContent=settings.temperature;
-  $('#set-think').checked=settings.thinking;$('#set-sburl').value=settings.sbUrl;$('#set-sbkey').value=settings.sbKey;
+  $('#set-think').checked=settings.thinking;$('#set-fbcfg').value=settings.fbCfg||'';
   updateKeysCount();openM('m-settings');}
 function saveSettings(){settings.keys=$('#set-keys').value.trim();
   settings.apiKey=(settings.keys.split(/\r?\n/)[0]||'').trim();
   settings.model=$('#set-model').value;settings.modelUtil=$('#set-model-util').value;
   settings.temperature=parseFloat($('#set-temp').value);settings.thinking=$('#set-think').checked;
-  const nu=$('#set-sburl').value.trim(),nk=$('#set-sbkey').value.trim();
-  if(nu!==settings.sbUrl||nk!==settings.sbKey){settings.sbUrl=nu;settings.sbKey=nk;sbClient=null;}
+  const cfg=$('#set-fbcfg').value.trim();
+  if(cfg!==settings.fbCfg){settings.fbCfg=cfg;fbReset();}
   persistSettings();closeM('m-settings');renderKeyBanner();toast('บันทึกการตั้งค่าแล้ว ✅');}
 function getKeyPool(){return(settings.keys||settings.apiKey||'').split(/\r?\n/).map(s=>s.trim()).filter(s=>s.length>20)}
 function updateKeysCount(){const n=getKeyPool();const el=$('#keys-count');
@@ -1052,7 +1064,8 @@ async function createStory(){
   if(pendingCover&&!pendingCover.keep)st.cover=pendingCover.data;
   await dbPut('stories',st);closeM('m-newstory');
   toast(isNew?'สร้างเรื่องแล้ว 🎉 ลองใช้เทมเพลตหรือให้ AI วางโครงเรื่อง!':'บันทึกแล้ว ✅');
-  openStory(st.id);}
+  openStory(st.id);
+  fbAutoPush();}
 
 /* ---------- STORY VIEW ---------- */
 let state={story:null,chapter:null,loreFilter:'all'};
@@ -1082,7 +1095,7 @@ async function saveQuickTitle(){const inp=$('#st-title-edit');if(!inp||!state.st
 async function deleteStory(){const s=state.story;
   if(!confirm(`ลบ "${s.title}" พร้อมทุกตอนและความจำ ถาวร?`))return;
   for(const st of['characters','lore','chapters'])for(const it of(await dbAll(st)).filter(x=>x.storyId===s.id))await dbDel(st,it.id);
-  await dbDel('stories',s.id);toast('ลบแล้ว');goHome();}
+  await dbDel('stories',s.id);toast('ลบแล้ว');fbAutoPush();goHome();}
 $('#tabs')?.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchTab(b.dataset.tab)});
 const TAB_IDS=['plot','arc','chars','lore','overview','chaps','glossary','smartplot'];
 function switchTab(t){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
@@ -1881,11 +1894,13 @@ async function edDelete(){
   await dbDel('chapters',ch.id);
   state.chapter=null;
   renderChaps();show('view-story');renderStoryHead();
-  toast('ลบตอนแล้ว 🗑');}
+  toast('ลบตอนแล้ว 🗑');
+  fbAutoPush();}
 async function edSaveSilent(){if(!state.chapter)return;const ch=state.chapter;
   ch.num=Math.max(1,parseInt($('#ed-num').value)||ch.num);ch.title=$('#ed-title').value.trim();
   ch.content=$('#ed-content').value;ch.summary=$('#ed-summary').value;ch.words=estWords(ch.content);ch.updatedAt=Date.now();
-  await dbPut('chapters',ch);}
+  await dbPut('chapters',ch);
+  fbAutoPush();}
 async function edSave(sumOnly=false){await edSaveSilent();
   if(!sumOnly)snap(state.chapter,'บันทึกมือ');
   toast(sumOnly?'บันทึกสรุปแล้ว 🧾':'บันทึกแล้ว 💾');}
@@ -2755,92 +2770,132 @@ async function wipeAll(){
   for(const s of['stories','characters','lore','chapters'])await dbClear(s);
   toast('ล้างข้อมูลทั้งหมดแล้ว');renderLibrary();}
 
-/* ================= SUPABASE CLOUD ================= */
-let sbClient=null;
-const SB_SQL=`-- รันใน Supabase Dashboard > SQL Editor (ครั้งเดียวต่อโปรเจกต์)
-create table if not exists public.nf_workspaces (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  data jsonb not null default '{}'::jsonb,
-  updated_at timestamptz not null default now()
-);
-alter table public.nf_workspaces enable row level security;
-create policy "nf_sel" on public.nf_workspaces for select using (auth.uid() = user_id);
-create policy "nf_ins" on public.nf_workspaces for insert with check (auth.uid() = user_id);
-create policy "nf_upd" on public.nf_workspaces for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "nf_del" on public.nf_workspaces for delete using (auth.uid() = user_id);`;
-function copySql(){navigator.clipboard?.writeText(SB_SQL).then(()=>toast('คัดลอก SQL แล้ว 📋')).catch(()=>toast('คัดลอกไม่ได้ ลอง select เอง','warn'));}
-function loadSupabaseSDK(){return new Promise((res,rej)=>{
-  if(window.supabase?.createClient)return res();
-  const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-  s.onload=()=>res();s.onerror=()=>rej(new Error('โหลด Supabase SDK ไม่สำเร็จ (ตรวจเน็ต/adblock)'));
-  document.head.appendChild(s);});}
-async function sbInit(){
-  if(sbClient)return sbClient;
-  if(!settings.sbUrl||!settings.sbKey)throw new Error('ยังไม่ได้ตั้งค่า Supabase (⚙️ ตั้งค่า)');
-  await loadSupabaseSDK();
-  sbClient=window.supabase.createClient(settings.sbUrl,settings.sbKey,{auth:{persistSession:true}});
-  return sbClient;}
+/* ================= FIREBASE CLOUD (Auth + Firestore) ================= */
+let fbApp=null,fbAuth=null,fbDb=null,fbAppN=0,fbBusy=false,fbAutoTimer=0;
+const FB_RULES=`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}`;
+function copySql(){navigator.clipboard?.writeText(FB_RULES).then(()=>toast('คัดลอก Security Rules แล้ว 📋')).catch(()=>toast('คัดลอกไม่ได้ ลอง select เอง','warn'));}
+function parseFbCfg(){
+  let raw=String(settings.fbCfg||'').trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').trim();
+  if(!raw)throw new Error('ยังไม่ได้วาง Firebase Config — ⚙️ ตั้งค่า แล้ววาง Config (วิธีดูใน 👤 คลาวด์)');
+  let c;try{c=JSON.parse(raw)}catch(e){throw new Error('Firebase Config ไม่ใช่ JSON ที่ถูกต้อง — ก็อปใหม่ทั้งก้อน')}
+  if(!c.apiKey||!c.projectId||!c.appId)throw new Error('Config ต้องมี apiKey + projectId + appId');
+  return c;}
+function loadFirebaseSDK(){return new Promise((res,rej)=>{
+  if(window.firebase&&window.firebase.firestore)return res();
+  const libs=['firebase-app','firebase-auth','firebase-firestore'];let i=0;
+  const next=()=>{if(i>=libs.length)return res();const s=document.createElement('script');
+    s.src='https://www.gstatic.com/firebasejs/10.12.0/'+libs[i++]+'-compat.js';
+    s.onload=next;s.onerror=()=>rej(new Error('โหลด Firebase SDK ไม่สำเร็จ (ตรวจเน็ต/adblock)'));document.head.appendChild(s);};
+  next();});}
+async function fbReset(){
+  const old=fbApp;fbApp=null;fbAuth=null;fbDb=null;updateAcctChip(null);
+  if(old){try{await old.delete()}catch(e){}}}
+async function fbInit(){
+  if(fbApp&&fbAuth)return{app:fbApp,auth:fbAuth,db:fbDb};
+  const c=parseFbCfg();
+  await loadFirebaseSDK();
+  if(fbApp){const o=fbApp;fbApp=null;fbAuth=null;fbDb=null;try{await o.delete()}catch(e){}}
+  fbApp=window.firebase.initializeApp(c,'nfapp'+(++fbAppN));
+  fbAuth=window.firebase.auth(fbApp);fbDb=window.firebase.firestore(fbApp);
+  try{fbDb.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
+  fbAuth.onAuthStateChanged(u=>updateAcctChip(u));
+  return{app:fbApp,auth:fbAuth,db:fbDb};}
+function updateAcctChip(u){const b=$('#btn-acct');
+  if(b)b.innerHTML=(u&&u.email)?('👤 '+esc(String(u.email).split('@')[0].slice(0,16))):'👤 คลาวด์';}
 async function acctOpen(){
-  $('#sql-box').textContent=SB_SQL;
+  $('#sql-box').textContent=FB_RULES;
   $('#ac-status').textContent='กำลังตรวจสอบ…';
   $('#ac-form').hidden=true;$('#ac-signedin').hidden=true;
   openM('m-account');
+  const auto=$('#ac-auto');if(auto)auto.checked=!!settings.fbAuto;
   try{
-    const sb=await sbInit();
-    const{data:{session}}=await sb.auth.getSession();
-    if(session?.user){
-      $('#ac-status').innerHTML='<span class="badge-on">● เชื่อมต่อ Supabase สำเร็จ</span>';
-      $('#ac-user').textContent=session.user.email;
-      $('#ac-signedin').hidden=false;
+    const{auth}=await fbInit();
+    const u=auth.currentUser;
+    if(u){
+      $('#ac-status').innerHTML='<span class="badge-on">● เชื่อมต่อ Firebase สำเร็จ</span>';
+      $('#ac-user').textContent=u.email||u.phoneNumber||u.uid;
+      $('#ac-signedin').hidden=false;updateAcctChip(u);
       const ls=localStorage.getItem('nf_lastsync');
       $('#ac-lastsync').textContent=ls?`ซิงก์ล่าสุด: ${new Date(+ls).toLocaleString('th-TH')}`:'ยังไม่เคยซิงก์';
     }else{
-      $('#ac-status').innerHTML='<span class="badge-on">● เชื่อมต่อ Supabase สำเร็จ</span> — ยังไม่ได้ล็อกอิน';
+      $('#ac-status').innerHTML='<span class="badge-on">● เชื่อมต่อ Firebase สำเร็จ</span> — ยังไม่ได้ล็อกอิน';
       $('#ac-form').hidden=false;}
   }catch(e){
-    $('#ac-status').innerHTML=`<span class="badge-off">○ ${esc(e.message)}</span><br><span class="hint">ไปที่ ⚙️ ตั้งค่า เพื่อกรอก Project URL และ anon key</span>`;}}
+    $('#ac-status').innerHTML=`<span class="badge-off">○ ${esc(e.message)}</span><br><span class="hint">ไปที่ ⚙️ ตั้งค่า เพื่อวาง Firebase Config · ยังไม่ได้เปิด Email/Google หรือเพิ่มโดเมน? ดู "คู่มือตั้งค่า Firebase" ด้านล่าง</span>`;}}
 async function acctSignIn(){
-  try{const sb=await sbInit();
-    const{error}=await sb.auth.signInWithPassword({email:$('#ac-email').value.trim(),password:$('#ac-pass').value});
-    if(error)throw error;
+  try{const{auth}=await fbInit();
+    await auth.signInWithEmailAndPassword($('#ac-email').value.trim(),$('#ac-pass').value);
     toast('เข้าสู่ระบบแล้ว ✅');acctOpen();
   }catch(e){toast('เข้าสู่ระบบไม่สำเร็จ: '+e.message,'err');}}
 async function acctSignUp(){
-  try{const sb=await sbInit();
-    const{error}=await sb.auth.signUp({email:$('#ac-email').value.trim(),password:$('#ac-pass').value});
-    if(error)throw error;
-    toast('สมัครสำเร็จ! ถ้า Supabase ตั้งให้ยืนยันอีเมล ให้ไปกดยืนยันก่อนล็อกอิน 📧');
+  try{const{auth}=await fbInit();
+    const r=await auth.createUserWithEmailAndPassword($('#ac-email').value.trim(),$('#ac-pass').value);
+    toast('สมัครสมาชิกแล้ว ✅'+(r.user&&!r.user.emailVerified?' (ถ้าเปิด Email verification ไว้ ไปกดยืนยันก่อนล็อกอินครั้งหน้า 📧)':''));
   }catch(e){toast('สมัครไม่สำเร็จ: '+e.message,'err');}}
+async function acctGoogle(){
+  try{const{auth}=await fbInit();
+    await auth.signInWithPopup(new window.firebase.auth.GoogleAuthProvider());
+    toast('เข้าสู่ระบบด้วย Google แล้ว ✅');acctOpen();
+  }catch(e){toast('Google ล็อกอินไม่สำเร็จ: '+e.message+' (อย่าลืมเพิ่มโดเมนใน Authorized domains)','err');}}
 async function acctSignOut(){
-  try{const sb=await sbInit();await sb.auth.signOut();toast('ออกจากระบบแล้ว');acctOpen();}
+  try{const{auth}=await fbInit();await auth.signOut();toast('ออกจากระบบแล้ว');updateAcctChip(null);acctOpen();}
   catch(e){toast(e.message,'err');}}
+function acctAuto(){const b=$('#ac-auto');if(!b)return;
+  settings.fbAuto=b.checked;persistSettings();
+  toast(settings.fbAuto?'เปิดอัปอัตโนมัติ — จะ Push เงียบๆ หลังแก้/ลบตอน':'ปิดอัปอัตโนมัติแล้ว');}
 async function collectWorkspace(){
   return{stories:await dbAll('stories'),characters:await dbAll('characters'),
     lore:await dbAll('lore'),chapters:await dbAll('chapters')};}
+const FB_COLLS=[['stories','stories'],['characters','characters'],['lore','lore'],['chapters','chapters']];
+function fbTot(d){return(d.stories||[]).length+(d.characters||[]).length+(d.lore||[]).length+(d.chapters||[]).length}
+async function fbWriteAll(data){
+  const{db}=await fbInit();
+  const uid=fbAuth.currentUser.uid;
+  for(const[k]of FB_COLLS){
+    const arr=data[k]||[];const root=db.collection('users').doc(uid).collection(k);
+    for(let i=0;i<arr.length;i++)await root.doc(arr[i].id).set(arr[i]);
+  }
+  for(const[k]of FB_COLLS){
+    const arr=data[k]||[];const have=new Set(arr.map(x=>x.id));
+    const root=db.collection('users').doc(uid).collection(k);
+    const snap=await root.get();
+    for(const d of snap.docs)if(!have.has(d.id))await d.ref.delete();
+  }}
+async function fbReadAll(){
+  const{db}=await fbInit();
+  const uid=fbAuth.currentUser.uid;
+  const out={stories:[],characters:[],lore:[],chapters:[]};
+  for(const[k]of FB_COLLS){
+    const snap=await db.collection('users').doc(uid).collection(k).get();
+    for(const d of snap.docs){const v=d.data();if(v&&typeof v==='object'){v.id=d.id;out[k].push(v);}}}
+  return out;}
 async function pushCloud(){
-  try{const sb=await sbInit();
-    const{data:{session}}=await sb.auth.getSession();
-    if(!session?.user)return toast('ล็อกอินก่อนนะ','warn');
+  if(fbBusy)return;fbBusy=true;
+  const b=$('#ac-signedin').querySelector('.btn.primary');
+  if(b){b.disabled=true;b.textContent='กำลัง Push…';}
+  try{
+    const{auth}=await fbInit();if(!auth.currentUser)return toast('ล็อกอินก่อนนะ','warn');
     const data=await collectWorkspace();
-    const total=data.stories.length+data.characters.length+data.lore.length+data.chapters.length;
-    const{error}=await sb.from('nf_workspaces').upsert(
-      {user_id:session.user.id,data,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-    if(error)throw error;
+    const total=fbTot(data);
+    await fbWriteAll(data);
     localStorage.setItem('nf_lastsync',Date.now());
     toast(`Push สำเร็จ! อัปโหลด ${total} รายการ ⬆️`);acctOpen();
-  }catch(e){
-    if(/does not exist|42P01|relation/i.test(e.message||''))
-      toast('ยังไม่มีตารางใน Supabase — รัน SQL ในกล่องด้านล่างก่อน','err');
-    else toast('Push ไม่สำเร็จ: '+(e.message||e),'err');}}
+  }catch(e){toast('Push ไม่สำเร็จ: '+(e.message||e),'err');}
+  finally{if(b){b.disabled=false;b.textContent='⬆️ Push ขึ้นคลาวด์';}fbBusy=false;}}
 async function pullCloud(){
-  try{const sb=await sbInit();
-    const{data:{session}}=await sb.auth.getSession();
-    if(!session?.user)return toast('ล็อกอินก่อนนะ','warn');
-    const{data,error}=await sb.from('nf_workspaces').select('data,updated_at').eq('user_id',session.user.id).maybeSingle();
-    if(error)throw error;
-    if(!data?.data)return toast('บนคลาวด์ยังไม่มีข้อมูล — ลอง Push จากเครื่องเดิมก่อน','warn');
-    const d=data.data;
-    const total=(d.stories||[]).length+(d.characters||[]).length+(d.lore||[]).length+(d.chapters||[]).length;
+  if(fbBusy)return;fbBusy=true;
+  try{
+    const{auth}=await fbInit();if(!auth.currentUser)return toast('ล็อกอินก่อนนะ','warn');
+    const d=await fbReadAll();
+    const total=fbTot(d);
+    if(!total)return toast('บนคลาวด์ยังไม่มีข้อมูล — ลอง Push จากเครื่องเดิมก่อน','warn');
     if(!confirm(`ดึงข้อมูลจากคลาวด์ (${total} รายการ) มาทับเครื่องนี้ทั้งหมด?`))return;
     for(const s of['stories','characters','lore','chapters'])await dbClear(s);
     let n=0;
@@ -2849,10 +2904,21 @@ async function pullCloud(){
     localStorage.setItem('nf_lastsync',Date.now());
     toast(`Pull สำเร็จ! ได้รับ ${n} รายการ ⬇️`);
     renderLibrary();acctOpen();
-  }catch(e){
-    if(/does not exist|42P01|relation/i.test(e.message||''))
-      toast('ยังไม่มีตารางใน Supabase — รัน SQL ในกล่องด้านล่างก่อน','err');
-    else toast('Pull ไม่สำเร็จ: '+(e.message||e),'err');}}
+  }catch(e){toast('Pull ไม่สำเร็จ: '+(e.message||e),'err');}
+  finally{fbBusy=false;}}
+/* อัปอัตโนมัติ: debounce หลังแก้/ลบตอน เงียบๆ เฉพาะตอนล็อกอิน + เปิดใช้ */
+function fbAutoPush(){
+  if(!settings.fbAuto||!settings.fbCfg||generating||batching||fbBusy)return;
+  clearTimeout(fbAutoTimer);
+  fbAutoTimer=setTimeout(async()=>{
+    try{
+      if(!(settings.fbAuto&&settings.fbCfg))return;
+      const{auth}=await fbInit();if(!auth.currentUser)return;
+      await fbWriteAll(await collectWorkspace());
+      localStorage.setItem('nf_lastsync',Date.now());
+    }catch(e){if(!/Config|ยังไม่ได้วาง/.test(e.message||''))toast('อัปคลาวด์อัตโนมัติพลาด: '+(e.message||e),'err');}
+  },9000);}
+try{loadSettings();if(settings.fbCfg)setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}catch(e){}
 
 /* ---------- INIT ---------- */
 (async function init(){

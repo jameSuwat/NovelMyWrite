@@ -1,4 +1,4 @@
-const CACHE_NAME = 'novelmywrite-v1';
+const CACHE_NAME = 'novelmywrite-v2';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -22,7 +22,10 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // Network-first for API calls, cache-first for assets
   if (e.request.url.includes('generativelanguage.googleapis.com') ||
-      e.request.url.includes('supabase')) {
+      e.request.url.includes('supabase') ||
+      e.request.url.includes('identitytoolkit.googleapis.com') ||
+      e.request.url.includes('securetoken.googleapis.com') ||
+      e.request.url.includes('firestore.googleapis.com')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
