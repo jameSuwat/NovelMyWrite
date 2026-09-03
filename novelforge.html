@@ -149,6 +149,8 @@ details.sum textarea{margin-top:10px;min-height:90px}
 .toast{background:var(--panel);border:1px solid var(--bd2);border-left:4px solid var(--ok);border-radius:12px;padding:12px 17px;font-size:.87rem;box-shadow:var(--sh);animation:tin .25s ease;max-width:340px}
 .toast.warn{border-left-color:var(--warn)}.toast.err{border-left-color:var(--err)}
 @keyframes tin{from{transform:translateX(30px);opacity:0}}
+.mem-flash{animation:nfmemflash 1.05s ease}
+@keyframes nfmemflash{0%{background:rgba(124,108,255,.25);box-shadow:0 0 0 2px rgba(124,108,255,.6)}60%{background:rgba(124,108,255,.1)}100%{background:transparent;box-shadow:none}}
 input[type=range]{accent-color:var(--ac);width:100%}
 hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 #m-consist .modal,#m-beta .modal,#m-stats .modal,#m-branch .modal{width:min(680px,94vw)}
@@ -1235,6 +1237,7 @@ async function renderLore(){
     el.appendChild(d);}}
 async function memStatePanel(){
   const s0=state.story;if(!s0)return '';
+  if(memQueues&&memQueues[s0.id])await memQueues[s0.id];   // รอความจำที่ยัง merge ค้างเสร็จก่อนนับเลข
   const t0=performance.now();
   const s=await dbGet('stories',s0.id);
   const chaps=(await dbAll('chapters')).filter(c=>c.storyId===s0.id);
@@ -1760,7 +1763,7 @@ async function summarizeChapter(ch,silent=false){
     }catch(e){ch.eventLog=[]}
     if(state.chapter&&state.chapter.id===ch.id){$('#ed-summary').value=ch.summary;$('#ed-sum-wrap').open=true;}
     await dbPut('chapters',ch);
-    memQueue(ch.storyId,()=>runStoryMemory(ch));   // อัปเดตสถานะตัวละคร/ปมค้าง/ความทรงจำระยะยาว (คิวต่อเรื่อง กันชน)
+    memQueue(ch.storyId,()=>runStoryMemory(ch)).then(()=>refreshMemPanel()).catch(()=>{});   // อัปเดตความจำ + รีเฟรชแผงสุขภาพอัตโนมัติ
     if(!silent)toast('สรุปเป็นความจำแล้ว 🧾');
     return ch.summary;
   }catch(e){return null;}}
@@ -1779,6 +1782,24 @@ function memCovered(st){const S=(st&&st.state)||st||{};const e=S.eras||[];
   return Math.max(S.longMem?S.longMem.until:0,e.length?e[e.length-1].to:0);}
 function chNumStr(t){const m=String(t||'').match(/ตอน\s*(\d+)/);return m?+m[1]:0;}
 function memIsGone(x){return/ตาย|เสียชีวิต|มรณภาพ|ถูกฆ่า/.test(x&&x.status?x.status:'');}
+async function refreshMemPanel(){
+  const el=$('#lr-list');if(!el||!state.story)return;
+  const tl=document.getElementById('tab-lore');
+  if(tl&&tl.hidden)return;   // เฉพาะตอนที่เปิดแท็บคลังความจำอยู่
+  const cur=el.querySelector('details.sum');
+  const sigOld=cur?cur.textContent.split('⏱️')[0].replace(/\s+/g,' '):'';
+  const h=await memStatePanel();
+  if(!h)return;
+  const tmp=document.createElement('div');tmp.innerHTML=h;const nd=tmp.firstElementChild;
+  if(!nd)return;
+  const sigNew=nd.textContent.split('⏱️')[0].replace(/\s+/g,' ');
+  if(cur)cur.replaceWith(nd);else el.insertAdjacentHTML('afterbegin',h);
+  if(sigOld!==sigNew&&sigOld!==''&&nd.classList){   // ตัวเลขเปลี่ยน → กะพริบให้เห็นชัด
+    nd.classList.remove('mem-flash');void nd.offsetWidth;
+    nd.classList.add('mem-flash');
+    clearTimeout(nd._ft);
+    nd._ft=setTimeout(()=>{nd.classList.remove('mem-flash');},1200);
+  }}
 async function runStoryMemory(ch){
   try{
     const story=await dbGet('stories',ch.storyId);if(!story||!ch.summary)return;
