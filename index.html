@@ -508,7 +508,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <label class="checkline"><input type="checkbox" id="set-think"> ให้ AI คิดก่อนเขียน (ดีขึ้นแต่ช้ามาก)</label>
     <hr class="sep">
     <b style="font-size:.9rem">🔥 Firebase — คลาวด์ข้ามเครื่อง (Auth + Firestore)</b>
-    <label class="f">Firebase Config (JSON) <span class="hint">Firebase Console → Project settings → Your apps → เลือก Web (ไอคอน Web) → Config — วางทั้งก้อนที่นี่ ไม่ต้องมีโค้ด</span></label>
+    <label class="f">Firebase Config (JSON) <span class="hint">เว้นว่าง = เชื่อมโปรเจกต์เริ่มต้น (novelmywrite) อัตโนมัติ · วาง Config JSON เพื่อสลับไปโปรเจกต์อื่น (วิธีดูใน 👤 คลาวด์ → คู่มือ)</span></label>
     <textarea class="in" id="set-fbcfg" rows="5" style="font-family:monospace;font-size:.78rem" placeholder='{"apiKey":"AIza...","authDomain":"xxx.firebaseapp.com","projectId":"xxx","appId":"1:xxx"}'></textarea>
     <p class="hint">ยังไม่เคยสร้างโปรเจกต์? เปิด "คู่มือตั้งค่า Firebase" ใน 👤 คลาวด์ (หลังบันทึก)</p>
     <div class="mfoot">
@@ -2772,6 +2772,8 @@ async function wipeAll(){
 
 /* ================= FIREBASE CLOUD (Auth + Firestore) ================= */
 let fbApp=null,fbAuth=null,fbDb=null,fbAppN=0,fbBusy=false,fbAutoTimer=0;
+/* โปรเจกต์เริ่มต้น: เว้นช่อง Config ใน ⚙️ ไว้ก็เชื่อมอัตโนมัติ (apiKey เปิดเผยได้โดยดีไซน์ — ความปลอดภัยอยู่ที่ Rules) */
+const FB_DEFAULT_CFG={apiKey:'AIzaSyBqa09g_q7PEoplkbD6JioQWPaegA0hWhI',authDomain:'novelmywrite.firebaseapp.com',projectId:'novelmywrite',storageBucket:'novelmywrite.firebasestorage.app',messagingSenderId:'212927453318',appId:'1:212927453318:web:19ed3f55a84ebf655a5907'};
 const FB_RULES=`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -2783,8 +2785,9 @@ service cloud.firestore {
 function copySql(){navigator.clipboard?.writeText(FB_RULES).then(()=>toast('คัดลอก Security Rules แล้ว 📋')).catch(()=>toast('คัดลอกไม่ได้ ลอง select เอง','warn'));}
 function parseFbCfg(){
   let raw=String(settings.fbCfg||'').trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'').trim();
-  if(!raw)throw new Error('ยังไม่ได้วาง Firebase Config — ⚙️ ตั้งค่า แล้ววาง Config (วิธีดูใน 👤 คลาวด์)');
-  let c;try{c=JSON.parse(raw)}catch(e){throw new Error('Firebase Config ไม่ใช่ JSON ที่ถูกต้อง — ก็อปใหม่ทั้งก้อน')}
+  let c;
+  if(!raw)c=FB_DEFAULT_CFG;
+  else{try{c=JSON.parse(raw)}catch(e){throw new Error('Firebase Config ไม่ใช่ JSON ที่ถูกต้อง — ก็อปใหม่ทั้งก้อน')}}
   if(!c.apiKey||!c.projectId||!c.appId)throw new Error('Config ต้องมี apiKey + projectId + appId');
   return c;}
 function loadFirebaseSDK(){return new Promise((res,rej)=>{
@@ -2828,7 +2831,7 @@ async function acctOpen(){
       $('#ac-status').innerHTML='<span class="badge-on">● เชื่อมต่อ Firebase สำเร็จ</span> — ยังไม่ได้ล็อกอิน';
       $('#ac-form').hidden=false;}
   }catch(e){
-    $('#ac-status').innerHTML=`<span class="badge-off">○ ${esc(e.message)}</span><br><span class="hint">ไปที่ ⚙️ ตั้งค่า เพื่อวาง Firebase Config · ยังไม่ได้เปิด Email/Google หรือเพิ่มโดเมน? ดู "คู่มือตั้งค่า Firebase" ด้านล่าง</span>`;}}
+    $('#ac-status').innerHTML=`<span class="badge-off">○ ${esc(e.message)}</span><br><span class="hint">เชื่อมโปรเจกต์เริ่มต้นอัตโนมัติ · ยังไม่ได้เปิด Email/Google ใน Authentication หรือยังไม่ได้ Publish Rules? ดู "คู่มือตั้งค่า Firebase" ด้านล่าง</span>`;}}
 async function acctSignIn(){
   try{const{auth}=await fbInit();
     await auth.signInWithEmailAndPassword($('#ac-email').value.trim(),$('#ac-pass').value);
@@ -2908,17 +2911,17 @@ async function pullCloud(){
   finally{fbBusy=false;}}
 /* อัปอัตโนมัติ: debounce หลังแก้/ลบตอน เงียบๆ เฉพาะตอนล็อกอิน + เปิดใช้ */
 function fbAutoPush(){
-  if(!settings.fbAuto||!settings.fbCfg||generating||batching||fbBusy)return;
+  if(!settings.fbAuto||generating||batching||fbBusy)return;
   clearTimeout(fbAutoTimer);
   fbAutoTimer=setTimeout(async()=>{
     try{
-      if(!(settings.fbAuto&&settings.fbCfg))return;
+      if(!settings.fbAuto)return;
       const{auth}=await fbInit();if(!auth.currentUser)return;
       await fbWriteAll(await collectWorkspace());
       localStorage.setItem('nf_lastsync',Date.now());
     }catch(e){if(!/Config|ยังไม่ได้วาง/.test(e.message||''))toast('อัปคลาวด์อัตโนมัติพลาด: '+(e.message||e),'err');}
   },9000);}
-try{loadSettings();if(settings.fbCfg)setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}catch(e){}
+try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}catch(e){}
 
 /* ---------- INIT ---------- */
 (async function init(){
