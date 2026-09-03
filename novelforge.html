@@ -329,6 +329,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
         <button class="btn ghost" id="po-auto" style="width:100%" onclick="aiPopulateWorld()">🪄 สร้างตัวละคร/โลกจากโครงเรื่อง</button>
       </div>
     </div>
+    <div class="panel" id="plan-box" style="margin-top:16px"></div>
   </section>
 
   <section id="tab-arc" hidden>
@@ -1062,14 +1063,15 @@ const TAB_IDS=['plot','arc','chars','lore','overview','chaps','glossary','smartp
 function switchTab(t){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   for(const x of TAB_IDS)$('#tab-'+x).hidden=x!==t;
   if(t==='chars')renderChars();if(t==='lore'){initLoreFilters();renderLore();}
-  if(t==='chaps')renderChaps();if(t==='plot')fillOutline();if(t==='arc')fillArc();if(t==='overview')renderOverview();if(t==='glossary')renderGlossary();if(t==='smartplot')renderSmartPlot();}
+  if(t==='chaps')renderChaps();if(t==='plot'){fillOutline();renderPlan();}if(t==='arc')fillArc();if(t==='overview')renderOverview();if(t==='glossary')renderGlossary();if(t==='smartplot')renderSmartPlot();}
 
 /* ---------- PLOT ---------- */
 function fillOutline(){if(state.story)$('#ol-text').value=state.story.outline||''}
 async function saveOutline(silent){state.story.outline=$('#ol-text').value;state.story.updatedAt=Date.now();
   await dbPut('stories',state.story);
   $('#ol-saved').textContent='บันทึก '+new Date().toLocaleTimeString('th-TH');
-  if(!silent)toast('บันทึกโครงเรื่องแล้ว 💾');}
+  if(!silent)toast('บันทึกโครงเรื่องแล้ว 💾');
+  renderPlan();}
 const AO_ELEMENTS=['ระบบพลัง/เวทมนตร์ชัดเจน','ตัวร้ายทรงพลัง','สายความรัก','ครอบครัว/พี่น้อง','ปริศนา/ความลับในอดีต','แก๊ง/ตระกูล/การเมือง','ไล่เลเวล power fantasy','หักมุมเดือด'];
 function initAOEls(){$('#ao-els').innerHTML=AO_ELEMENTS.map(e=>`<label class="chip" style="cursor:pointer;display:inline-flex;gap:5px;align-items:center"><input type="checkbox" class="ao-el" value="${esc(e)}" style="accent-color:var(--ac)"> ${esc(e)}</label>`).join('');}
 async function aiOutline(){
@@ -1121,12 +1123,111 @@ JSON: {"characters":[{"name","role":"ตัวเอก|ตัวรอง|ต�
     toast(`เพิ่มตัวละคร ${nc} คน + ความจำ ${nl} รายการ 🪄`);
   }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
   b.disabled=false;b.textContent='🪄 สร้างตัวละคร/โลกจากโครงเรื่อง';}
+/* ---------- FULL PRE-WRITE PLAN (cast + beats + threads + frame rules) ---------- */
+function planRole(r){return /หลัก|เอก/.test(r)?'main':/ร้าย|ศัตรู|บอส|มาร|ปีศาจ/.test(r)?'vill':'sup'}
+async function renderPlan(){
+  const box=$('#plan-box');if(!box||!state.story)return;
+  const s=state.story;
+  const chars=(await dbAll('characters')).filter(c=>c.storyId===s.id);
+  const evRows=(await dbAll('lore')).filter(l=>l.storyId===s.id&&l.cat==='event').length;
+  const nMain=chars.filter(c=>planRole(c.role||'')==='main').length;
+  const nVill=chars.filter(c=>planRole(c.role||'')==='vill').length;
+  const nSup=chars.length-nMain-nVill;
+  const pl=s.plan||{};
+  const beats=(pl.beats||[]),thr=(pl.threads||[]),rules=(pl.rules||[]);
+  const hasO=!!(s.outline&&s.outline.trim()),hasA=!!(s.arc&&(s.arc.beginning||s.arc.middle||s.arc.end));
+  const chip=(ok,lab)=>'<span class="chip" style="'+(ok?'border-color:#34d399;color:#34d399':'border-color:#f87171;color:#f87171')+'">'+(ok?'✔':'✘')+' '+esc(lab)+'</span>';
+  const parts=[chip(hasO,'📖 โครงเรื่องคร่าว'),chip(hasA,'🧭 พล็อต 3 องก์'),
+    chip(chars.length>0,'👥 ตัวละคร: หลัก '+nMain+' · รอง '+nSup+' · ร้าย '+nVill),
+    chip(beats.length>0,'🗓️ เหตุการณ์ในแผน '+beats.length+(evRows?' (+คลัง '+evRows+')':'')),
+    chip(thr.length>0,'🪝 ปมวางแผน '+thr.length),chip(rules.length>0,'⚖️ เงื่อนไขกรอบ '+rules.length)];
+  let det='';
+  if(beats.length||thr.length||rules.length){
+    const rows=[];
+    if(beats.length)rows.push('<b>🗓️ เหตุการณ์สำคัญ (เรียงตามช่วงตอน)</b>'+beats.map(x=>'<div class="dt" style="margin-top:3px">• ['+esc(x.at)+'] <b>'+esc(x.title)+'</b>'+(x.desc?' — '+esc(x.desc):'')+'</div>').join(''));
+    if(thr.length)rows.push('<b>🪝 ปมที่วางแผนไว้</b>'+thr.map(x=>'<div class="dt" style="margin-top:3px">• '+esc(x.thread)+(x.payoff?' <span class="hint">→ จ่าย: '+esc(x.payoff)+'</span>':'')+'</div>').join(''));
+    if(rules.length)rows.push('<b>⚖️ เงื่อนไขกรอบ (ห้ามหลุด)</b>'+rules.map((r,i)=>'<div class="dt" style="margin-top:3px">• '+(i+1)+'. '+esc(r)+'</div>').join(''));
+    det='<details style="margin-top:10px"><summary>📋 ดูรายละเอียดแผน ('+beats.length+' เหตุการณ์ · '+thr.length+' ปม · '+rules.length+' เงื่อนไข)</summary><div style="margin-top:8px;display:grid;gap:10px">'+rows.join('')+'</div></details>';}
+  const ready=hasO&&hasA&&chars.length>=3&&beats.length>0&&thr.length>0&&rules.length>0;
+  box.innerHTML='<div class="toolrow" style="justify-content:space-between;flex-wrap:wrap;gap:8px">'
+    +'<b style="font-size:.98rem">🎬 ชุดเตรียมก่อนเขียน</b>'
+    +'<button class="btn primary sm" id="plan-gen" onclick="buildStoryPlan()">'+(pl.outline||beats.length?'🔄 สร้าง/ปรับชุดใหม่':'✨ สร้างชุดให้ครบก่อนเขียน')+'</button></div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;line-height:2">'+parts.join('')+'</div>'
+    +(ready?'<p class="hint" style="margin:8px 0 0">✅ ชุดครบแล้ว — ไป 📚 ตอนทั้งหมด แล้วกด ✍️ เขียนตอนได้เลย (แผนนี้ถูกส่งให้ AI ยึดทุกตอน)</p>'
+            :'<p class="hint" style="margin:8px 0 0">⚠️ ยังไม่ครบ — กดสร้างชุดเดียว: AI จะวางโครงเรื่องคร่าว + 3 องก์ + ตัวละคร(หลัก/รอง/ร้าย) + เหตุการณ์สำคัญ + ปม + เงื่อนไขกรอบให้พร้อมกัน</p>')
+    +det;
+}
+async function buildStoryPlan(){
+  if(!needKey())return;
+  const s=state.story;if(!s)return;
+  const b=$('#plan-gen');const orig=b?b.textContent:'';
+  const fin=()=>{if(b){b.disabled=false;b.textContent=orig;}};
+  if(b){b.disabled=true;b.innerHTML='<span class="spin"></span> กำลังสร้างชุด (2 ขั้นตอน)…';}
+  try{
+    const epsEl=$('#ao-eps'),ideaEl=$('#ao-idea');
+    const eps=parseInt((epsEl&&epsEl.value)||'')||30;
+    const idea=((ideaEl&&ideaEl.value.trim())||s.desc||'').trim();
+    if((s.outline&&s.outline.trim())||(s.arc&&(s.arc.beginning||s.arc.middle||s.arc.end))){
+      if(!confirm('มีโครงเรื่อง/3 องก์เดิมอยู่ — จะถูกแทนที่ด้วยชุดใหม่ทั้งหมด (ตัวละครเดิมคงไว้ เพิ่มเฉพาะชื่อที่ยังไม่มี) ดำเนินการต่อ?')){fin();return}}
+    const chapN=(await dbAll('chapters')).filter(c=>c.storyId===s.id).length;
+    const p1='คุณคือ head writer ผู้สร้าง "ชุดนิยาย" ให้ครบถ้วนสมบูรณ์ก่อนเริ่มเขียน สำหรับเรื่องนี้:\n'
+      +'ชื่อ: '+s.title+' | แนว: '+(s.genre||'ไม่ระบุ')+' | โทน: '+(s.tone||'ไม่ระบุ')+' | ภาษา: '+(s.lang==='en'?'อังกฤษ':'ไทย')+'\n'
+      +'คำอธิบาย/ไอเดีย: '+(idea||'(คิดเองจากชื่อเรื่อง)')+'\n'
+      +'เป้าหมาย: ~'+eps+' ตอน'+(chapN?' (เขียนไปแล้ว '+chapN+' ตอน — แผนช่วงที่เหลือต่อจากนั้น ห้ามขัดตอนที่เขียนไป)':'')+'\n'
+      +'ตอบ JSON เท่านั้น:\n'
+      +'{"outline":"เนื้อเรื่องคร่าวทั้งหมด","arc":{"beginning":"องก์1","middle":"องก์2","end":"องก์3"},"beats":[{"at":"ช่วงตอน","title":"ชื่อเหตุการณ์","desc":"รายละเอียดสั้น"}],"threads":[{"thread":"ปมที่วาง","payoff":"จะจ่ายตอนไหน/อย่างไร"}],"rules":["เงื่อนไขกรอบที่เขียนต้องไม่หลุด"]}\n'
+      +'กฎ:\n'
+      +'- outline: 350-600 คำ ครอบคลุม เริ่ม→กลาง→จบ ธีม/ปมหลัก/ตัวร้ายใหญ่/จุดจบ อ่านแล้วเข้าใจทั้งเรื่อง\n'
+      +'- arc: ทั้ง 3 องก์ bullet "• " คั่นบรรทัด ระบุช่วงตอน (ฟิลด์ละ 80-180 คำ): 1=โลก+ตัวเอก+เหตุการณ์เริ่ม+เป้าหมาย, 2=อุปสรรค+หักมุมกลาง+จุดต่ำสุด, 3=ลุกขึ้น+ศึกชี้ขาด+ไขปม+บทสรุป\n'
+      +'- beats: 8-14 เหตุการณ์สำคัญ เรียงตามช่วงตอนครบ 3 องก์ (รวมเหตุการณ์เปิด/หักมุม/จุดต่ำสุด/ศึกใหญ่/ตอนจบ)\n'
+      +'- threads: 5-8 ปม (ปมหลัก 1-2 + ปมรอง) แต่ละปมระบุวิธีจ่าย\n'
+      +'- rules: 4-7 เงื่อนไขกรอบ เช่น กฎระบบพลัง/การตายของตัวเอก/ความสัมพันธ์ต้องเปลี่ยนอย่างมีเหตุผล/อะไรห้ามเกิดก่อนตอนไหน — นักเขียนห้ามเขียนหลุดกรอบ\n'
+      +'- ภาษาไทย';
+    const j1=parseJSONLoose(await aiStream({prompt:p1,temp:.85,json:true,think:'low'}));
+    if(!j1||!j1.outline||!String(j1.outline).trim())throw new Error('AI ไม่ได้คืนโครงเรื่อง');
+    const arc=j1.arc||{};
+    s.outline=String(j1.outline).trim();
+    s.arc={beginning:String(arc.beginning||'').trim(),middle:String(arc.middle||'').trim(),end:String(arc.end||'').trim()};
+    s.plan={beats:(j1.beats||[]).filter(x=>x&&(x.title||x.desc)).map(x=>({at:String(x.at||'').trim().slice(0,60),title:String(x.title||'').trim().slice(0,160),desc:String(x.desc||'').trim().slice(0,400)})).slice(0,16),
+      threads:(j1.threads||[]).filter(x=>x&&(x.thread||x.payoff)).map(x=>({thread:String(x.thread||'').trim().slice(0,240),payoff:String(x.payoff||'').trim().slice(0,260)})).slice(0,10),
+      rules:(j1.rules||[]).map(x=>String(x||'').trim()).filter(Boolean).slice(0,10)};
+    s.updatedAt=Date.now();
+    await dbPut('stories',s);
+    const exC=(await dbAll('characters')).filter(c=>c.storyId===s.id).map(c=>c.name);
+    const p2='จากโครงเรื่องที่วางไว้ จงสร้าง "นักแสดง" ให้ครบถ้วน ตอบ JSON เท่านั้น:\n'
+      +'{"characters":[{"name","role","age","appearance","personality","abilities","background","goal","relations"}]}\n'
+      +'# โครงเรื่อง:\n'+String(s.outline||'').slice(0,3500)+'\n'
+      +'# องก์:\n'+[s.arc.beginning,s.arc.middle,s.arc.end].filter(Boolean).join('\n').slice(0,2000)+'\n'
+      +'ตัวละครที่มีแล้ว (ห้ามซ้ำชื่อ): '+(exC.join(', ')||'(ไม่มี)')+'\n'
+      +'กฎ:\n'
+      +'- รวม 8-14 คน: ตัวเอก/นางเอก 2-4 · ตัวรอง (เพื่อน/ครอบครัว/คนรัก/เมนเทอร์) 3-5 · ตัวร้าย 2-4 (ต่างระดับ: บอสใหญ่ + คู่ปรับ/ลูกน้อง)\n'
+      +'- role จาก: ตัวเอก|ตัวรอง|ตัวร้าย|เมนเทอร์/ผู้ใหญ่|คนรัก/คู่จิ้น|เพื่อนซี้\n'
+      +'- relations อ้างชื่อตัวละครในชุดเดียวกันโดยตรง เช่น "ศัตรูกับ X, พี่น้องกับ Y" ห้ามลอย\n'
+      +'- ไทย กระชับเป็นประโยค';
+    const j2=parseJSONLoose(await aiStream({prompt:p2,temp:.9,json:true,think:'low'}));
+    const roles=['ตัวเอก','ตัวรอง','ตัวร้าย','เมนเทอร์/ผู้ใหญ่','คนรัก/คู่จิ้น','เพื่อนซี้'];
+    let nc=0;const cn=new Set(exC);
+    for(const c of(j2.characters||[])){
+      if(!c||!c.name)continue;
+      const name=String(c.name).trim();if(!name||cn.has(name))continue;
+      await dbPut('characters',{id:uid(),storyId:s.id,name,role:roles.includes(c.role)?c.role:'ตัวรอง',age:String(c.age||'').trim().slice(0,20),
+        appearance:String(c.appearance||'').trim().slice(0,500),personality:String(c.personality||'').trim().slice(0,500),
+        abilities:String(c.abilities||'').trim().slice(0,500),background:String(c.background||'').trim().slice(0,800),
+        goal:String(c.goal||'').trim().slice(0,400),relations:String(c.relations||'').trim().slice(0,500),createdAt:Date.now()});
+      cn.add(name);nc++;}
+    if(state.story&&state.story.id===s.id)Object.assign(state.story,s);
+    toast('🎬 ชุดครบแล้ว: เหตุการณ์ '+s.plan.beats.length+' · ปม '+s.plan.threads.length+' · เงื่อนไข '+s.plan.rules.length+' · เพิ่มตัวละคร '+nc+' คน');
+  }catch(e){if(e.name!=='AbortError')toast('ผิดพลาด: '+e.message,'err');}
+  await renderPlan();
+  fin();
+}
 
 /* ---------- ARC ---------- */
 function fillArc(){const a=state.story.arc||{};$('#arc-b').value=a.beginning||'';$('#arc-m').value=a.middle||'';$('#arc-e').value=a.end||'';}
 async function saveArc(silent){state.story.arc={beginning:$('#arc-b').value,middle:$('#arc-m').value,end:$('#arc-e').value};
   state.story.updatedAt=Date.now();await dbPut('stories',state.story);
-  if(!silent)toast('บันทึกพล็อต 3 องก์แล้ว 🧭');}
+  if(!silent)toast('บันทึกพล็อต 3 องก์แล้ว 🧭');
+  renderPlan();}
 async function aiArc(){if(!needKey())return;
   const b=$('#arc-gen');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const s=state.story;
@@ -1384,6 +1485,11 @@ async function gatherContext(sid,chaps=null,skipTails=false){
     b+=`\n\n# พล็อตย่อย 3 องก์ (เดินเรื่องมุ่งสู่จุดจบตามแผน)\n[องก์ 1]\n${arc.beginning||'-'}`;
     if(arc.middle)b+=`\n[องก์ 2]\n${arc.middle}`;
     if(arc.end)b+=`\n[องก์ 3-จบ]\n${arc.end}`;}
+  const planB=s.plan;
+  if(planB&&((planB.rules&&planB.rules.length)||(planB.beats&&planB.beats.length)||(planB.threads&&planB.threads.length))){
+    if(planB.rules&&planB.rules.length)b+=`\n\n# ⚖️ เงื่อนไขกรอบเรื่อง (ตั้งไว้ก่อนเริ่มเขียน — ห้ามเขียนขัดเงื่อนไขเหล่านี้เด็ดขาด)\n${planB.rules.map(r=>'- '+r).join('\n')}`;
+    if(planB.beats&&planB.beats.length)b+=`\n\n# 🗓️ แผนเหตุการณ์สำคัญ (เดินเรื่องให้ถึงจุดเหล่านี้ตามช่วงที่กำหนด)\n${planB.beats.map(x=>'- ['+x.at+'] '+x.title+(x.desc?': '+x.desc:'')).join('\n')}`;
+    if(planB.threads&&planB.threads.length)b+=`\n\n# 🪝 ปมที่วางแผนไว้ (ต้องเปิดปมให้เกิดขึ้นในเรื่องและจ่ายให้ครบตามแผน)\n${planB.threads.map(x=>'- ปม: '+x.thread+(x.payoff?' → จ่าย: '+x.payoff:'')).join('\n')}`;}
   if(chars.length){b+=`\n\n# ตัวละคร (ยึดเคร่งครัด)`;
     for(const c of chars){let ln=`- ${c.name} [${c.role||'-'}]${c.age?' | '+c.age:''}`;
       const dd=[];if(c.appearance)dd.push('หน้าตา: '+c.appearance);if(c.personality)dd.push('นิสัย: '+c.personality);
