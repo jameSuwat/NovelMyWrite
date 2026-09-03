@@ -1,6 +1,6 @@
 {
-  "name": "NovelForge AI — เขียนนิยายด้วย AI",
-  "short_name": "NovelForge",
+  "name": "NovelMyWrite — เขียนนิยายด้วย AI",
+  "short_name": "NovelMyWrite",
   "description": "เขียนนิยายด้วย AI วางพล็อต สร้างตัวละคร แล้วให้ AI เขียนทีละตอน",
   "start_url": "./index.html",
   "scope": "./",

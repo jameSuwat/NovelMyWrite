@@ -1,7 +1,8 @@
-const CACHE_NAME = 'novelforge-v1';
+const CACHE_NAME = 'novelmywrite-v1';
 const ASSETS = [
-  './novelforge.html',
-  './manifest.json'
+  './index.html',
+  './manifest.json',
+  './icon-192.png', './icon-512.png', './icon-180.png', './favicon-32.png', './icon.svg'
 ];
 
 self.addEventListener('install', e => {
