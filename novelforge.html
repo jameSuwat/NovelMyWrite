@@ -2611,7 +2611,7 @@ async function openRead(goNum){
   $('#readmode').classList.add('show');
   document.body.style.overflow='hidden';
   // Restore read mode preference
-  const rm=localStorage.getItem('nf_readMode')||localStorage.getItem('nf_readNight')==='1'?'night':'normal';
+  const rm=localStorage.getItem('nf_readMode')||(localStorage.getItem('nf_readNight')==='1'?'night':'normal');
   $('#readmode').classList.remove('night','cream');$('#read-night-btn').textContent='🌙 กลางคืน';$('#read-cream-btn').textContent='📄 ครีม';
   if(rm==='night'){$('#readmode').classList.add('night');$('#read-night-btn').textContent='☀️ สว่าง';}
   else if(rm==='cream'){$('#readmode').classList.add('cream');$('#read-cream-btn').textContent='☀️ สว่าง';}
@@ -3049,12 +3049,12 @@ try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}cat
     const sel=box.querySelector('#set-namestyle');
     sel.value=cur();
     sel.onchange=()=>{localStorage.setItem(K,sel.value);
-      alert('บันทึกแล้ว ✅ ต่อจากนี้ AI จะใช้ชื่อแบบ "'+LABELS[sel.value]+'"');};
+      toast('บันทึกแล้ว ✅ ต่อจากนี้ AI จะใช้ชื่อแบบ "'+LABELS[sel.value]+'"');};
     // Pronoun style
     const pronSel=box.querySelector('#set-pronoun');
     pronSel.value=curPronoun();
     pronSel.onchange=()=>{localStorage.setItem(K_PRONOUN,pronSel.value);
-      alert('บันทึกแล้ว ✅ สรรพนาม: "'+PRONOUN_LABELS[pronSel.value]+'"');};
+      toast('บันทึกแล้ว ✅ สรรพนาม: "'+PRONOUN_LABELS[pronSel.value]+'"');};
     box.querySelector('#fix-names-btn').onclick=fixNames;
   }
   setInterval(inject,800);
@@ -3069,7 +3069,7 @@ try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}cat
   async function askGemini(prompt){
     const key=findKey();
     if(!key)throw new Error('ไม่เจอ API key — เข้าตั้งค่าใส่ key ก่อน');
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+key,{
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key='+key,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.8}})
     });
@@ -3077,10 +3077,27 @@ try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}cat
     if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
     return j.candidates[0].content.parts.map(p=>p.text).join('');
   }
+  function askLines(title){
+    return new Promise(res=>{
+      const ov=document.createElement('div');
+      ov.className='overlay show';ov.style.zIndex=400;
+      ov.innerHTML='<div class="modal" style="width:min(440px,92vw)"><h2>'+title+'</h2>'+
+        '<textarea class="in" rows="5" placeholder="ชื่อละ 1 บรรทัด หรือคั่นด้วย ,"></textarea>'+
+        '<div class="mfoot"><button class="btn ghost">ยกเลิก</button><button class="btn primary">ตกลง</button></div></div>';
+      document.body.appendChild(ov);
+      const ta=ov.querySelector('textarea');
+      const btns=ov.querySelectorAll('.mfoot button');
+      const done=v=>{ov.remove();res(v)};
+      btns[1].onclick=()=>done(ta.value.trim());
+      btns[0].onclick=()=>done(null);
+      ov.addEventListener('click',e=>{if(e.target===ov)done(null)});
+      setTimeout(()=>ta.focus(),50);
+    });
+  }
   async function fixNames(){
     const s=cur();
-    if(s==='auto'){alert('เลือกสไตล์ชื่อที่เจาะจงก่อน (เช่น จีน) แล้วค่อยกดแปลงชื่อ');return;}
-    const list=prompt('วางชื่อตัวละครปัจจุบัน (บรรทัดละ 1 ชื่อ หรือคั่นด้วย ,):\nเช่น\nJohn Smith\nAlice');
+    if(s==='auto'){toast('เลือกสไตล์ชื่อที่เจาะจงก่อน (เช่น จีน) แล้วค่อยกดแปลงชื่อ','warn');return;}
+    const list=await askLines('🔧 วางชื่อตัวละครปัจจุบัน (บรรทัดละ 1 ชื่อ หรือคั่นด้วย ,)');
     if(!list)return;
     const names=list.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
     if(!names.length)return;
@@ -3096,16 +3113,19 @@ try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}cat
       const pairs=Object.entries(m).sort((a,b)=>b[0].length-a[0].length);
       const show=pairs.slice(0,20).map(p=>p[0]+'  →  '+p[1]).join('\n')+
         (pairs.length>20?('\n...และอีก '+(pairs.length-20)+' ชื่อ'):'');
-      if(!(await nfAsk('เปลี่ยนชื่อดังนี้ทั่วทั้งเว็บ (ความจำ ตัวละคร ทุกตอนที่เขียนไว้)?\n\n'+show,'เปลี่ยนเลย')))return;
+      if(!(await nfAsk('เปลี่ยนชื่อดังนี้ทั่วทั้งเว็บ (โครงเรื่อง ตัวละคร ความจำ ทุกตอนที่เขียนไว้)?\n\n'+show,'เปลี่ยนเลย')))return;
       let n=0;
-      for(let i=0;i<localStorage.length;i++){
-        const k=localStorage.key(i);
-        let v=localStorage.getItem(k);const old=v;
-        for(const[a,b]of pairs)v=v.split(a).join(b);
-        if(v!==old){localStorage.setItem(k,v);n++;}
+      for(const store of['stories','chapters','characters','lore']){
+        const items=await dbAll(store);
+        for(const it of items){
+          let j=JSON.stringify(it);const old=j;
+          for(const[a,b]of pairs)j=j.split(a).join(b);
+          if(j!==old){await dbPut(store,JSON.parse(j));n++;}
+        }
       }
-      alert('เสร็จ ✅ แก้ข้อมูล '+n+' รายการ — กด F5 เพื่อโหลดใหม่');
-    }catch(e){alert('ผิดพลาด: '+e.message);}
+      toast('เสร็จ ✅ แก้ข้อมูล '+n+' รายการ — กำลังโหลดใหม่…');
+      setTimeout(()=>location.reload(),1400);
+    }catch(e){toast('ผิดพลาด: '+e.message,'err');}
     btn.textContent='🔧 แปลงชื่อตัวละครเดิมให้ตรงธีม';
   }
 })();
