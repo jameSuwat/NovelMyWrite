@@ -846,6 +846,17 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
   </div>
 </div>
 
+<!-- IN-APP CONFIRM (replaces native confirm(), which is suppressed in PWA/webview) -->
+<div class="overlay" id="m-confirm">
+  <div class="modal" style="width:min(440px,92vw)">
+    <h2>⚠️ ยืนยันการลบ <button class="x" onclick="nfAskRes(false)">✕</button></h2>
+    <div id="cf-msg" style="white-space:pre-wrap;line-height:1.65"></div>
+    <div class="mfoot">
+      <button class="btn ghost" onclick="nfAskRes(false)">ยกเลิก</button>
+      <button class="btn danger" id="cf-yes" onclick="nfAskRes(true)">ยืนยัน</button>
+    </div>
+  </div>
+</div>
 <div id="toasts"></div>
 <script>
 /* ================= UTILITIES ================= */
@@ -857,9 +868,13 @@ const estWords=t=>Math.round(String(t||'').replace(/\s+/g,'').length/4.5);
 function toast(msg,type='ok'){const d=document.createElement('div');d.className='toast '+(type!=='ok'?type:'');d.textContent=msg;$('#toasts').appendChild(d);setTimeout(()=>{d.style.opacity='0';d.style.transition='.4s';setTimeout(()=>d.remove(),400)},4200);}
 function openM(id){$('#'+id).classList.add('show')}
 function closeM(id){$('#'+id).classList.remove('show')}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
+let nfAskR=null;
+function nfAsk(msg,okTxt,danger){okTxt=okTxt||'ยืนยัน';return new Promise(res=>{nfAskR=res;$('#cf-msg').textContent=msg;
+  const y=$('#cf-yes');y.textContent=okTxt;y.className='btn '+(danger?'danger':'primary');openM('m-confirm');});}
+function nfAskRes(v){closeM('m-confirm');const r=nfAskR;nfAskR=null;if(r)r(v);}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('show');if(o.id==='m-confirm'&&nfAskR)nfAskRes(false);}}));
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));hidePolish();closeRead();}
+  if(e.key==='Escape'){document.querySelectorAll('.overlay.show').forEach(o=>{o.classList.remove('show');if(o.id==='m-confirm'&&nfAskR)nfAskRes(false)});hidePolish();closeRead();}
   if(e.ctrlKey&&e.key==='s'&&!$('#view-editor').hidden){e.preventDefault();edSave();}});
 function hue(name){let h=0;for(const ch of String(name))h=(h*31+ch.codePointAt(0))%360;return h}
 function toggleMenu(ev,id){ev.stopPropagation();document.querySelectorAll('.menu.open').forEach(m=>{if(m.id!==id)m.classList.remove('open')});$('#'+id).classList.toggle('open');}
@@ -1004,7 +1019,7 @@ function compressImageFile(file,maxDim=900,q=.82){return new Promise(async(res,r
 
 /* ================= VIEWS ================= */
 function show(id){for(const v of['view-library','view-story','view-editor'])$('#'+v).hidden=v!==id;window.scrollTo(0,0);}
-function goHome(){if((generating||batching)&&!confirm('AI กำลังเขียนอยู่ ออกไปเลย? (จะหยุดหลังรอบปัจจุบัน)'))return;stopGen();renderLibrary();show('view-library');}
+async function goHome(){if((generating||batching)&&!(await nfAsk('AI กำลังเขียนอยู่ ออกไปเลย? (จะหยุดหลังรอบปัจจุบัน)','ออกไปเลย')))return;stopGen();renderLibrary();show('view-library');}
 function phColor(name){const h=hue(name);return`linear-gradient(135deg,hsl(${h},55%,42%),hsl(${(h+60)%360},60%,30%))`}
 function renderKeyBanner(){const n=getKeyPool().length;$('#key-banner').innerHTML=n?'':`
   <div class="banner"><div>🔑 <b>ยังไม่ได้ใส่ Gemini API Key</b> — ใส่ได้หลายคีย์เพื่อไม่โดน 429 และเปิด Speed Mode (รับฟรีที่ aistudio.google.com/apikey)</div>
@@ -1093,7 +1108,7 @@ async function saveQuickTitle(){const inp=$('#st-title-edit');if(!inp||!state.st
   state.story.title=newTitle;state.story.updatedAt=Date.now();
   await dbPut('stories',state.story);renderStoryHead();toast('เปลี่ยนชื่อแล้ว ✅');}
 async function deleteStory(){const s=state.story;
-  if(!confirm(`ลบ "${s.title}" พร้อมทุกตอนและความจำ ถาวร?`))return;
+  if(!(await nfAsk(`ลบ "${s.title}" พร้อมทุกตอนและความจำ ถาวร? (กู้คืนไม่ได้)`,'ลบเลย',true)))return;
   for(const st of['characters','lore','chapters'])for(const it of(await dbAll(st)).filter(x=>x.storyId===s.id))await dbDel(st,it.id);
   await dbDel('stories',s.id);toast('ลบแล้ว');fbAutoPush();goHome();}
 $('#tabs')?.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchTab(b.dataset.tab)});
@@ -1115,7 +1130,7 @@ function initAOEls(){$('#ao-els').innerHTML=AO_ELEMENTS.map(e=>`<label class="ch
 async function aiOutline(){
   if(!needKey())return;
   const idea=$('#ao-idea').value.trim(),els=[...document.querySelectorAll('.ao-el:checked')].map(c=>c.value),eps=parseInt($('#ao-eps').value)||30;
-  if(state.story.outline&&!confirm('มีโครงเรื่องเดิม จะถูกแทนที่ — ตกลง?'))return;
+  if(state.story.outline&&!(await nfAsk('มีโครงเรื่องเดิม จะถูกแทนที่ — ตกลง?','แทนที่เลย')))return;
   const b=$('#ao-gen');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const s=state.story;
   const prompt=`คุณคือนักวางโครงเรื่องนิยายมืออาชีพ จงสร้างโครงเรื่องสำหรับเรื่องนี้:
@@ -1222,7 +1237,7 @@ async function buildStoryPlan(){
     const eps=parseInt((epsEl&&epsEl.value)||'')||30;
     if(!s.outline||!s.outline.trim()||!s.arc||!String(s.arc.beginning||'').trim()||!String(s.arc.middle||'').trim()||!String(s.arc.end||'').trim()){toast('ต้องวางโครงเรื่อง + พล็อตย่อย 3 องก์ (🌅 องก์1 · ⚔️ องก์2 · 🔥 องก์3) ให้ครบก่อน — ชุดเตรียมก่อนเขียนจะอ้างอิงทั้งโครงเรื่องและองก์','warn');await renderPlan();fin();return}
     if(s.plan&&((s.plan.beats&&s.plan.beats.length)||(s.plan.threads&&s.plan.threads.length)||(s.plan.rules&&s.plan.rules.length))){
-      if(!confirm('มีแผนเดิมอยู่ (เหตุการณ์/ปม/เงื่อนไข) — จะถูกสร้างใหม่จากโครงเรื่อง + 3 องก์ที่ตกลงไว้ (โครงเรื่อง/องก์/ตัวละครเดิมของคุณคงไว้ เพิ่มเฉพาะชื่อที่ยังไม่มี) ดำเนินการต่อ?')){fin();return}}
+      if(!(await nfAsk('มีแผนเดิมอยู่ (เหตุการณ์/ปม/เงื่อนไข) — จะถูกสร้างใหม่จากโครงเรื่อง + 3 องก์ที่ตกลงไว้ (โครงเรื่อง/องก์/ตัวละครเดิมของคุณคงไว้ เพิ่มเฉพาะชื่อที่ยังไม่มี) ดำเนินการต่อ?'))){fin();return}}
     const chapN=(await dbAll('chapters')).filter(c=>c.storyId===s.id).length;
     const p1='คุณคือ head writer ต่อยอดจาก "โครงเรื่อง + พล็อตย่อย 3 องก์ฉบับตกลงแล้ว" ด้านล่าง สร้างชุดวางเรื่องให้ครบก่อนเขียน (ยึดทั้งสองอย่างนี้เท่านั้น ห้ามเพิ่มเส้นเรื่อง/ตัวละคร/เหตุการณ์นอกกรอบ ห้ามขัดชื่อหรือช่วงตอนที่ระบุ):\n'
       +'# โครงเรื่องฉบับตกลงแล้ว (ยึดตามนี้เท่านั้น):\n'+String(s.outline||'').slice(0,5000)+'\n'
@@ -1314,7 +1329,7 @@ async function savePlanItem(){
 }
 async function delPlanItem(type,idx){
   const s=state.story;if(!s)return;
-  if(!confirm('ลบรายการนี้จากแผน?'))return;
+  if(!(await nfAsk('ลบรายการนี้จากแผนถาวร? (กู้คืนไม่ได้)','ลบเลย',true)))return;
   const p=ensurePlan();if(!p)return;
   const arr=planArrOf(p,type);
   if(idx>=0&&arr[idx])arr.splice(idx,1);
@@ -1404,7 +1419,7 @@ async function renderChars(){
       <div class="icon-btns"><button class="ibtn e">✏️ แก้ไข</button><button class="ibtn p">🖼️ วาดภาพ</button><button class="ibtn dl">🗑</button></div>`;
     d.querySelector('.e').onclick=()=>openCharModal(c);
     d.querySelector('.p').onclick=()=>charPortrait(c);
-    d.querySelector('.dl').onclick=async()=>{if(confirm(`ลบ "${c.name}"?`)){await dbDel('characters',c.id);renderChars();}};
+    d.querySelector('.dl').onclick=async()=>{if(!(await nfAsk(`ลบ "${c.name}" ถาวร? (กู้คืนไม่ได้)`,'ลบเลย',true)))return;await dbDel('characters',c.id);renderChars();};
     g.appendChild(d);}}
 function openCharModal(c){
   $('#cf-h').firstChild.textContent=(c?'✏️ แก้ไข: '+c.name:'＋ ตัวละครใหม่')+' ';
@@ -1477,7 +1492,7 @@ async function renderLore(){
     d.innerHTML=`<div style="min-width:0"><b>${esc(l.name)}</b>${l.when?` <span class="whenchip">${esc(l.when)}</span>`:''}<div class="dt">${esc(l.detail)}</div></div>
       <div class="meta"><span class="cat-pill">${c.label}</span><button class="ibtn e">✏️</button><button class="ibtn dl">🗑</button></div>`;
     d.querySelector('.e').onclick=()=>openLoreModal(l);
-    d.querySelector('.dl').onclick=async()=>{if(confirm(`ลบ "${l.name}"?`)){await dbDel('lore',l.id);renderLore();}};
+    d.querySelector('.dl').onclick=async()=>{if(!(await nfAsk(`ลบ "${l.name}" ออกจากคลังความจำ ถาวร? (กู้คืนไม่ได้)`,'ลบเลย',true)))return;await dbDel('lore',l.id);renderLore();toast('ลบแล้ว 🗑');};
     el.appendChild(d);}}
 async function memStatePanel(){
   const s0=state.story;if(!s0)return '';
@@ -1760,7 +1775,7 @@ async function startWriting(){
   if(mode==='self'&&!planRaw)return toast('ใส่เนื้อเรื่องย่อก่อน หรือเลือกให้ AI วางเอง','warn');
   let lines=[];
   if(mode==='self'&&count>1){lines=planRaw.split('\n').map(t=>t.trim()).filter(Boolean);
-    if(!parallel&&lines.length&&!confirm(`ใส่แผน ${lines.length} บรรทัด แต่สั่ง ${count} ตอน — ส่วนเกิน AI วางเอง ตกลง?`))return;}
+    if(!parallel&&lines.length&&!(await nfAsk(`ใส่แผน ${lines.length} บรรทัด แต่สั่ง ${count} ตอน — ส่วนเกิน AI วางเอง ตกลง?`)))return;}
   closeM('m-newchap');
   const pool=getKeyPool();
   const existing=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id);
@@ -1882,14 +1897,14 @@ function enterEditor(ch,{lock=false}={}){
   updateStats();show('view-editor');}
 async function openEditor(cid){enterEditor(await dbGet('chapters',cid));}
 function unlockEditor(){$('#ed-content').readOnly=false;$('#ed-genbar').hidden=true;$('#ed-cont-btn').disabled=false;$('#ed-next-btn').disabled=false;}
-async function closeEditor(){if((generating||batching)&&!confirm('AI กำลังเขียน แน่ใจ?'))return;
+async function closeEditor(){if((generating||batching)&&!(await nfAsk('AI กำลังเขียนอยู่ ออกไปเลย? (จะหยุดหลังรอบปัจจุบัน)','ออกไปเลย')))return;
   stopGen();try{speechSynthesis.cancel()}catch{}
   await edSaveSilent();state.chapter=null;
   renderChaps();show('view-story');renderStoryHead();}
 async function edDelete(){
   const ch=state.chapter;if(!ch)return;
   if(generating||batching)return toast('AI กำลังเขียน — รอให้เสร็จก่อนลบ','warn');
-  if(!confirm(`ลบตอนที่ ${ch.num}${ch.title?': '+ch.title:''} ถาวร? (กู้คืนไม่ได้)`))return;
+  if(!(await nfAsk(`ลบตอนที่ ${ch.num}${ch.title?': '+ch.title:''} ถาวร? (กู้คืนไม่ได้)`,'ลบเลย',true)))return;
   stopGen();try{speechSynthesis.cancel()}catch{}
   await dbDel('chapters',ch.id);
   state.chapter=null;
@@ -2283,7 +2298,7 @@ async function openHist(){
   openM('m-hist');}
 async function restoreHist(i){
   const ch=state.chapter;if(!ch||!ch.history?.[i])return;
-  if(!confirm('กู้เนื้อหาเวอร์ชันนี้ทับปัจจุบัน?'))return;
+  if(!(await nfAsk('กู้เนื้อหาเวอร์ชันนี้ทับปัจจุบัน?')))return;
   snap(ch,'ก่อนกู้คืน');
   ch.content=ch.history[i].content;ch.updatedAt=Date.now();
   await dbPut('chapters',ch);
@@ -2489,7 +2504,7 @@ function openTpl(){
   openM('m-tpl');}
 async function applyTpl(name){
   const t=Object.values(TPL).find(x=>x.name===name);if(!t)return;
-  if(!confirm(`เติมเทมเพลต "${name}" ใส่เรื่องนี้?\n(โครงเรื่อง/พล็อตจะถูกแทนที่ ตัวละคร+ความจำถูกเพิ่ม)`))return;
+  if(!(await nfAsk(`เติมเทมเพลต "${name}" ใส่เรื่องนี้?\n(โครงเรื่อง/พล็อตจะถูกแทนที่ ตัวละคร+ความจำถูกเพิ่ม)`)))return;
   state.story.outline=t.outline;
   state.story.arc={beginning:t.arc.beginning,middle:t.arc.middle,end:t.arc.end};
   state.story.updatedAt=Date.now();
@@ -2765,8 +2780,8 @@ async function importBackup(inp){
   }catch(e){toast('นำเข้าไม่สำเร็จ: '+e.message,'err');}
   inp.value='';}
 async function wipeAll(){
-  if(!confirm('ล้างข้อมูลทุกเรื่องในเบราว์เซอร์นี้ถาวร? แนะนำส่งออก/Push ก่อน!'))return;
-  if(!confirm('ยืนยันอีกครั้ง — ลบทั้งหมดจริงๆ?'))return;
+  if(!(await nfAsk('ล้างข้อมูลทุกเรื่องในเบราว์เซอร์นี้ถาวร? แนะนำส่งออก/Push ก่อน!','ล้างเลย',true)))return;
+  if(!(await nfAsk('ยืนยันอีกครั้ง — ลบทั้งหมดจริงๆ? (กู้คืนไม่ได้)','ลบทั้งหมด',true)))return;
   for(const s of['stories','characters','lore','chapters'])await dbClear(s);
   toast('ล้างข้อมูลทั้งหมดแล้ว');renderLibrary();}
 
@@ -2899,7 +2914,7 @@ async function pullCloud(){
     const d=await fbReadAll();
     const total=fbTot(d);
     if(!total)return toast('บนคลาวด์ยังไม่มีข้อมูล — ลอง Push จากเครื่องเดิมก่อน','warn');
-    if(!confirm(`ดึงข้อมูลจากคลาวด์ (${total} รายการ) มาทับเครื่องนี้ทั้งหมด?`))return;
+    if(!(await nfAsk(`ดึงข้อมูลจากคลาวด์ (${total} รายการ) มาทับเครื่องนี้ทั้งหมด? (ข้อมูลเครื่องนี้จะถูกแทนที่)`,'ดึงเลย')))return;
     for(const s of['stories','characters','lore','chapters'])await dbClear(s);
     let n=0;
     for(const[k]of Object.entries({stories:1,characters:1,lore:1,chapters:1}))
@@ -3055,7 +3070,7 @@ try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}cat
       const pairs=Object.entries(m).sort((a,b)=>b[0].length-a[0].length);
       const show=pairs.slice(0,20).map(p=>p[0]+'  →  '+p[1]).join('\n')+
         (pairs.length>20?('\n...และอีก '+(pairs.length-20)+' ชื่อ'):'');
-      if(!confirm('เปลี่ยนชื่อดังนี้ทั่วทั้งเว็บ (ความจำ ตัวละคร ทุกตอนที่เขียนไว้)?\n\n'+show))return;
+      if(!(await nfAsk('เปลี่ยนชื่อดังนี้ทั่วทั้งเว็บ (ความจำ ตัวละคร ทุกตอนที่เขียนไว้)?\n\n'+show,'เปลี่ยนเลย')))return;
       let n=0;
       for(let i=0;i<localStorage.length;i++){
         const k=localStorage.key(i);
