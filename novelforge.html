@@ -3123,8 +3123,21 @@ try{loadSettings();setTimeout(()=>fbInit().then(()=>{}).catch(()=>{}),1600);}cat
           if(j!==old){await dbPut(store,JSON.parse(j));n++;}
         }
       }
-      toast('เสร็จ ✅ แก้ข้อมูล '+n+' รายการ — กำลังโหลดใหม่…');
-      setTimeout(()=>location.reload(),1400);
+      toast('เสร็จ ✅ แก้ข้อมูล '+n+' รายการ');
+      let pushed=false;
+      try{
+        if(settings&&settings.fbAuto){
+          const{auth}=await fbInit();
+          if(auth&&auth.currentUser&&await nfAsk('อัปข้อมูลชื่อใหม่ขึ้นคลาวด์ทันที? (กันคลาวด์ค้างชื่อเก่า)','อัปเลย')){
+            btn.textContent='⏳ กำลังอัปคลาวด์…';
+            await fbWriteAll(await collectWorkspace());
+            localStorage.setItem('nf_lastsync',Date.now());
+            pushed=true;
+          }
+        }
+      }catch(e){}
+      toast('กำลังโหลดใหม่…'+(pushed?' (อัปคลาวด์แล้ว ⬆️)':''));
+      setTimeout(()=>location.reload(),pushed?1600:1400);
     }catch(e){toast('ผิดพลาด: '+e.message,'err');}
     btn.textContent='🔧 แปลงชื่อตัวละครเดิมให้ตรงธีม';
   }
