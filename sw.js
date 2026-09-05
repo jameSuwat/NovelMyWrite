@@ -1,4 +1,4 @@
-const CACHE_NAME = 'novelmywrite-v2';
+const CACHE_NAME = 'novelmywrite-v3';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -20,15 +20,31 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network-first for API calls, cache-first for assets
-  if (e.request.url.includes('generativelanguage.googleapis.com') ||
-      e.request.url.includes('supabase') ||
-      e.request.url.includes('identitytoolkit.googleapis.com') ||
-      e.request.url.includes('securetoken.googleapis.com') ||
-      e.request.url.includes('firestore.googleapis.com')) {
+  const url = e.request.url;
+  // Network-first for API calls, cache as offline fallback
+  if (url.includes('generativelanguage.googleapis.com') ||
+      url.includes('supabase') ||
+      url.includes('identitytoolkit.googleapis.com') ||
+      url.includes('securetoken.googleapis.com') ||
+      url.includes('firestore.googleapis.com')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
+  // App shell / navigation: network-first so code fixes reach users on next visit,
+  // falling back to the cached copy only when offline.
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        return resp;
+      }).catch(() =>
+        caches.match(e.request).then(r => r || caches.match('./index.html'))
+      )
+    );
+    return;
+  }
+  // Other static assets: cache-first with background fill
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
       const clone = resp.clone();
