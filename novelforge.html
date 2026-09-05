@@ -427,6 +427,7 @@ hr.sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
     <button class="btn primary sm" onclick="edSave()">💾 บันทึก</button>
     <button class="btn ghost sm" id="ed-cont-btn" onclick="edContinue()">▶️ เขียนต่อ</button>
     <button class="btn primary sm" id="ed-next-btn" onclick="edNextChapter()">⏭️ เขียนตอนถัดไป</button>
+    <button class="btn ghost sm" onclick="openReadHere()">📖 อ่านตอนนี้</button>
     <button class="btn ghost sm" id="ed-check-btn" onclick="checkConsistency()">🔍 ตรวจสอดคล้อง</button>
     <button class="btn ghost sm" onclick="runBeta()">🧐 Beta Reader</button>
     <button class="btn ghost sm" id="ed-sum-btn" onclick="sumBtnWrap()">🧾 สรุปเป็นความจำ</button>
@@ -1904,6 +1905,10 @@ async function closeEditor(){if((generating||batching)&&!(await nfAsk('AI กำ
   stopGen();try{speechSynthesis.cancel()}catch{}
   await edSaveSilent();state.chapter=null;
   renderChaps();show('view-story');renderStoryHead();}
+async function openReadHere(){const ch=state.chapter;if(!ch)return;
+  if(generating||batching)return toast('AI กำลังเขียน — รอให้เสร็จก่อนเปิดอ่าน','warn');
+  await edSaveSilent();
+  await openRead(ch.num);}
 async function edDelete(){
   const ch=state.chapter;if(!ch)return;
   if(generating||batching)return toast('AI กำลังเขียน — รอให้เสร็จก่อนลบ','warn');
@@ -2596,12 +2601,12 @@ function readFont(d){readSize=Math.max(13,Math.min(26,readSize+d));$('#read-body
 function toggleReadNight(){$('#readmode').classList.remove('cream');$('#readmode').classList.toggle('night');const isNight=$('#readmode').classList.contains('night');$('#read-night-btn').textContent=isNight?'☀️ สว่าง':'🌙 กลางคืน';$('#read-cream-btn').textContent='📄 ครีม';localStorage.setItem('nf_readMode',isNight?'night':'normal');}
 function toggleReadCream(){$('#readmode').classList.remove('night');$('#readmode').classList.toggle('cream');const isCream=$('#readmode').classList.contains('cream');$('#read-cream-btn').textContent=isCream?'☀️ สว่าง':'📄 ครีม';$('#read-night-btn').textContent='🌙 กลางคืน';localStorage.setItem('nf_readMode',isCream?'cream':'normal');}
 function toggleReadSidebar(){$('#read-sidebar').classList.toggle('open');$('#read-sidebar-overlay').classList.toggle('open');}
-async function openRead(){
+async function openRead(goNum){
   readChapsList=(await dbAll('chapters')).filter(c=>c.storyId===state.story.id).sort((a,b)=>a.num-b.num);
   if(!readChapsList.length)return toast('ยังไม่มีตอน','warn');
+  // Start at a specific chapter if requested, otherwise show the first one
+  readIdx=goNum?Math.max(0,readChapsList.findIndex(c=>c.num===goNum)):0;
   renderReadSidebar();
-  // Show first chapter
-  readIdx=0;
   renderReadChapter(readIdx);
   $('#readmode').classList.add('show');
   document.body.style.overflow='hidden';
