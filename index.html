@@ -2831,8 +2831,26 @@ async function fbInit(){
   fbApp=window.firebase.initializeApp(c,'nfapp'+(++fbAppN));
   fbAuth=window.firebase.auth(fbApp);fbDb=window.firebase.firestore(fbApp);
   try{fbDb.settings({ignoreUndefinedProperties:true,merge:true})}catch(e){}
-  fbAuth.onAuthStateChanged(u=>updateAcctChip(u));
+  fbAuth.onAuthStateChanged(u=>{updateAcctChip(u);if(u)fbMaybeAutoPull();});
   return{app:fbApp,auth:fbAuth,db:fbDb};}
+/* Auto-restore: first login on a new device (or emptied library) -> fetch cloud data automatically */
+let fbAutoPullDone=false;
+async function fbMaybeAutoPull(){
+  if(fbAutoPullDone)return;fbAutoPullDone=true;
+  try{
+    if(!fbAuth||!fbAuth.currentUser)return;
+    if((await dbAll('stories')).length>0)return;              // this device already has data — leave it alone
+    const d=await fbReadAll();
+    const total=fbTot(d);
+    if(!total)return;                                          // nothing on the cloud yet
+    for(const s of['stories','characters','lore','chapters'])await dbClear(s);
+    let n=0;
+    for(const k of['stories','characters','lore','chapters'])
+      for(const it of(d[k]||[])){if(it&&it.id){await dbPut(k,it);n++;}}
+    localStorage.setItem('nf_lastsync',Date.now());
+    renderLibrary();
+    toast(`ดึงข้อมูลจากคลาวด์อัตโนมัติ ${n} รายการ ⬇️`);
+  }catch(e){}}
 function updateAcctChip(u){const b=$('#btn-acct');
   if(b)b.innerHTML=(u&&u.email)?('👤 '+esc(String(u.email).split('@')[0].slice(0,16))):'👤 คลาวด์';}
 async function acctOpen(){
